@@ -1,6 +1,6 @@
 # Pitfalls Research
 
-**Project:** LeMastra  
+**Project:** LemAstra
 **Researched:** 2026-08-22  
 **Scope:** Greenfield React Native natal/transit workspace grounded in `astrology-skill`
 
@@ -90,7 +90,7 @@ The skill content is portable Markdown/JSON, but the optional calculator is Pyth
 
 Bundled references, schemas, prompt fragments, code, and report formats can drift independently. A report may become irreproducible if it records only prose and not the skill/calculator/model versions.
 
-**Avoidance:** Package the skill as a versioned, integrity-addressed content artifact. Run its validation suite in LeMastra CI, pin a version, record content hash and schema version on each analysis/report, and define an upgrade/migration process. Do not mutate published interpretations silently.
+**Avoidance:** Package the skill as a versioned, integrity-addressed content artifact. Run its validation suite in LemAstra CI, pin a version, record content hash and schema version on each analysis/report, and define an upgrade/migration process. Do not mutate published interpretations silently.
 
 ### 13. Designing future social aggregation into the v1 data model as accidental consent
 
@@ -115,4 +115,3 @@ An internal `public` flag is not enough for birth data and personal-event histor
 4. Integrate retrieval planning and evidence displays before conversational generation.
 5. Add reports only after chart, evidence, and interpretation artifacts are versioned and reproducible.
 6. Keep calendar animation and social aggregation outside v1, but preserve stable moment IDs and versioned chart artifacts so they remain possible.
-

@@ -1,13 +1,13 @@
 # Project Research Summary
 
-**Project:** LeMastra
+**Project:** LemAstra
 **Domain:** Cross-platform personal astrology workspace with evidence-grounded AI interpretation
 **Researched:** 2026-08-22
 **Confidence:** MEDIUM-HIGH
 
 ## Executive Summary
 
-LeMastra should be built as a private, chart-first astrology workspace, not as a generic astrology chatbot. The trustworthy product loop is: confirm birth place/time and uncertainty, calculate an immutable natal chart, inspect the wheel and structured evidence, calculate transits for a chosen moment, compile a repeatable `astrology-skill` reading plan, generate an evidence-grounded interpretation, and freeze the result into a reproducible report. Experts separate astronomical calculation, methodological weighting, and generated prose; LeMastra should expose that separation in both its architecture and UI.
+LemAstra should be built as a private, chart-first astrology workspace, not as a generic astrology chatbot. The trustworthy product loop is: confirm birth place/time and uncertainty, calculate an immutable natal chart, inspect the wheel and structured evidence, calculate transits for a chosen moment, compile a repeatable `astrology-skill` reading plan, generate an evidence-grounded interpretation, and freeze the result into a reproducible report. Experts separate astronomical calculation, methodological weighting, and generated prose; LemAstra should expose that separation in both its architecture and UI.
 
 The recommended implementation is an Expo SDK 57 / React Native 0.86 TypeScript client with a pure chart scene model rendered through React Native Skia, local SQLite persistence, and a small FastAPI/Python backend. The backend invokes the pinned `astrology-skill` calculator in an isolated process, validates every domain envelope, deterministically selects references and weights factors, then uses a server-side LLM adapter for schema-constrained chat and reports. Start local-first and mobile-first. Add Supabase Auth/Postgres/Storage when account sync is required rather than making cloud identity a prerequisite for first value.
 

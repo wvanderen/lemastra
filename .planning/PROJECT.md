@@ -1,8 +1,8 @@
-# LeMastra
+# LemAstra
 
 ## What This Is
 
-LeMastra is a cross-platform personal astrology workspace for curious beginners and serious enthusiasts. Users calculate and save natal charts, inspect an interactive chart wheel and structured astrological evidence, analyze transits for a chosen moment, converse with a grounded AI interpreter, and turn the resulting analysis into a polished exportable report.
+LemAstra is a cross-platform personal astrology workspace for curious beginners and serious enthusiasts. Users calculate and save natal charts, inspect an interactive chart wheel and structured astrological evidence, analyze transits for a chosen moment, converse with a grounded AI interpreter, and turn the resulting analysis into a polished exportable report.
 
 The product builds on `astrology-skill`, whose curated datasets and repeatable methodologies are intended to give language models a high-quality, consistent basis for readings. The longer vision connects personal timelines, animated sky movements, astrologers' observations, historical moments, and eventually aggregate social insight, but the first release establishes a trustworthy chart-first foundation.
 

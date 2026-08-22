@@ -1,13 +1,13 @@
 # Feature Landscape
 
 **Domain:** Cross-platform personal natal and transit astrology workspace with grounded AI interpretation
-**Project:** LeMastra
+**Project:** LemAstra
 **Researched:** 2026-08-22
 **Overall confidence:** HIGH for project-specific requirements; MEDIUM for ecosystem conventions
 
 ## Product Thesis
 
-LeMastra should make one loop excellent: **calculate → inspect → select evidence → interpret → converse → preserve**. The category already establishes accurate natal charts, saved profiles, chart wheels, transit comparison, placements/aspect lists, and interpretations as expected capabilities. LeMastra's differentiator is not adding another horoscope feed; it is making the interpretive chain inspectable and repeatable through `astrology-skill`.
+LemAstra should make one loop excellent: **calculate → inspect → select evidence → interpret → converse → preserve**. The category already establishes accurate natal charts, saved profiles, chart wheels, transit comparison, placements/aspect lists, and interpretations as expected capabilities. LemAstra's differentiator is not adding another horoscope feed; it is making the interpretive chain inspectable and repeatable through `astrology-skill`.
 
 The chart is the primary object. AI is a grounded interpreter of calculated evidence, not the source of chart facts and not an oracle. Generated prose should always remain linked to the chart artefact, selected moment, method, source modules, and material uncertainty that produced it.
 
@@ -53,7 +53,7 @@ Do not create separate “beginner astrology” and “advanced astrology” pro
 
 ## Differentiators
 
-Features that can make LeMastra meaningfully better rather than merely category-complete.
+Features that can make LemAstra meaningfully better rather than merely category-complete.
 
 | Feature | Value Proposition | Complexity | Recommendation |
 |---|---|---:|---|
@@ -172,7 +172,7 @@ A user can enter reliable birth data, inspect the resolved inputs, calculate and
 
 ## Confidence Notes and Gaps
 
-- **HIGH:** The feature recommendations derived from the explicit LeMastra scope and checked-in `astrology-skill` contracts.
+- **HIGH:** The feature recommendations derived from the explicit LemAstra scope and checked-in `astrology-skill` contracts.
 - **MEDIUM:** Competitor-feature conventions, because official product pages are marketing documentation and do not establish actual usability or user satisfaction.
 - A later product-design phase should run hands-on comparative testing of wheel interaction on small screens, report export flows, and beginner comprehension. Feature pages cannot validate these UX qualities.
 - A later privacy/security phase should determine precise storage, sync, deletion, AI-provider retention, and consent requirements before implementation.
