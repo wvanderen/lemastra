@@ -1,0 +1,1 @@
+{"content":"Official FastAPI docs recommend building a container from an official Python image and note the old prebuilt FastAPI image is deprecated; heavy work should move beyond in-process BackgroundTasks.","source":"web","provider":"websearch","confidence":"MEDIUM","fetched_at":"2026-08-22T23:35:31.904Z","ttl":86400000,"kind":"docs"}
