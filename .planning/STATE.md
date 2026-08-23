@@ -4,9 +4,9 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: 01
 current_phase_name: Trust and Release Boundary
-status: executing
+status: verifying
 stopped_at: Completed 01-02-PLAN.md
-last_updated: "2026-08-23T17:26:13.886Z"
+last_updated: "2026-08-23T17:36:04.778Z"
 last_activity: 2026-08-23
 last_activity_desc: Completed 01-03-PLAN.md (Swiss Ephemeris licensing posture, option-a)
 progress:
@@ -30,7 +30,7 @@ See: .planning/PROJECT.md (updated 2026-08-22)
 
 Phase: 01 (Trust and Release Boundary) — EXECUTING
 Plan: 7 of 7
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-08-23 — Completed 01-03-PLAN.md (Swiss Ephemeris licensing posture, option-a)
 
 Progress: [███░░░░░░░] 29%
@@ -58,6 +58,7 @@ Progress: [███░░░░░░░] 29%
 | Phase 01 P02 | 91 min | 3 tasks | 18 files |
 | Phase 01 P05 | 3 min | 3 tasks | 3 files |
 | Phase 01 P06 | 5 min | 3 tasks | 4 files |
+| Phase 01 P07 | 1min | 3 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -79,6 +80,8 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - [Phase ?]: [Phase 01]: RN-under-Vitest solved zero-dependency: rolldown prebundle (Hermes flow-strip) + jest-preset-parity module mocks + lazy facade/require.cache seeding; component tests use RNTL /pure with render-result queries and IS_REACT_ACT_ENVIRONMENT (01-02) — Avoided new packages (vite-plugin-react-native) and a jest switch; mirrors @react-native/jest-preset@0.86.2 verified read-only (01-02)
 - [Phase ?]: [Phase 01]: Expo typed-routes must be regenerated (dev-server boot) after route changes before tsc --noEmit — CI ordering note for 01-07 (01-02) — Stale .expo/types/router.d.ts rejects new routes under tsc; expo export alone no longer regenerates it (01-02)
 - [Phase ?]: [Phase 01]: GATE-06 secret gate = gitleaks (default rules + custom expo-public-secret-name rule firing on the NAME EXPO_PUBLIC_*KEY|SECRET|TOKEN|PASSWORD, not the value) with empty rationale-contract .gitleaksignore; bundle scan (gitleaks dir dist/) is the authoritative check since EXPO_PUBLIC_ inlining happens at bundle time (01-05) — Every future gitleaks finding gets a classification (secret-isolation-policy.md §1) and only publishable-identifier entries may be allowlisted, each with class + rationale comment lines — prevents allowlist abuse (T-01-11) and keeps scanner signal meaningful
+- [Phase ?]: [Phase 01]: Governance set (SE posture, data inventory, retention/deletion, secret isolation) approved by human/product-owner 2026-08-23, no named approver supplied — product approval explicitly does NOT replace qualified legal review, which remains scheduled before public/commercial beta (GATE-01/05) — Honest closure of GATE-01/05 requires recorded product approval without overstating legal status
+- [Phase ?]: [Phase 01]: GATE-06 CI = three mandatory jobs (vitest+tsc, gitleaks full-history, gitleaks bundle scan of expo web export), zero continue-on-error; bundle-scan covers web export only until platform-conditional code appears, then extends to ios/android exports — GATE-06 requires automated enforcement at commit/build time on every push, not review time
 
 ### Pending Todos
 
@@ -97,6 +100,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-23T17:26:08.148Z
+Last session: 2026-08-23T17:35:46.636Z
 Stopped at: Completed 01-02-PLAN.md
 Resume file: None

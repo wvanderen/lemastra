@@ -6,7 +6,7 @@ LemAstra advances through ten vertical slices: establish a lawful and private re
 
 ## Phases
 
-- [ ] **Phase 1: Trust and Release Boundary** - Users can understand the supported product, providers, and privacy posture before sensitive data leaves their device.
+- [x] **Phase 1: Trust and Release Boundary** - Users can understand the supported product, providers, and privacy posture before sensitive data leaves their device. (completed 2026-08-23)
 - [ ] **Phase 2: Trustworthy Natal Chart** - Users can resolve birth details and calculate a validated, provenance-rich natal chart.
 - [ ] **Phase 3: Private Local Workspace** - Users can save, revise, reopen, export, and delete charts without an account.
 - [ ] **Phase 4: Semantic Chart Exploration** - Users can explore the natal wheel and the same evidence through accessible beginner and technical views.
@@ -32,7 +32,7 @@ LemAstra advances through ten vertical slices: establish a lawful and private re
   3. The published iOS/Android privacy disclosures match the approved data and provider inventory.
   4. A security inspection confirms no calculation, model, database, or third-party service secret is present in either mobile client.
 
-**Plans:** 6/7 plans executed
+**Plans:** 7/7 plans complete
 
 Plans:
 **Wave 1**
@@ -52,7 +52,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 01-07-PLAN.md — CI gates (test/history/bundle scans) + phase approval records (GATE-01/05/06)
+- [x] 01-07-PLAN.md — CI gates (test/history/bundle scans) + phase approval records (GATE-01/05/06)
 
 **UI hint:** yes
 
@@ -209,7 +209,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Trust and Release Boundary | 6/7 | In Progress|  |
+| 1. Trust and Release Boundary | 7/7 | Complete   | 2026-08-23 |
 | 2. Trustworthy Natal Chart | 0/TBD | Not started | - |
 | 3. Private Local Workspace | 0/TBD | Not started | - |
 | 4. Semantic Chart Exploration | 0/TBD | Not started | - |
