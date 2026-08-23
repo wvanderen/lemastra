@@ -24,8 +24,8 @@ A user opens the LemAstra app and lands on the Privacy & Data disclosure surface
 
 ## Stack Touched in Phase 1
 
-- [ ] Project scaffold (Expo SDK 57 via create-expo-app default template, TypeScript strict, build, test runner) — plan 01-01
-- [ ] Routing — /privacy disclosure screen as the app's landing route — plan 01-02
+- [x] Project scaffold (Expo SDK 57 via create-expo-app default template, TypeScript strict, build, test runner) — plan 01-01
+- [ ] Routing — /privacy disclosure screen as the app's landing route — plan 01-02 (Expo Router present from the default template; the /privacy landing route itself lands in 01-02)
 - [ ] Data — registry JSON read + schema-validated at build/test time (database read/write deferred to Phase 3 by design) — plan 01-02
 - [ ] UI — disclosure screen rendering registry data with accessibility roles/labels — plan 01-02
 - [ ] Enforcement — CI (tests + secret scans) and documented local full run (`npx expo start`) — plans 01-01, 01-07
