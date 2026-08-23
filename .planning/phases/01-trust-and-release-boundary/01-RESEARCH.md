@@ -493,25 +493,30 @@ Providers implied by the v1 stack (STACK.md), with the disclosure-relevant chara
 | A6 | v1 launch collection posture predicted near-zero off-device (local-first core + ephemeral calculation) | Store Disclosure Mapping | Label answers change if later phases persist server-side; registry design absorbs this by tracking status per provider |
 | A7 | Swiss Ephemeris "whole software project" AGPL scope reading and the sufficiency of either license path require qualified review — research provides facts, not legal advice | SE Licensing | The core reason GATE-01 exists; mitigated by the human-verify checkpoint |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Which Swiss Ephemeris license path?**
    - What we know: both paths' terms, costs, and the server-calling-app clause (verified).
    - What's unclear: whether the project intends closed-source distribution (→ Professional License, CHF 700) or will open-source the calculation service (→ AGPL).
    - Recommendation: planner encodes a `checkpoint:human-verify` decision task presenting both; default recommendation = Professional License.
+   - **(RESOLVED)** Plan 01-03 Task 1 — `checkpoint:decision` presenting both paths to the user (default recommendation: Professional License).
 2. **Who approves GATE-01/05 artifacts, and is qualified legal review available?**
    - What we know: gates require "approved" status before public/commercial beta.
    - What's unclear: approver identity and whether counsel review happens in-phase or is scheduled.
    - Recommendation: user is the approver-of-record this phase; legal review task recorded as scheduled-before-beta.
+   - **(RESOLVED)** Plan 01-07 Task 2 — user is approver-of-record via the blocking governance-approval checkpoint; 01-07 Task 3 records qualified review as scheduled-before-beta.
 3. **Do Apple Developer Program and Google Play Console accounts exist?**
    - What we know: drafts don't need them; publication (Phase 10) does.
    - Recommendation: confirm during this phase's human checkpoint; not blocking.
+   - **(RESOLVED)** Plan 01-07 Task 2 step 5 — informational (non-blocking) account-existence check recorded during the approval checkpoint.
 4. **Privacy-policy hosting target?**
    - What we know: a public URL is mandatory for both stores.
    - Recommendation: static hosting (e.g., GitHub Pages) from repo content; decide in plan.
+   - **(RESOLVED)** Plan 01-04 Task 3 — explicit decision: GitHub Pages, published at Phase 10 store submission.
 5. **Sentry in v1 default posture?**
    - What we know: STACK.md makes it optional; disclosure answers differ if enabled.
    - Recommendation: registry marks Sentry "optional/planned" with scrubbing preconditions; activation decision deferred to a later phase with its own disclosure update.
+   - **(RESOLVED)** Plan 01-02 Task 1 — provider 6 (Sentry) entered as opt-in/post-beta in the provider registry; activation deferred with its own disclosure update.
 
 ## Sources
 
