@@ -29,7 +29,16 @@ LemAstra advances through ten vertical slices: establish a lawful and private re
   2. The supported release presents an approved Swiss Ephemeris licensing and distribution posture.
   3. The published iOS/Android privacy disclosures match the approved data and provider inventory.
   4. A security inspection confirms no calculation, model, database, or third-party service secret is present in either mobile client.
-**Plans:** TBD
+**Plans:** 7 plans
+
+Plans:
+- [ ] 01-01-PLAN.md — Expo SDK 57 walking skeleton scaffold + test infrastructure (package legitimacy checkpoint)
+- [ ] 01-02-PLAN.md — Provider registry (zod-validated) + Privacy & Data disclosure screen (PRIV-07 vertical slice)
+- [ ] 01-03-PLAN.md — Swiss Ephemeris licensing posture + license-path decision checkpoint (GATE-01)
+- [ ] 01-04-PLAN.md — Data/provider inventory, retention/deletion policy, privacy-policy content (GATE-05)
+- [ ] 01-05-PLAN.md — Secret-isolation policy + gitleaks config + local scans incl. exported bundle (GATE-06)
+- [ ] 01-06-PLAN.md — Apple label worksheet + Play Data-safety CSV + governance/consistency tests (GATE-05/01)
+- [ ] 01-07-PLAN.md — CI gates (test/history/bundle scans) + phase approval records (GATE-01/05/06)
 **UI hint:** yes
 
 ### Phase 2: Trustworthy Natal Chart
@@ -158,7 +167,7 @@ LemAstra advances through ten vertical slices: establish a lawful and private re
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Trust and Release Boundary | 0/TBD | Not started | - |
+| 1. Trust and Release Boundary | 0/7 | Planned | - |
 | 2. Trustworthy Natal Chart | 0/TBD | Not started | - |
 | 3. Private Local Workspace | 0/TBD | Not started | - |
 | 4. Semantic Chart Exploration | 0/TBD | Not started | - |
