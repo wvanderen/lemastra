@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 1,
+  "providers": [
+    {
+      "id": "lemastra-calculation",
+      "name": "LemAstra Calculation Service",
+      "status": "planned",
+      "introducedInPhase": 2,
+      "dataCategories": [
+        "birth-date",
+        "birth-time",
+        "birthplace-query",
+        "birthplace-coordinates",
+        "iana-timezone"
+      ],
+      "transmissionTrigger": "User-initiated chart calculation (Phase 2)",
+      "retention": "Ephemeral, compute-and-discard — the request payload (birth data, place query, coordinates, timezone) is discarded immediately after the response is returned; charts persist device-side only in v1, never server-side (retention-deletion-policy.md §1)",
+      "purpose": "App functionality",
+      "appleLabelMapping": "Other User Content",
+      "playDataTypes": [
+        "Personal info → Other info",
+        "Location → Precise location"
+      ]
+    },
+    {
+      "id": "google-geocoding-timezone",
+      "name": "Google Geocoding + Time Zone APIs (server-side)",
+      "status": "planned",
+      "introducedInPhase": 2,
+      "dataCategories": [
+        "place-query-text",
+        "birthplace-coordinates",
+        "birth-timestamp"
+      ],
+      "transmissionTrigger": "User-initiated birthplace search (Phase 2)",
+      "retention": "Ephemeral server-proxy handling — discarded after response (retention-deletion-policy.md §1); Google request-data terms re-verified when Phase 2 wires it (research A4)",
+      "purpose": "App functionality",
+      "appleLabelMapping": "Precise Location / Other User Content",
+      "playDataTypes": [
+        "Location → Precise location",
+        "Personal info → Other info"
+      ],
+      "notes": "Re-verify Google request-data terms (caching/attribution constraints) when the flow is wired (research A4)."
+    },
+    {
+      "id": "hosting-platform",
+      "name": "LemAstra Hosting Provider (server logs)",
+      "status": "planned",
+      "introducedInPhase": 2,
+      "dataCategories": ["request-metadata"],
+      "transmissionTrigger": "Every API request the calculation service handles (Phase 2)",
+      "retention": "Server logs bounded to 14 days, access-restricted to the operator; redaction rule excludes birth data, chart payloads, user questions, and generated prose from logged content (retention-deletion-policy.md §2)",
+      "purpose": "Infrastructure",
+      "appleLabelMapping": "Other Data",
+      "playDataTypes": ["App info and performance"]
+    },
+    {
+      "id": "openai-responses",
+      "name": "OpenAI Responses API (managed connection)",
+      "status": "planned",
+      "introducedInPhase": 7,
+      "dataCategories": [
+        "bounded-chart-evidence",
+        "user-question",
+        "conversation-context"
+      ],
+      "transmissionTrigger": "User-initiated interpretation or chat message (Phase 7)",
+      "retention": "Placeholder — not authorized to activate until provider retention controls are re-verified; research A2 records ≈30-day default application-state retention unless store:false/zero-data-retention (retention-deletion-policy.md §3)",
+      "purpose": "App functionality",
+      "appleLabelMapping": "Other User Content",
+      "playDataTypes": [
+        "Other user-generated content",
+        "Personal info → Other info"
+      ],
+      "notes": "Retention specifics re-verified at Phase 7 before this provider flips to active (research A2)."
+    },
+    {
+      "id": "supabase",
+      "name": "Supabase (auth/sync infrastructure)",
+      "status": "planned",
+      "introducedInPhase": null,
+      "dataCategories": [
+        "account-identifier",
+        "synced-artifacts"
+      ],
+      "transmissionTrigger": "None in v1 (planned: account sign-in and sync, post-v1)",
+      "retention": "Not applicable in v1 — activation ships with its own retention decisions and updates this registry (retention-deletion-policy.md §7)",
+      "purpose": "App functionality (v2 accounts/sync)",
+      "appleLabelMapping": "Identifiers / Other User Content",
+      "playDataTypes": ["Personal info → Other info"],
+      "notes": "Post-v1 account/sync provider; publishable key only in the client when enabled — never a service-role key."
+    },
+    {
+      "id": "sentry",
+      "name": "Sentry diagnostics (optional)",
+      "status": "planned",
+      "introducedInPhase": null,
+      "dataCategories": ["crash-diagnostics"],
+      "transmissionTrigger": "None by default; opt-in crash/diagnostic report if activated post-beta",
+      "retention": "Excluded by default — no telemetry ships while the default posture holds; activation is opt-in, post-beta, and scrubbing-gated via beforeSend (retention-deletion-policy.md §4)",
+      "purpose": "Analytics / Diagnostics (optional)",
+      "appleLabelMapping": "Diagnostics",
+      "playDataTypes": ["App info and performance"],
+      "notes": "Opt-in, post-beta; scrubbing preconditions per retention-deletion-policy.md §4 (birth data, chart payloads, questions, and prose are never transmitted)."
+    }
+  ]
+}
