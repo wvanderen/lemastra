@@ -1,0 +1,19 @@
+# LemAstra gitleaks fingerprint allowlist (GATE-06).
+#
+# CONTRACT — binding for every entry added to this file
+# (authority: docs/governance/secret-isolation-policy.md §3):
+#
+#   1. Every fingerprint line MUST be preceded by two comment lines:
+#        # class: publishable-identifier   <- the only class that may be allowlisted
+#        # rationale: <what the identifier is and why it is safe to ship>
+#      (e.g. Supabase publishable key with RLS-enforced authorization, Sentry DSN,
+#      API endpoint URL — see the policy's classification table).
+#   2. Entries claiming any other class (secret, user secret) are INVALID and
+#      must be rejected in review — that is allowlist abuse (threat T-01-11).
+#   3. An unannotated fingerprint is a gate violation, not a style issue:
+#      silent ignores destroy the scanner's signal.
+#
+# There are currently ZERO fingerprint entries — no publishable identifier is
+# in the client yet (Supabase/Sentry arrive in later phases). When the first
+# real identifier is added, append its fingerprint below the required
+# class + rationale comment pair.

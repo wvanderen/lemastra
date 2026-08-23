@@ -1,0 +1,21 @@
+# LemAstra gitleaks configuration (GATE-06).
+#
+# Extends the gitleaks default ruleset with one project-specific rule.
+# Governed by docs/governance/secret-isolation-policy.md — the classification
+# authority for findings and allowlist entries. The same file drives local
+# scans and the CI gate wired in plan 01-07.
+
+[extend]
+useDefault = true
+
+# Pitfall 4 (01-RESEARCH.md): EXPO_PUBLIC_ variables are inlined in PLAIN TEXT
+# into the shipped JavaScript bundle (docs.expo.dev/guides/environment-variables),
+# so secret-suggestive EXPO_PUBLIC_ *names* are forbidden outright — the name is
+# the violation, regardless of the value's entropy.
+[[rules]]
+id = "expo-public-secret-name"
+description = "Secret-suggestive EXPO_PUBLIC_ variable name: EXPO_PUBLIC_ vars are inlined plain-text into the shipped bundle, so names ending in KEY/SECRET/TOKEN/PASSWORD are forbidden"
+regex = '''(EXPO_PUBLIC_[A-Z0-9_]*(?:KEY|SECRET|TOKEN|PASSWORD))'''
+secretGroup = 1
+keywords = ["EXPO_PUBLIC"]
+path = '''(?i)(\.(ts|tsx|js|jsx|json)$|(^|/)\.env($|\.))'''
