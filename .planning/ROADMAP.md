@@ -32,7 +32,7 @@ LemAstra advances through ten vertical slices: establish a lawful and private re
   3. The published iOS/Android privacy disclosures match the approved data and provider inventory.
   4. A security inspection confirms no calculation, model, database, or third-party service secret is present in either mobile client.
 
-**Plans:** 3/7 plans executed
+**Plans:** 4/7 plans executed
 
 Plans:
 **Wave 1**
@@ -43,7 +43,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 01-02-PLAN.md — Provider registry (zod-validated) + Privacy & Data disclosure screen (PRIV-07 vertical slice)
+- [x] 01-02-PLAN.md — Provider registry (zod-validated) + Privacy & Data disclosure screen (PRIV-07 vertical slice)
 - [ ] 01-05-PLAN.md — Secret-isolation policy + gitleaks config + local scans incl. exported bundle (GATE-06)
 
 **Wave 3** *(blocked on Wave 2 completion)*
@@ -209,7 +209,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Trust and Release Boundary | 3/7 | In Progress|  |
+| 1. Trust and Release Boundary | 4/7 | In Progress|  |
 | 2. Trustworthy Natal Chart | 0/TBD | Not started | - |
 | 3. Private Local Workspace | 0/TBD | Not started | - |
 | 4. Semantic Chart Exploration | 0/TBD | Not started | - |
