@@ -97,7 +97,7 @@
 
 ### Release Gates
 
-- [ ] **GATE-01**: The project records an approved Swiss Ephemeris licensing and distribution posture before public or commercial beta.
+- [x] **GATE-01**: The project records an approved Swiss Ephemeris licensing and distribution posture before public or commercial beta.
 - [ ] **GATE-02**: Golden natal and transit fixtures cover supported calculations, civil-time ambiguity, unknown birth time, and representative high-latitude behavior.
 - [ ] **GATE-03**: Cross-contract tests verify raw input through chart, reading plan, interpretation, and report artifacts.
 - [ ] **GATE-04**: Evaluation suites meet defined thresholds for evidence fidelity, methodology adherence, uncertainty, safety, and beginner/technical consistency.
@@ -225,7 +225,7 @@ Every v1 requirement maps to exactly one roadmap phase.
 | A11Y-01 | Phase 4 | Pending |
 | A11Y-02 | Phase 4 | Pending |
 | A11Y-03 | Phase 4 | Pending |
-| GATE-01 | Phase 1 | Pending |
+| GATE-01 | Phase 1 | Complete |
 | GATE-02 | Phase 2 | Pending |
 | GATE-03 | Phase 10 | Pending |
 | GATE-04 | Phase 7 | Pending |
@@ -233,6 +233,7 @@ Every v1 requirement maps to exactly one roadmap phase.
 | GATE-06 | Phase 1 | Pending |
 
 **Coverage:**
+
 - v1 requirements: 72 total
 - Mapped to phases: 72
 - Unmapped: 0 ✓
