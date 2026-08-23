@@ -86,8 +86,8 @@ None yet.
 
 ### Blockers/Concerns
 
-- [Phase 1]: Swiss Ephemeris licensing posture RECORDED 2026-08-23 (Professional License option-a, human-selected) in docs/governance/swiss-ephemeris-posture.md; contract execution (CHF 700) and qualified approval still required before public or commercial beta (GATE-01).
-- [Phase 1]: Provider inventory, retention/deletion policy, and Apple/Google disclosures must be settled before release.
+- [Phase 1 — resolved-to-scheduled]: Swiss Ephemeris posture APPROVED 2026-08-23 by human/product-owner (Professional License option-a) in docs/governance/swiss-ephemeris-posture.md; product approval does NOT replace qualified review — contract execution (CHF 700, O1) and qualified legal review remain scheduled before public or commercial beta (GATE-01).
+- [Phase 1 — resolved]: Data inventory, retention/deletion policy, and secret-isolation policy approved 2026-08-23 by human/product-owner (plan 01-07 approval checkpoint); Apple/Google store disclosures drafted and consistency-tested (01-06) — store publication deferred to Phase 10.
 
 ## Deferred Items
 

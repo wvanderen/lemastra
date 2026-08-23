@@ -65,4 +65,4 @@ enters the provider registry (plan 01-02).
 
 ---
 
-*Approval: pending — to be countersigned in plan 01-07 (phase close-out approval checkpoint).*
+*Approved by human/product-owner (LemAstra project owner; no named individual supplied) on 2026-08-23 — product approver-of-record; qualified review scheduled before public/commercial beta where applicable. Countersigned in plan 01-07 (phase close-out approval checkpoint).*

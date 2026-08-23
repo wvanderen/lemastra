@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|-------|
 | Requirement | GATE-01 |
-| Status | Recorded — qualified review scheduled before public/commercial beta |
+| Status | Product-approved 2026-08-23 — qualified review scheduled before public/commercial beta |
 | Decision | **Professional License (option-a)** — selected by the LemAstra project owner, 2026-08-23 |
 | Sources | astro.com/swisseph/swephinfo_e.htm · secont_e.pdf (June 2026 edition) · pypi.org/pypi/pyswisseph · /Users/eggfam/dev/astrology-skill (repo inspection) — all verified 2026-08-22 (01-RESEARCH.md) |
 
@@ -96,8 +96,10 @@ client-calls-server topology in scope regardless (§2).
 | Decision date | 2026-08-23 |
 | Decision vehicle | Plan 01-03 Task 1 `checkpoint:decision` (phase 01-trust-and-release-boundary) |
 | Alternative considered | AGPL-3.0 whole-project path (option-b) — rejected: forecloses closed-source distribution (§1) |
-| Qualified review status | **Scheduled before public/commercial beta** (GATE-01 approval trigger point) — licensing conclusions remain subject to qualified review |
-| Product approver | Countersignature to be recorded in plan 01-07's approval checkpoint |
+| Qualified review status | **Scheduled before public/commercial beta** (GATE-01 approval trigger point) — licensing conclusions remain subject to qualified review; product approval does not constitute or replace qualified review |
+| Product approval | **Approved** — human/product-owner approval (LemAstra project owner; no named individual supplied), 2026-08-23 |
+| Product approval scope | Chosen path (Professional License, option-a, §1) and distribution model (§2: closed-source mobile clients; Swiss Ephemeris confined to the server-side FastAPI calculation container) |
+| Product approval vehicle | Plan 01-07 Task 2 `checkpoint:human-verify` governance-approval checkpoint (phase 01-trust-and-release-boundary) |
 | Purchase status | Contract not yet executed — O1 (CHF 700 license purchase + countersigned contract record) must complete before first SE distribution or public-service activation |
 
 ---

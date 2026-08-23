@@ -80,8 +80,8 @@ retention/deletion policy first (retention-deletion-policy.md §7).
 
 | Field | Value |
 |-------|-------|
-| Approval status | Pending — this inventory requires human approval before release (GATE-05) |
-| Countersigned | To be recorded in plan 01-07's governance-approval checkpoint |
+| Approval status | **Approved** by human/product-owner (LemAstra project owner; no named individual supplied) on 2026-08-23 — product approver-of-record (GATE-05); qualified review scheduled before public/commercial beta where applicable |
+| Countersigned | Plan 01-07 Task 2 governance-approval checkpoint (phase 01-trust-and-release-boundary), 2026-08-23 |
 
 ---
 
