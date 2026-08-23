@@ -32,7 +32,7 @@ LemAstra advances through ten vertical slices: establish a lawful and private re
   3. The published iOS/Android privacy disclosures match the approved data and provider inventory.
   4. A security inspection confirms no calculation, model, database, or third-party service secret is present in either mobile client.
 
-**Plans:** 5/7 plans executed
+**Plans:** 6/7 plans executed
 
 Plans:
 **Wave 1**
@@ -48,7 +48,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 01-06-PLAN.md — Apple label worksheet + Play Data-safety CSV + governance/consistency tests (GATE-05/01)
+- [x] 01-06-PLAN.md — Apple label worksheet + Play Data-safety CSV + governance/consistency tests (GATE-05/01)
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
@@ -209,7 +209,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Trust and Release Boundary | 5/7 | In Progress|  |
+| 1. Trust and Release Boundary | 6/7 | In Progress|  |
 | 2. Trustworthy Natal Chart | 0/TBD | Not started | - |
 | 3. Private Local Workspace | 0/TBD | Not started | - |
 | 4. Semantic Chart Exploration | 0/TBD | Not started | - |
