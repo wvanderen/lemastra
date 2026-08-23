@@ -155,16 +155,88 @@ The v1 milestone is releasable when every v1 requirement is mapped to one roadma
 
 ## Traceability
 
-Populated during roadmap creation. Every v1 requirement must map to exactly one phase.
+Every v1 requirement maps to exactly one roadmap phase.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
+| BIRTH-01 | Phase 2 | Pending |
+| BIRTH-02 | Phase 2 | Pending |
+| BIRTH-03 | Phase 2 | Pending |
+| BIRTH-04 | Phase 2 | Pending |
+| BIRTH-05 | Phase 2 | Pending |
+| CALC-01 | Phase 2 | Pending |
+| CALC-02 | Phase 2 | Pending |
+| CALC-03 | Phase 2 | Pending |
+| CALC-04 | Phase 2 | Pending |
+| WORK-01 | Phase 3 | Pending |
+| WORK-02 | Phase 3 | Pending |
+| WORK-03 | Phase 3 | Pending |
+| WORK-04 | Phase 3 | Pending |
+| WORK-05 | Phase 3 | Pending |
+| WORK-06 | Phase 3 | Pending |
+| WORK-07 | Phase 3 | Pending |
+| WHEEL-01 | Phase 4 | Pending |
+| WHEEL-02 | Phase 4 | Pending |
+| WHEEL-03 | Phase 4 | Pending |
+| WHEEL-04 | Phase 4 | Pending |
+| WHEEL-05 | Phase 4 | Pending |
+| EVID-01 | Phase 4 | Pending |
+| EVID-02 | Phase 4 | Pending |
+| TRAN-01 | Phase 5 | Pending |
+| TRAN-02 | Phase 5 | Pending |
+| TRAN-03 | Phase 5 | Pending |
+| TRAN-04 | Phase 5 | Pending |
+| TRAN-05 | Phase 5 | Pending |
+| TRAN-06 | Phase 5 | Pending |
+| METH-01 | Phase 6 | Pending |
+| METH-02 | Phase 6 | Pending |
+| METH-03 | Phase 6 | Pending |
+| METH-04 | Phase 6 | Pending |
+| METH-05 | Phase 6 | Pending |
+| METH-06 | Phase 6 | Pending |
+| METH-07 | Phase 6 | Pending |
+| LLM-01 | Phase 7 | Pending |
+| LLM-02 | Phase 7 | Pending |
+| LLM-03 | Phase 7 | Pending |
+| LLM-04 | Phase 7 | Pending |
+| LLM-05 | Phase 7 | Pending |
+| CHAT-01 | Phase 8 | Pending |
+| CHAT-02 | Phase 8 | Pending |
+| CHAT-03 | Phase 8 | Pending |
+| CHAT-04 | Phase 8 | Pending |
+| SAFE-01 | Phase 7 | Pending |
+| SAFE-02 | Phase 7 | Pending |
+| SAFE-03 | Phase 7 | Pending |
+| REPT-01 | Phase 9 | Pending |
+| REPT-02 | Phase 9 | Pending |
+| REPT-03 | Phase 9 | Pending |
+| REPT-04 | Phase 9 | Pending |
+| REPT-05 | Phase 9 | Pending |
+| REPT-06 | Phase 9 | Pending |
+| PRIV-01 | Phase 3 | Pending |
+| PRIV-02 | Phase 7 | Pending |
+| PRIV-03 | Phase 3 | Pending |
+| PRIV-04 | Phase 3 | Pending |
+| PRIV-05 | Phase 3 | Pending |
+| PRIV-06 | Phase 3 | Pending |
+| PRIV-07 | Phase 1 | Pending |
+| PLAT-01 | Phase 10 | Pending |
+| PLAT-02 | Phase 10 | Pending |
+| A11Y-01 | Phase 4 | Pending |
+| A11Y-02 | Phase 4 | Pending |
+| A11Y-03 | Phase 4 | Pending |
+| GATE-01 | Phase 1 | Pending |
+| GATE-02 | Phase 2 | Pending |
+| GATE-03 | Phase 10 | Pending |
+| GATE-04 | Phase 7 | Pending |
+| GATE-05 | Phase 1 | Pending |
+| GATE-06 | Phase 1 | Pending |
 
 **Coverage:**
-- v1 requirements: 69 total
-- Mapped to phases: 0
-- Unmapped: 69 ⚠️
+- v1 requirements: 72 total
+- Mapped to phases: 72
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-08-22*
-*Last updated: 2026-08-22 after initial definition*
+*Last updated: 2026-08-22 after roadmap creation*
