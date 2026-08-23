@@ -32,14 +32,14 @@ LemAstra advances through ten vertical slices: establish a lawful and private re
   3. The published iOS/Android privacy disclosures match the approved data and provider inventory.
   4. A security inspection confirms no calculation, model, database, or third-party service secret is present in either mobile client.
 
-**Plans:** 2/7 plans executed
+**Plans:** 3/7 plans executed
 
 Plans:
 **Wave 1**
 
 - [x] 01-01-PLAN.md — Expo SDK 57 walking skeleton scaffold + test infrastructure (package legitimacy checkpoint)
 - [x] 01-03-PLAN.md — Swiss Ephemeris licensing posture + license-path decision checkpoint (GATE-01)
-- [ ] 01-04-PLAN.md — Data/provider inventory, retention/deletion policy, privacy-policy content (GATE-05)
+- [x] 01-04-PLAN.md — Data/provider inventory, retention/deletion policy, privacy-policy content (GATE-05)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -209,7 +209,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Trust and Release Boundary | 2/7 | In Progress|  |
+| 1. Trust and Release Boundary | 3/7 | In Progress|  |
 | 2. Trustworthy Natal Chart | 0/TBD | Not started | - |
 | 3. Private Local Workspace | 0/TBD | Not started | - |
 | 4. Semantic Chart Exploration | 0/TBD | Not started | - |

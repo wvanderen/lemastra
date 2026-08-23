@@ -5,16 +5,16 @@ milestone_name: milestone
 current_phase: 01
 current_phase_name: Trust and Release Boundary
 status: executing
-stopped_at: Completed 01-03-PLAN.md
-last_updated: "2026-08-23T15:14:25.777Z"
+stopped_at: Completed 01-04-PLAN.md
+last_updated: "2026-08-23T15:19:08.305Z"
 last_activity: 2026-08-23
 last_activity_desc: Completed 01-03-PLAN.md (Swiss Ephemeris licensing posture, option-a)
 progress:
   total_phases: 10
   completed_phases: 0
   total_plans: 7
-  completed_plans: 2
-  percent: 29
+  completed_plans: 3
+  percent: 0
 ---
 
 # Project State
@@ -29,8 +29,8 @@ See: .planning/PROJECT.md (updated 2026-08-22)
 ## Current Position
 
 Phase: 01 (Trust and Release Boundary) — EXECUTING
-Plan: 3 of 7
-Status: Executing Phase 01 — wave 1 continues with 01-04 (01-02 is Wave 2, blocked until Wave 1 completes)
+Plan: 4 of 7
+Status: Ready to execute
 Last activity: 2026-08-23 — Completed 01-03-PLAN.md (Swiss Ephemeris licensing posture, option-a)
 
 Progress: [███░░░░░░░] 29%
@@ -54,6 +54,8 @@ Progress: [███░░░░░░░] 29%
 - Last 5 plans: 01-01 (8 min), 01-03 (4 min)
 - Trend: —
 
+| Phase 01 P04 | 2min | 3 tasks | 3 files |
+
 ## Accumulated Context
 
 ### Decisions
@@ -67,6 +69,9 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - [Phase 01]: RNTL v14 peer is test-renderer (replaces deprecated react-test-renderer); v14 ships no Vitest guide, so vitest.config.ts follows Vitest 4 official config
 - [Phase 01]: .gitignore uses .env* blanket ignore with !.env.example negation — non-secret template stays tracked, no real env file can enter history
 - [Phase 01]: Swiss Ephemeris license path = Professional License (option-a: CHF 700 one-time, 99-year, unlimited projects), human-selected 2026-08-23 — posture recorded in docs/governance/swiss-ephemeris-posture.md; qualified review scheduled before public/commercial beta per GATE-01
+- [Phase ?]: [Phase 01] Retention defaults fixed before any server exists: calculation/geocoding requests ephemeral compute-and-discard; charts device-side only in v1; hosting logs 14 days, access-restricted, redaction excludes birth data/chart payloads/questions/prose
+- [Phase ?]: [Phase 01] Privacy-policy hosting = GitHub Pages from repo content, published before Phase 10 store submission; policy content derives from data-inventory + retention-deletion-policy and must update before any handling change ships (01-04)
+- [Phase ?]: [Phase 01] Provider vocabulary locked to six registry ids (lemastra-calculation, google-geocoding-timezone, hosting-platform, openai-responses, supabase, sentry); inventory ids must equal registry ids, enforced by plan 01-06 tests
 
 ### Pending Todos
 
@@ -85,6 +90,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-23T15:13:02.654Z
-Stopped at: Completed 01-03-PLAN.md
+Last session: 2026-08-23T15:19:02.542Z
+Stopped at: Completed 01-04-PLAN.md
 Resume file: None
