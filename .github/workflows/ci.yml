@@ -1,0 +1,130 @@
+# LemAstra CI — GATE-06 automated enforcement (plan 01-07).
+#
+# Three gates, all exit-nonzero-on-findings; no step may swallow failures.
+#   test        — vitest suite + strict tsc over the installed toolchain
+#   gitleaks    — full-git-history secret scan (repo .gitleaks.toml rules)
+#   bundle-scan — exported web-bundle secret scan (authoritative GATE-06
+#                 check: EXPO_PUBLIC_ inlining happens at bundle time)
+#
+# Governance: docs/governance/secret-isolation-policy.md (classification
+# authority). Scanner config: .gitleaks.toml (default rules + custom
+# expo-public-secret-name rule) — used by every gitleaks invocation below.
+
+name: CI
+
+on: [push, pull_request]
+
+# Least-privilege token: every job only reads repo contents.
+permissions:
+  contents: read
+
+env:
+  # Pinned to the version locally proven in plan 01-05. Update deliberately.
+  GITLEAKS_VERSION: "8.30.1"
+  EXPO_NO_TELEMETRY: "1"
+
+jobs:
+  test:
+    name: Tests + strict types (vitest, tsc)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      # CI-ordering (01-01/01-02 summaries): expo-env.d.ts and
+      # .expo/types/router.d.ts (typed routes) are gitignored generated
+      # artifacts — a fresh clone has neither, so bare `tsc --noEmit` fails
+      # on the template CSS imports, and stale typed routes break href
+      # literals. `npx expo export` does NOT regenerate them (verified in
+      # 01-02); a headless dev-server boot does. Boot it, wait for the
+      # files, stop it, then typecheck.
+      - name: Generate Expo types (expo-env.d.ts + typed routes)
+        run: |
+          CI=1 npx expo start --port 8091 > expo-dev.log 2>&1 &
+          DEV_PID=$!
+          for i in $(seq 1 60); do
+            if [ -s expo-env.d.ts ] && [ -s .expo/types/router.d.ts ]; then
+              break
+            fi
+            sleep 2
+          done
+          kill "$DEV_PID" 2>/dev/null || true
+          pkill -f "expo start --port 8091" 2>/dev/null || true
+          if [ ! -s expo-env.d.ts ] || [ ! -s .expo/types/router.d.ts ]; then
+            echo "::error::Expo type generation timed out — dev-server log follows"
+            cat expo-dev.log
+            exit 1
+          fi
+      - run: npx tsc --noEmit
+      - run: npx vitest run
+
+  gitleaks:
+    name: Full-history secret scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # full history — committed-secret detection (T-01-10)
+      # gitleaks-action picks up the repo's .gitleaks.toml automatically
+      # (default rules + expo-public-secret-name), so the custom rule applies
+      # in CI exactly as it does locally.
+      #
+      # LICENSE FALLBACK: gitleaks-action requires a license key for some
+      # repository types (private/org repos — see the gitleaks-action
+      # README). If a run fails reporting a license requirement, replace the
+      # step below with a release-binary invocation (same gate semantics —
+      # exit 1 on findings either way):
+      #   - name: gitleaks (release binary fallback)
+      #     run: |
+      #       curl -sSL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" -o /tmp/gitleaks.tar.gz
+      #       tar -xzf /tmp/gitleaks.tar.gz -C /tmp gitleaks
+      #       sudo mv /tmp/gitleaks /usr/local/bin/gitleaks
+      #       gitleaks git . --redact --config .gitleaks.toml
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  bundle-scan:
+    name: Exported-bundle secret scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx expo export --platform web
+      # CI runners have no brew — install the pinned release binary instead,
+      # checksum-verified against the release's own checksums file (T-01-16).
+      - name: Install gitleaks (pinned, checksum-verified)
+        run: |
+          curl -sSL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" -o "/tmp/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          curl -sSL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_checksums.txt" -o /tmp/gitleaks-checksums.txt
+          (cd /tmp && grep 'linux_x64\.tar\.gz$' gitleaks-checksums.txt | sha256sum -c -)
+          tar -xzf "/tmp/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" -C /tmp gitleaks
+          sudo mv /tmp/gitleaks /usr/local/bin/gitleaks
+          gitleaks version
+      # Authoritative GATE-06 check: EXPO_PUBLIC_ values are inlined
+      # plain-text at bundle time, so the exported bundle is what must scan
+      # clean. --config pins the repo .gitleaks.toml. Exit 1 on findings
+      # fails the job.
+      #
+      # Coverage note (accepted for greenfield Phase 1): this scans the web
+      # export only. Mobile-bundle coverage is approximated via shared .env
+      # inlining plus the history/working-tree scans. When platform-
+      # conditional code first appears, extend with `expo export --platform
+      # ios` and `--platform android` outputs.
+      - name: Scan exported bundle
+        run: gitleaks dir dist/ --config .gitleaks.toml --report-path gitleaks-bundle.json --report-format json --redact
+      # Diagnostics only (uploaded when the gate fails): the JSON report
+      # shows exactly what leaked, without re-running the job.
+      - name: Upload scan report (on failure)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gitleaks-bundle-report
+          path: gitleaks-bundle.json
