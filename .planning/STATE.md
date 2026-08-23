@@ -6,14 +6,14 @@ current_phase: 01
 current_phase_name: Trust and Release Boundary
 status: executing
 stopped_at: Completed 01-02-PLAN.md
-last_updated: "2026-08-23T17:14:37.065Z"
+last_updated: "2026-08-23T17:18:49.464Z"
 last_activity: 2026-08-23
 last_activity_desc: Completed 01-03-PLAN.md (Swiss Ephemeris licensing posture, option-a)
 progress:
   total_phases: 10
   completed_phases: 0
   total_plans: 7
-  completed_plans: 4
+  completed_plans: 5
   percent: 0
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-08-22)
 ## Current Position
 
 Phase: 01 (Trust and Release Boundary) — EXECUTING
-Plan: 5 of 7
+Plan: 6 of 7
 Status: Ready to execute
 Last activity: 2026-08-23 — Completed 01-03-PLAN.md (Swiss Ephemeris licensing posture, option-a)
 
@@ -56,6 +56,7 @@ Progress: [███░░░░░░░] 29%
 
 | Phase 01 P04 | 2min | 3 tasks | 3 files |
 | Phase 01 P02 | 91 min | 3 tasks | 18 files |
+| Phase 01 P05 | 3 min | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -76,6 +77,7 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - [Phase ?]: [Phase 01]: Provider registry is the single disclosure source (six canonical ids, retention strings reference policy section numbers) — rendered by the /privacy landing screen; registry-driven rendering is test-enforced (01-02) — Prevents UI/governance drift per T-01-03; plan 01-06 consistency tests consume the same registry (01-02)
 - [Phase ?]: [Phase 01]: RN-under-Vitest solved zero-dependency: rolldown prebundle (Hermes flow-strip) + jest-preset-parity module mocks + lazy facade/require.cache seeding; component tests use RNTL /pure with render-result queries and IS_REACT_ACT_ENVIRONMENT (01-02) — Avoided new packages (vite-plugin-react-native) and a jest switch; mirrors @react-native/jest-preset@0.86.2 verified read-only (01-02)
 - [Phase ?]: [Phase 01]: Expo typed-routes must be regenerated (dev-server boot) after route changes before tsc --noEmit — CI ordering note for 01-07 (01-02) — Stale .expo/types/router.d.ts rejects new routes under tsc; expo export alone no longer regenerates it (01-02)
+- [Phase ?]: [Phase 01]: GATE-06 secret gate = gitleaks (default rules + custom expo-public-secret-name rule firing on the NAME EXPO_PUBLIC_*KEY|SECRET|TOKEN|PASSWORD, not the value) with empty rationale-contract .gitleaksignore; bundle scan (gitleaks dir dist/) is the authoritative check since EXPO_PUBLIC_ inlining happens at bundle time (01-05) — Every future gitleaks finding gets a classification (secret-isolation-policy.md §1) and only publishable-identifier entries may be allowlisted, each with class + rationale comment lines — prevents allowlist abuse (T-01-11) and keeps scanner signal meaningful
 
 ### Pending Todos
 
@@ -94,6 +96,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-23T17:14:37.060Z
+Last session: 2026-08-23T17:18:33.795Z
 Stopped at: Completed 01-02-PLAN.md
 Resume file: None

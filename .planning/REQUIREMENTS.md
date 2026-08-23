@@ -102,7 +102,7 @@
 - [ ] **GATE-03**: Cross-contract tests verify raw input through chart, reading plan, interpretation, and report artifacts.
 - [ ] **GATE-04**: Evaluation suites meet defined thresholds for evidence fidelity, methodology adherence, uncertainty, safety, and beginner/technical consistency.
 - [x] **GATE-05**: The release has an approved data inventory, retention/deletion policy, provider inventory, and accurate Apple and Google privacy disclosures.
-- [ ] **GATE-06**: No model, calculation, database, or third-party service secret is shipped in the mobile clients.
+- [x] **GATE-06**: No model, calculation, database, or third-party service secret is shipped in the mobile clients.
 
 ## Definition of Done
 
@@ -230,7 +230,7 @@ Every v1 requirement maps to exactly one roadmap phase.
 | GATE-03 | Phase 10 | Pending |
 | GATE-04 | Phase 7 | Pending |
 | GATE-05 | Phase 1 | Complete |
-| GATE-06 | Phase 1 | Pending |
+| GATE-06 | Phase 1 | Complete |
 
 **Coverage:**
 
