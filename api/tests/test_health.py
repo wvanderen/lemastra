@@ -13,7 +13,8 @@ from fastapi.testclient import TestClient
 
 from lemastra_api.main import create_app
 
-from .conftest import REPO_ROOT
+# Repo root: api/tests/test_health.py -> api/ -> repo root.
+REPO_ROOT = Path(__file__).resolve().parents[2]
 
 PINNED_SKILL_REVISION = (
     (REPO_ROOT / "vendor" / "astrology-skill" / "UPSTREAM.revision")
