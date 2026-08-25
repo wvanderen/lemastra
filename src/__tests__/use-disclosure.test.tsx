@@ -32,7 +32,7 @@ type RenderHookResult = Awaited<ReturnType<typeof rtlRenderHook>>;
 let render: typeof rtlRender;
 let renderHook: typeof rtlRenderHook;
 let cleanup: () => Promise<void>;
-let act: (callback: () => void | Promise<unknown>) => Promise<void>;
+let act: <T>(callback: () => T | Promise<T>) => Promise<T>;
 
 beforeAll(async () => {
   ({ render, renderHook, cleanup, act } = await import("@testing-library/react-native/pure"));
@@ -97,8 +97,8 @@ describe("QueryProvider (TanStack Query React Native wiring)", () => {
     const { focusManager } = await import("@tanstack/react-query");
     const { Text, DeviceEventEmitter } = await import("react-native");
 
-    const setEnabled = vi.fn();
-    vi.spyOn(focusManager, "setEnabled").mockImplementation(setEnabled);
+    const setFocused = vi.fn();
+    vi.spyOn(focusManager, "setFocused").mockImplementation(setFocused);
 
     await render(
       <QueryProvider>
@@ -108,11 +108,12 @@ describe("QueryProvider (TanStack Query React Native wiring)", () => {
 
     // The real AppState JS (running on the shim's turbo-module mock)
     // receives native appStateDidChange events through the public
-    // DeviceEventEmitter singleton.
+    // DeviceEventEmitter singleton. TanStack Query v5 focus API:
+    // focusManager.setFocused (not the v4 setEnabled).
     DeviceEventEmitter.emit("appStateDidChange", { app_state: "background" });
-    expect(setEnabled).toHaveBeenCalledWith(false);
+    expect(setFocused).toHaveBeenCalledWith(false);
 
     DeviceEventEmitter.emit("appStateDidChange", { app_state: "active" });
-    expect(setEnabled).toHaveBeenCalledWith(true);
+    expect(setFocused).toHaveBeenCalledWith(true);
   });
 });
