@@ -385,6 +385,19 @@ function makeNoopNativeModule(): unknown {
 
 function turboModuleMock(name: string): unknown {
   switch (name) {
+    case "AppState":
+      // Real AppState JS runs on top of this: the constructor reads
+      // getConstants().initialAppState and asks getCurrentAppState for the
+      // initial value; NativeEventEmitter (iOS) requires addListener/
+      // removeListeners on the module. Tests drive visibility changes via
+      // the public DeviceEventEmitter singleton ("appStateDidChange").
+      return {
+        getConstants: () => ({ initialAppState: "active" }),
+        getCurrentAppState: (callback: (state: { app_state: string }) => void) =>
+          callback({ app_state: "active" }),
+        addListener: () => undefined,
+        removeListeners: () => undefined,
+      };
     case "DeviceInfo":
       return {
         getConstants: () => ({
