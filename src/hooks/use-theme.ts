@@ -8,7 +8,12 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 
 export function useTheme() {
   const scheme = useColorScheme();
-  const theme = scheme === 'unspecified' ? 'light' : scheme;
+
+  // useColorScheme() can return null (native module not yet loaded, web
+  // without a preferred-scheme query) — anything other than an explicit
+  // 'dark' resolves to the light palette so themed components always
+  // receive a complete token set.
+  const theme = scheme === 'dark' ? 'dark' : 'light';
 
   return Colors[theme];
 }
