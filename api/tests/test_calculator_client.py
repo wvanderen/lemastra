@@ -127,6 +127,8 @@ def test_engine_error_raises_for_unrecognized_failure(monkeypatch) -> None:
     from lemastra_api.services import calculator as calc_module
 
     class FakeProc:
+        returncode = 1  # unrecognized failure
+
         async def communicate(self):
             return b"{}", b"ValueError: something odd"
 

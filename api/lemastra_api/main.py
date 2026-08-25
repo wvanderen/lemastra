@@ -66,3 +66,9 @@ def _verify_skill_checkout(settings: Settings) -> None:
         versions["swisseph"],
         versions["tzdata"],
     )
+
+
+# Module-level ASGI app for `uvicorn lemastra_api.main:app` (README flow).
+# Tests build isolated instances via create_app(); this one reads the
+# ambient environment once at import.
+app = create_app()
