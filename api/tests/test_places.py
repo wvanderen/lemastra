@@ -220,3 +220,199 @@ class TestMetaZones:
         assert zones == sorted(zones)
         assert "America/New_York" in zones
         assert "Australia/Lord_Howe" in zones
+
+
+class TestResolveTime:
+    """POST /api/v1/places/resolve-time (02-04 Task 2, TDD).
+
+    Google supplies zone identity only (D-07); the historical
+    birth-instant offset and DST classification are ALWAYS computed
+    locally via zoneinfo + the pinned tzdata (the documented Google
+    historical caveat) — drift surfaces disagreement instead of
+    hiding it.
+    """
+
+    def _payload(self, **overrides: Any) -> dict[str, Any]:
+        payload: dict[str, Any] = {
+            "lat": 40.7128,
+            "lon": -74.006,
+            "local_date": "1990-05-21",
+            "local_time": "14:30",
+        }
+        payload.update(overrides)
+        return payload
+
+    def test_brooklyn_1990_normal_no_drift(self, places_client, google_stub):
+        google_stub.serve_timezone(_fixture("timezone-ok.json"))
+        response = places_client.post(
+            "/api/v1/places/resolve-time", json=self._payload()
+        )
+        assert response.status_code == 200, response.text
+        body = response.json()
+
+        assert body["iana_zone"] == "America/New_York"
+        assert body["zone_source"] == "google"
+        # google block echoes the provider-of-record fields verbatim
+        assert body["google"]["timeZoneId"] == "America/New_York"
+        assert body["google"]["rawOffset"] == -18000
+        assert body["google"]["dstOffset"] == 3600
+        assert body["google"]["timeZoneName"] == "Eastern Daylight Time"
+
+        resolved = body["resolved"]
+        assert resolved["offset_seconds"] == -14400
+        assert resolved["offset_label"] == "-04:00"
+        assert resolved["classification"] == "normal"
+        assert resolved["options"] == []
+        assert body["drift"] is False
+
+        # The identity call hit the fixed Google endpoint with the
+        # coordinates as the location parameter.
+        assert len(google_stub.requests) == 1
+        request = google_stub.requests[0]
+        assert str(request.url).startswith(
+            "https://maps.googleapis.com/maps/api/timezone/json"
+        )
+        assert request.url.params["location"] == "40.7128,-74.006"
+        assert request.url.params["key"] == "test-key"
+
+    def test_ny_fall_back_ambiguous_two_options(self, places_client, google_stub):
+        google_stub.serve_timezone(_fixture("timezone-ok.json"))
+        response = places_client.post(
+            "/api/v1/places/resolve-time",
+            json=self._payload(local_date="2024-11-03", local_time="01:30"),
+        )
+        assert response.status_code == 200, response.text
+        body = response.json()
+
+        resolved = body["resolved"]
+        assert resolved["classification"] == "ambiguous"
+        options = resolved["options"]
+        assert len(options) == 2
+        assert options[0]["mode"] == "first_pass"
+        assert options[0]["utc"] == "2024-11-03T05:30:00Z"
+        assert "EDT" in options[0]["label"]
+        assert "(-04:00)" in options[0]["label"]
+        assert options[1]["mode"] == "second_pass"
+        assert options[1]["utc"] == "2024-11-03T06:30:00Z"
+        assert "EST" in options[1]["label"]
+        assert "(-05:00)" in options[1]["label"]
+
+    def test_ny_spring_forward_nonexistent_single_shifted_option(
+        self, places_client, google_stub
+    ):
+        google_stub.serve_timezone(_fixture("timezone-ok.json"))
+        response = places_client.post(
+            "/api/v1/places/resolve-time",
+            json=self._payload(local_date="2024-03-10", local_time="02:30"),
+        )
+        assert response.status_code == 200, response.text
+        body = response.json()
+
+        resolved = body["resolved"]
+        assert resolved["classification"] == "nonexistent"
+        options = resolved["options"]
+        assert len(options) == 1
+        assert options[0]["mode"] == "shifted"
+        assert options[0]["utc"] == "2024-03-10T07:30:00Z"
+        assert "03:30" in options[0]["label"]
+        assert "EDT" in options[0]["label"]
+
+    def test_lord_howe_manual_override_ambiguous_half_hour(
+        self, places_client, google_stub
+    ):
+        response = places_client.post(
+            "/api/v1/places/resolve-time",
+            json=self._payload(
+                lat=-31.55,
+                lon=159.08,
+                local_date="2024-04-07",
+                local_time="01:45",
+                tz_override="Australia/Lord_Howe",
+            ),
+        )
+        assert response.status_code == 200, response.text
+        body = response.json()
+
+        assert body["iana_zone"] == "Australia/Lord_Howe"
+        assert body["zone_source"] == "manual"
+        assert body["google"] is None  # no provider call on the manual path
+        assert google_stub.requests == []
+
+        resolved = body["resolved"]
+        assert resolved["classification"] == "ambiguous"
+        options = resolved["options"]
+        assert len(options) == 2
+        assert "(+11:00)" in options[0]["label"]
+        assert options[0]["utc"] == "2024-04-06T14:45:00Z"
+        assert "(+10:30)" in options[1]["label"]
+        assert options[1]["utc"] == "2024-04-06T15:15:00Z"
+        # the two passes differ by exactly the 30-minute Lord Howe shift
+        assert options[0]["utc"] != options[1]["utc"]
+        assert body["drift"] is False  # drift is a google-path concept only
+
+    def test_fixed_offset_override_accepted(self, places_client, google_stub):
+        response = places_client.post(
+            "/api/v1/places/resolve-time",
+            json=self._payload(tz_override="+05:30"),
+        )
+        assert response.status_code == 200, response.text
+        body = response.json()
+        assert body["zone_source"] == "manual"
+        assert body["iana_zone"] == "+05:30"
+        assert body["resolved"]["offset_seconds"] == 19800
+        assert body["resolved"]["offset_label"] == "+05:30"
+        assert body["resolved"]["classification"] == "normal"
+        assert google_stub.requests == []
+
+    def test_drift_true_offset_seconds_stays_local(
+        self, places_client, google_stub
+    ):
+        # Provider claims EST (raw -18000, dst 0) for a May instant the
+        # pinned tzdata knows was EDT — computation still uses local.
+        google_stub.serve_timezone(
+            {
+                "dstOffset": 0,
+                "rawOffset": -18000,
+                "status": "OK",
+                "timeZoneId": "America/New_York",
+                "timeZoneName": "Eastern Standard Time",
+            }
+        )
+        response = places_client.post(
+            "/api/v1/places/resolve-time", json=self._payload()
+        )
+        assert response.status_code == 200, response.text
+        body = response.json()
+        assert body["drift"] is True
+        assert body["resolved"]["offset_seconds"] == -14400
+        assert body["resolved"]["offset_label"] == "-04:00"
+
+    def test_timezone_zero_results_404_with_manual_hint(
+        self, places_client, google_stub
+    ):
+        google_stub.serve_timezone(_fixture("timezone-zero-results.json"))
+        response = places_client.post(
+            "/api/v1/places/resolve-time", json=self._payload()
+        )
+        assert response.status_code == 404, response.text
+        error = _assert_error_shape(response.json(), "TIMEZONE_NO_RESULTS")
+        assert "manually" in error["hint"].lower()
+
+    def test_missing_key_on_google_path_503(
+        self, places_client_no_key, google_stub
+    ):
+        google_stub.serve_timezone(_fixture("timezone-ok.json"))
+        response = places_client_no_key.post(
+            "/api/v1/places/resolve-time", json=self._payload()
+        )
+        assert response.status_code == 503, response.text
+        _assert_error_shape(response.json(), "TIMEZONE_PROVIDER_UNAVAILABLE")
+        assert google_stub.requests == []  # honest failure before any call
+
+    def test_invalid_tz_override_400(self, places_client, google_stub):
+        response = places_client.post(
+            "/api/v1/places/resolve-time",
+            json=self._payload(tz_override="Not/A_Zone"),
+        )
+        assert response.status_code == 400, response.text
+        _assert_error_shape(response.json(), "TIMEZONE_INVALID_ZONE")
