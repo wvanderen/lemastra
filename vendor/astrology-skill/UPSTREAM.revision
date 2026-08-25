@@ -1,0 +1,34 @@
+# UPSTREAM.revision
+
+This directory is a **pinned snapshot** of the upstream `astrology-skill`
+repository, not a git submodule.
+
+The first line of this file is the full 40-character commit SHA of the
+upstream tree that was copied here:
+
+    660d992a61139ed0286eaf0a38f4e8e0fd4f7822
+
+Upstream: https://github.com/wvanderen/astrology-skill.git
+
+## Why a snapshot instead of a submodule
+
+Upstream `main` was force-pushed after this pin was chosen; the pinned
+commit is no longer reachable from any upstream ref, and GitHub refuses
+direct SHA fetches of it (`upload-pack: not our ref`). A submodule
+gitlink at this SHA would fail to materialize on every fresh clone and
+in CI. The snapshot copy keeps the exact, verified revision available
+in this repository's own history instead.
+
+## Invariants
+
+- The tree (everything except this file) is byte-identical to
+  `git archive 660d992a61139ed0286eaf0a38f4e8e0fd4f7822` from upstream.
+- Do not edit files under this directory. To upgrade the skill, replace
+  the tree deliberately and update the SHA on the first line of this
+  file in the same commit (then regenerate golden fixtures per
+  `.planning/research/STACK.md`).
+- The API reads this file at startup to stamp `skill_revision` into
+  every health/chart provenance payload (`api/lemastra_api/provenance.py`).
+- Licensing: AGPL-3.0 — `LICENSE` and `tools/NOTICE.md` travel with the
+  tree (see `docs/governance/swiss-ephemeris-posture.md` for the
+  Swiss Ephemeris licensing posture).

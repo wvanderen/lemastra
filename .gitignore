@@ -36,6 +36,12 @@ yarn-error.*
 .env*
 !.env.example
 
+# Python (api/)
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
 # typescript
 *.tsbuildinfo
 

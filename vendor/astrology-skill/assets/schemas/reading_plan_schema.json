@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Astrology Skill Reading Plan",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "reading_type",
+    "focus",
+    "primary_factors",
+    "resources_to_load",
+    "weighting_notes",
+    "missing_resources",
+    "synthesis_warnings"
+  ],
+  "properties": {
+    "reading_type": {
+      "description": "The reading type the plan is preparing to synthesize.",
+      "type": "string"
+    },
+    "tradition_mode": {
+      "description": "The interpretive tradition or blend requested by the user.",
+      "type": "string"
+    },
+    "tone": {
+      "description": "The requested voice for the final reading.",
+      "type": "string"
+    },
+    "focus": {
+      "description": "The user's explicit question or the inferred interpretive focus.",
+      "type": "string"
+    },
+    "primary_factors": {
+      "description": "Chart factors that should carry the most interpretive weight.",
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "secondary_factors": {
+      "description": "Supporting chart factors to integrate after the primary factors.",
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "resources_to_load": {
+      "description": "Bundled reference files or modules needed before synthesis.",
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "missing_resources": {
+      "description": "Exact or ideal resources that do not exist and the broader fallback resources to use instead.",
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "weighting_notes": {
+      "description": "Notes explaining why some factors outrank others for this reading.",
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "synthesis_warnings": {
+      "description": "Uncertainty, scope, ethics, or conflict warnings to preserve in the final reading.",
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  }
+}

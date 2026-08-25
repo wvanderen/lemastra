@@ -1,0 +1,29 @@
+{
+  "reading_type": "synastry",
+  "tradition_mode": "modern",
+  "tone": "psychological",
+  "user_question": "We are collaborators considering a long-term creative partnership, not a romantic couple. Read the strongest inter-chart dynamics and keep the language consent-sensitive and practical.",
+  "chart_data": {
+    "source_notes": "Two already-calculated natal charts and inter-chart aspects.",
+    "person_a": {
+      "label": "Person A",
+      "birth_time_confidence": "high",
+      "placements": [
+        { "body": "Sun", "sign": "Leo", "degree": 4.2, "house": 10 },
+        { "body": "Moon", "sign": "Scorpio", "degree": 18.9, "house": 1 }
+      ]
+    },
+    "person_b": {
+      "label": "Person B",
+      "birth_time_confidence": "high",
+      "placements": [
+        { "body": "Sun", "sign": "Scorpio", "degree": 17.8, "house": 3 },
+        { "body": "Moon", "sign": "Leo", "degree": 5.0, "house": 12 }
+      ]
+    },
+    "aspects": [
+      { "body_a": "Person A Moon", "aspect": "conjunction", "body_b": "Person B Saturn", "orb_degrees": 0.4, "applying": true },
+      { "body_a": "Person A Sun", "aspect": "conjunction", "body_b": "Person B Moon", "orb_degrees": 0.8, "applying": false }
+    ]
+  }
+}

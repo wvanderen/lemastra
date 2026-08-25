@@ -1,0 +1,72 @@
+{
+  "version": 1,
+  "required_conditions": [
+    "skill_current",
+    "no_skill"
+  ],
+  "conditions": {
+    "skill_current": {
+      "description": "Main skill condition. Load the current astrology-skill sanitized mirror and use the existing blind forward-test preamble.",
+      "skill_loaded": true,
+      "mirror_entries": [
+        "SKILL.md",
+        "references",
+        "assets"
+      ],
+      "cwd_policy": "isolated_skill_mirror",
+      "preamble": "Follow the loaded astrology skill's workflow and produce a complete reading from the chart data below. Do not ask clarifying questions; proceed from the supplied factors and name any limits explicitly.",
+      "allowed_reads": [
+        "SKILL.md",
+        "references/",
+        "assets/"
+      ],
+      "forbidden_reads": [
+        "tests/",
+        "docs/",
+        "ROADMAP.md",
+        "AGENTS.md",
+        ".git/",
+        ".todos/"
+      ]
+    },
+    "no_skill": {
+      "description": "General model baseline. No skill files or reference corpus are visible, and the prompt does not mention that a skill exists.",
+      "skill_loaded": false,
+      "mirror_entries": [],
+      "cwd_policy": "empty_neutral_cwd",
+      "preamble": "Produce a complete astrology reading from the chart data below. Do not ask clarifying questions; proceed from the supplied factors and name any limits explicitly. Avoid fatalism, diagnosis, event certainty, and astrology-only advice for high-stakes choices.",
+      "allowed_reads": [],
+      "forbidden_reads": [
+        "SKILL.md",
+        "references/",
+        "assets/",
+        "tests/",
+        "docs/",
+        "ROADMAP.md",
+        "AGENTS.md",
+        ".git/",
+        ".todos/"
+      ]
+    }
+  },
+  "future_optional_conditions": {
+    "skill_no_refs": {
+      "description": "Ablation for skill workflow without the reference corpus.",
+      "skill_loaded": true,
+      "mirror_entries": [
+        "SKILL.md",
+        "assets"
+      ],
+      "cwd_policy": "isolated_skill_without_references"
+    },
+    "refs_only": {
+      "description": "Ablation for reference corpus visibility without registering the skill.",
+      "skill_loaded": false,
+      "mirror_entries": [
+        "references",
+        "assets"
+      ],
+      "cwd_policy": "isolated_reference_corpus"
+    }
+  }
+}

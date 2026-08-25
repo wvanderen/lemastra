@@ -1,0 +1,400 @@
+{
+  "reading_type": "natal",
+  "tradition_mode": "blended",
+  "tone": "practical",
+  "chart_data": {
+    "house_system": "Whole Sign",
+    "ascendant": {
+      "sign": "Cancer",
+      "degree": 22.0298,
+      "absolute_degree": 112.0298
+    },
+    "midheaven": {
+      "sign": "Aries",
+      "degree": 6.2263,
+      "absolute_degree": 6.2263
+    },
+    "house_cusps": [
+      {
+        "house": 1,
+        "sign": "Cancer",
+        "degree": 0.0,
+        "absolute_degree": 90.0
+      },
+      {
+        "house": 2,
+        "sign": "Leo",
+        "degree": 0.0,
+        "absolute_degree": 120.0
+      },
+      {
+        "house": 3,
+        "sign": "Virgo",
+        "degree": 0.0,
+        "absolute_degree": 150.0
+      },
+      {
+        "house": 4,
+        "sign": "Libra",
+        "degree": 0.0,
+        "absolute_degree": 180.0
+      },
+      {
+        "house": 5,
+        "sign": "Scorpio",
+        "degree": 0.0,
+        "absolute_degree": 210.0
+      },
+      {
+        "house": 6,
+        "sign": "Sagittarius",
+        "degree": 0.0,
+        "absolute_degree": 240.0
+      },
+      {
+        "house": 7,
+        "sign": "Capricorn",
+        "degree": 0.0,
+        "absolute_degree": 270.0
+      },
+      {
+        "house": 8,
+        "sign": "Aquarius",
+        "degree": 0.0,
+        "absolute_degree": 300.0
+      },
+      {
+        "house": 9,
+        "sign": "Pisces",
+        "degree": 0.0,
+        "absolute_degree": 330.0
+      },
+      {
+        "house": 10,
+        "sign": "Aries",
+        "degree": 0.0,
+        "absolute_degree": 0.0
+      },
+      {
+        "house": 11,
+        "sign": "Taurus",
+        "degree": 0.0,
+        "absolute_degree": 30.0
+      },
+      {
+        "house": 12,
+        "sign": "Gemini",
+        "degree": 0.0,
+        "absolute_degree": 60.0
+      }
+    ],
+    "placements": [
+      {
+        "body": "Sun",
+        "sign": "Scorpio",
+        "degree": 5.9683,
+        "absolute_degree": 215.9683,
+        "motion": "direct",
+        "condition": [],
+        "dignity": [],
+        "house": 5
+      },
+      {
+        "body": "Moon",
+        "sign": "Sagittarius",
+        "degree": 17.777,
+        "absolute_degree": 257.777,
+        "motion": "direct",
+        "condition": [],
+        "dignity": [],
+        "house": 6
+      },
+      {
+        "body": "Mercury",
+        "sign": "Scorpio",
+        "degree": 29.3813,
+        "absolute_degree": 239.3813,
+        "motion": "direct",
+        "condition": [],
+        "dignity": [],
+        "house": 5
+      },
+      {
+        "body": "Venus",
+        "sign": "Sagittarius",
+        "degree": 11.4184,
+        "absolute_degree": 251.4184,
+        "motion": "direct",
+        "condition": [],
+        "dignity": [],
+        "house": 6
+      },
+      {
+        "body": "Mars",
+        "sign": "Cancer",
+        "degree": 22.0205,
+        "absolute_degree": 112.0205,
+        "motion": "direct",
+        "condition": [],
+        "dignity": [
+          "fall"
+        ],
+        "house": 1
+      },
+      {
+        "body": "Jupiter",
+        "sign": "Libra",
+        "degree": 3.8232,
+        "absolute_degree": 183.8232,
+        "motion": "direct",
+        "condition": [],
+        "dignity": [],
+        "house": 4
+      },
+      {
+        "body": "Saturn",
+        "sign": "Aquarius",
+        "degree": 11.9645,
+        "absolute_degree": 311.9645,
+        "motion": "direct",
+        "condition": [],
+        "dignity": [
+          "domicile"
+        ],
+        "house": 8
+      },
+      {
+        "body": "Uranus",
+        "sign": "Capricorn",
+        "degree": 14.5953,
+        "absolute_degree": 284.5953,
+        "motion": "direct",
+        "condition": [],
+        "dignity": [],
+        "house": 7
+      },
+      {
+        "body": "Neptune",
+        "sign": "Capricorn",
+        "degree": 16.4532,
+        "absolute_degree": 286.4532,
+        "motion": "direct",
+        "condition": [],
+        "dignity": [],
+        "house": 7
+      },
+      {
+        "body": "Pluto",
+        "sign": "Scorpio",
+        "degree": 22.197,
+        "absolute_degree": 232.197,
+        "motion": "direct",
+        "condition": [],
+        "dignity": [],
+        "house": 5
+      },
+      {
+        "body": "True Node",
+        "sign": "Sagittarius",
+        "degree": 22.3391,
+        "absolute_degree": 262.3391,
+        "motion": "stationary",
+        "condition": [],
+        "dignity": [],
+        "house": 6
+      }
+    ],
+    "aspects": [
+      {
+        "body_a": "Sun",
+        "aspect": "square",
+        "body_b": "Saturn",
+        "orb_degrees": 5.9962,
+        "applying": true,
+        "exact": false
+      },
+      {
+        "body_a": "Moon",
+        "aspect": "conjunction",
+        "body_b": "Venus",
+        "orb_degrees": 6.3586,
+        "separating": true,
+        "exact": false
+      },
+      {
+        "body_a": "Moon",
+        "aspect": "sextile",
+        "body_b": "Saturn",
+        "orb_degrees": 5.8125,
+        "separating": true,
+        "exact": false
+      },
+      {
+        "body_a": "Moon",
+        "aspect": "conjunction",
+        "body_b": "True Node",
+        "orb_degrees": 4.5621,
+        "applying": true,
+        "exact": false
+      },
+      {
+        "body_a": "Mercury",
+        "aspect": "sextile",
+        "body_b": "Jupiter",
+        "orb_degrees": 4.4419,
+        "applying": true,
+        "exact": false
+      },
+      {
+        "body_a": "Mercury",
+        "aspect": "conjunction",
+        "body_b": "Pluto",
+        "orb_degrees": 7.1843,
+        "separating": true,
+        "exact": false
+      },
+      {
+        "body_a": "Mercury",
+        "aspect": "trine",
+        "body_b": "Ascendant",
+        "orb_degrees": 7.3515,
+        "separating": true,
+        "exact": false
+      },
+      {
+        "body_a": "Mercury",
+        "aspect": "trine",
+        "body_b": "Midheaven",
+        "orb_degrees": 6.845,
+        "applying": true,
+        "exact": false
+      },
+      {
+        "body_a": "Venus",
+        "aspect": "sextile",
+        "body_b": "Saturn",
+        "orb_degrees": 0.5461,
+        "applying": true,
+        "exact": false
+      },
+      {
+        "body_a": "Venus",
+        "aspect": "trine",
+        "body_b": "Midheaven",
+        "orb_degrees": 5.1921,
+        "separating": true,
+        "exact": false
+      },
+      {
+        "body_a": "Mars",
+        "aspect": "opposition",
+        "body_b": "Uranus",
+        "orb_degrees": 7.4252,
+        "separating": true,
+        "exact": false
+      },
+      {
+        "body_a": "Mars",
+        "aspect": "opposition",
+        "body_b": "Neptune",
+        "orb_degrees": 5.5673,
+        "separating": true,
+        "exact": false
+      },
+      {
+        "body_a": "Mars",
+        "aspect": "trine",
+        "body_b": "Pluto",
+        "orb_degrees": 0.1765,
+        "applying": true,
+        "exact": false
+      },
+      {
+        "body_a": "Mars",
+        "aspect": "conjunction",
+        "body_b": "Ascendant",
+        "orb_degrees": 0.0093,
+        "applying": true,
+        "exact": true
+      },
+      {
+        "body_a": "Jupiter",
+        "aspect": "opposition",
+        "body_b": "Midheaven",
+        "orb_degrees": 2.4031,
+        "applying": true,
+        "exact": false
+      },
+      {
+        "body_a": "Saturn",
+        "aspect": "sextile",
+        "body_b": "Midheaven",
+        "orb_degrees": 5.7382,
+        "separating": true,
+        "exact": false
+      },
+      {
+        "body_a": "Uranus",
+        "aspect": "conjunction",
+        "body_b": "Neptune",
+        "orb_degrees": 1.8579,
+        "applying": true,
+        "exact": false
+      },
+      {
+        "body_a": "Uranus",
+        "aspect": "opposition",
+        "body_b": "Ascendant",
+        "orb_degrees": 7.4345,
+        "applying": true,
+        "exact": false
+      },
+      {
+        "body_a": "Neptune",
+        "aspect": "sextile",
+        "body_b": "Pluto",
+        "orb_degrees": 5.7438,
+        "separating": true,
+        "exact": false
+      },
+      {
+        "body_a": "Neptune",
+        "aspect": "opposition",
+        "body_b": "Ascendant",
+        "orb_degrees": 5.5766,
+        "applying": true,
+        "exact": false
+      },
+      {
+        "body_a": "Pluto",
+        "aspect": "trine",
+        "body_b": "Ascendant",
+        "orb_degrees": 0.1672,
+        "separating": true,
+        "exact": false
+      }
+    ],
+    "sect": {
+      "status": "night",
+      "luminary_of_sect": "Moon",
+      "sect_mate_planets": [
+        "Venus",
+        "Mars",
+        "Mercury"
+      ],
+      "notes": "Sun altitude -55.1° at birth (below horizon)."
+    },
+    "lots": [
+      {
+        "name": "Lot of Fortune",
+        "sign": "Gemini",
+        "degree": 10.2211,
+        "absolute_degree": 70.2211,
+        "house": 12,
+        "formula": "Asc + Sun − Moon (night sect)"
+      }
+    ],
+    "source_notes": "Computed by pyswisseph/Swiss Ephemeris 2.10.03. Frame: tropical. House system: Whole Sign. Ephemeris mode: Moshier (built-in). Topocentric Moon: off. Birth-time confidence: Timed. Major essential dignity (domicile/exaltation/detriment/fall) for the seven classical planets is derived from planet+sign (Ptolemy I.17, I.19); minor essential dignity and `condition` remain interpretive and are emitted empty. Input: date 1992-10-28, time 22:30, tz America/New_York (iana), lat 38.0406, lon -84.5034. Place (label only; coordinates are authoritative): Lexington, KY, USA (tz resolved via America/New_York; identical US Eastern rules).",
+    "birth_time_confidence": "Timed"
+  }
+}
