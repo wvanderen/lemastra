@@ -242,9 +242,20 @@ async def calculate_chart(request: CalculateRequest) -> CalculateResponse:
     except CalculatorTimeout as exc:
         raise AppError(ErrorCode.CALC_TIMEOUT, str(exc)) from None
     except CalculatorError as exc:
-        # Engine failures carry a fixed client-safe message; details stay
-        # server-side (T-02-11). The monkeypatched-raise path (tests)
-        # reaches this branch identically to a real subprocess crash.
+        # Engine failures carry a fixed client-safe message; the original
+        # exception (with traceback, exc_info) is captured server-side
+        # for diagnosis only (T-02-11) — both for real subprocess crashes
+        # and for failures raised inside the mapping layer.
+        logger.error(
+            "calculator engine failure for input_revision %s (server-only): %s",
+            hashlib.sha256(
+                json.dumps(
+                    calculator_input, sort_keys=True, separators=(",", ":")
+                ).encode("utf-8")
+            ).hexdigest()[:12],
+            exc,
+            exc_info=True,
+        )
         raise AppError(ErrorCode.CALC_ENGINE_ERROR, _ENGINE_ERROR_MESSAGE) from None
 
     validate_chart_envelope(envelope)
