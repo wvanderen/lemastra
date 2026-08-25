@@ -70,13 +70,13 @@ Plans:
   4. User receives specific recovery guidance when resolution, calculation, or schema validation fails.
   5. Supported natal math, civil-time ambiguity, unknown times, and representative high-latitude cases pass published reference fixtures. *(Per D-14, Phase 2's GATE-02 scope is natal-only — the transit fixture half completes in Phase 5; phase-end verification should not expect transit fixtures here.)*
 
-**Plans:** 1/9 plans executed
+**Plans:** 2/9 plans executed
 
 Plans:
 **Wave 1**
 
 - [x] 02-01-PLAN.md — API foundation: uv bootstrap, vendored skill submodule, calculator subprocess wrapper, civil-time classification (CALC-03/04, BIRTH-03)
-- [ ] 02-02-PLAN.md — Client deps (legitimacy checkpoint) + zod API contracts, fetch client, query provider, disclosure hook (BIRTH-01)
+- [x] 02-02-PLAN.md — Client deps (legitimacy checkpoint) + zod API contracts, fetch client, query provider, disclosure hook (BIRTH-01)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -238,7 +238,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Trust and Release Boundary | 7/7 | Complete    | 2026-08-23 |
-| 2. Trustworthy Natal Chart | 1/9 | In Progress|  |
+| 2. Trustworthy Natal Chart | 2/9 | In Progress|  |
 | 3. Private Local Workspace | 0/TBD | Not started | - |
 | 4. Semantic Chart Exploration | 0/TBD | Not started | - |
 | 5. Natal Transit Workspace | 0/TBD | Not started | - |
