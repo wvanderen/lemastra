@@ -1,0 +1,45 @@
+{
+  "results": [
+    {
+      "address_components": [
+        { "long_name": "277", "short_name": "277", "types": ["street_number"] },
+        { "long_name": "Bedford Avenue", "short_name": "Bedford Ave", "types": ["route"] },
+        { "long_name": "Brooklyn", "short_name": "Brooklyn", "types": ["political", "sublocality", "sublocality_level_1"] },
+        { "long_name": "New York", "short_name": "NY", "types": ["administrative_area_level_1", "political"] },
+        { "long_name": "United States", "short_name": "US", "types": ["country", "political"] }
+      ],
+      "formatted_address": "277 Bedford Avenue, Brooklyn, NY 11211, USA",
+      "geometry": {
+        "location": { "lat": 40.7172405, "lng": -73.9573231 },
+        "location_type": "ROOFTOP",
+        "viewport": {
+          "northeast": { "lat": 40.7185894802915, "lng": -73.9559741197085 },
+          "southwest": { "lat": 40.7158915197085, "lng": -73.95867208029151 }
+        }
+      },
+      "place_id": "ChIJd8BlQ2BZwokRAFUEcm_qrcA",
+      "types": ["street_address"]
+    },
+    {
+      "address_components": [
+        { "long_name": "Bedford-Stuyvesant", "short_name": "Bed-Stuy", "types": ["neighborhood", "political"] },
+        { "long_name": "Brooklyn", "short_name": "Brooklyn", "types": ["political", "sublocality", "sublocality_level_1"] },
+        { "long_name": "New York", "short_name": "NY", "types": ["administrative_area_level_1", "political"] },
+        { "long_name": "United States", "short_name": "US", "types": ["country", "political"] }
+      ],
+      "formatted_address": "Bedford-Stuyvesant, Brooklyn, NY, USA",
+      "geometry": {
+        "location": { "lat": 40.6872, "lng": -73.9418 },
+        "location_type": "APPROXIMATE",
+        "viewport": {
+          "northeast": { "lat": 40.7035399, "lng": -73.9190928 },
+          "southwest": { "lat": 40.6710159, "lng": -73.9555159 }
+        }
+      },
+      "partial_match": true,
+      "place_id": "ChIJkUJk_l9bwokRcCmkzOxU_DRz",
+      "types": ["neighborhood", "political"]
+    }
+  ],
+  "status": "OK"
+}
