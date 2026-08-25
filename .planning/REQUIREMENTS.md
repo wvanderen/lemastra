@@ -10,7 +10,7 @@
 - [x] **BIRTH-01**: User can enter a birth date, local birth time, and birthplace to start a natal chart.
 - [ ] **BIRTH-02**: User can review and confirm the resolved latitude, longitude, and IANA timezone before calculation.
 - [x] **BIRTH-03**: User is asked to resolve an ambiguous or nonexistent civil time rather than having the app silently choose one.
-- [ ] **BIRTH-04**: User can mark a birth time as timed, approximate, rectified, or unknown.
+- [x] **BIRTH-04**: User can mark a birth time as timed, approximate, rectified, or unknown.
 - [x] **BIRTH-05**: User with an unknown birth time can calculate only the factors supported by that uncertainty, without a silently invented noon time.
 - [ ] **CALC-01**: User can calculate a natal chart whose placements, angles, houses, aspects, and related supported factors pass the product's reference fixtures.
 - [x] **CALC-02**: User can see the calculation assumptions used for a chart, including house system, zodiac mode, ephemeris mode, and relevant orb policy.
@@ -162,7 +162,7 @@ Every v1 requirement maps to exactly one roadmap phase.
 | BIRTH-01 | Phase 2 | Complete |
 | BIRTH-02 | Phase 2 | Pending |
 | BIRTH-03 | Phase 2 | Complete |
-| BIRTH-04 | Phase 2 | Pending |
+| BIRTH-04 | Phase 2 | Complete |
 | BIRTH-05 | Phase 2 | Complete |
 | CALC-01 | Phase 2 | Pending |
 | CALC-02 | Phase 2 | Complete |
