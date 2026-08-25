@@ -64,6 +64,24 @@ class GeocodeCandidate:
     partial_match: bool = False
 
 
+@dataclass(frozen=True)
+class TimezoneResult:
+    """Provider-of-record echo from the Google Time Zone API.
+
+    Supplies the IANA zone IDENTITY only (D-07): the historical
+    birth-instant offset is computed locally with zoneinfo + the
+    pinned tzdata, because Google's documented caveat says the API
+    "does not take historical time zones into account". ``raw_offset``
+    and ``dst_offset`` are kept for the drift cross-check and
+    provenance, never for computation.
+    """
+
+    time_zone_id: str
+    time_zone_name: str
+    raw_offset: int
+    dst_offset: int
+
+
 def _require_api_key(api_key: str, code: ErrorCode) -> None:
     """Fail honestly when the server-side key is not configured."""
     if not api_key:
@@ -79,6 +97,45 @@ def _geocode_unavailable(message: str) -> AppError:
     return AppError(
         ErrorCode.PLACE_PROVIDER_UNAVAILABLE,
         message,
+    )
+
+
+def _timezone_unavailable(message: str) -> AppError:
+    return AppError(
+        ErrorCode.TIMEZONE_PROVIDER_UNAVAILABLE,
+        message,
+    )
+
+
+def _map_timezone_status(payload: dict) -> AppError | None:
+    """Map a Google Time Zone status onto the CALC-04 taxonomy.
+
+    Returns ``None`` for ``OK``. ``INVALID_REQUEST`` maps to
+    provider-unavailable (the API constructs the parameters itself, so
+    a provider-side invalid request is a contract failure, not
+    user-fixable input); unknown statuses default the same way.
+    """
+    status = payload.get("status", "")
+    error_message = payload.get("error_message", "")
+    detail = f" Google says: {error_message}" if error_message else ""
+
+    if status == "OK":
+        return None
+    if status == "ZERO_RESULTS":
+        return AppError(
+            ErrorCode.TIMEZONE_NO_RESULTS,
+            "No timezone covers these coordinates — pick a zone manually.",
+        )
+    if status == "OVER_QUERY_LIMIT":
+        return AppError(
+            ErrorCode.TIMEZONE_PROVIDER_UNAVAILABLE,
+            "Timezone lookup is rate-limited right now." + detail,
+            status_override=429,
+            headers={"Retry-After": RATE_LIMIT_RETRY_AFTER_S},
+        )
+    return _timezone_unavailable(
+        "Timezone lookup is unavailable right now (Google status: "
+        f"{status or 'unknown'}).{detail}"
     )
 
 
@@ -192,3 +249,37 @@ class GeocodingService:
                 )
             )
         return candidates
+
+    async def resolve_timezone(
+        self, lat: float, lon: float, timestamp: int
+    ) -> TimezoneResult:
+        """Resolve the IANA zone identity for a location at an instant.
+
+        ``timestamp`` is the birth instant in Unix seconds — the caller
+        forms it from the naive wall time; identity is location-driven
+        (D-07: never the device clock). Offsets returned here are
+        provider-of-record echoes, not computation inputs.
+        """
+        _require_api_key(self._api_key, ErrorCode.TIMEZONE_PROVIDER_UNAVAILABLE)
+        payload = await self._get_json(
+            TIMEZONE_ENDPOINT,
+            {
+                "location": f"{lat},{lon}",
+                "timestamp": str(timestamp),
+                "key": self._api_key,
+            },
+            unavailable=_timezone_unavailable(
+                "Could not reach the Google Time Zone service."
+            ),
+        )
+
+        error = _map_timezone_status(payload)
+        if error is not None:
+            raise error
+
+        return TimezoneResult(
+            time_zone_id=str(payload["timeZoneId"]),
+            time_zone_name=str(payload.get("timeZoneName", "")),
+            raw_offset=int(payload.get("rawOffset", 0)),
+            dst_offset=int(payload.get("dstOffset", 0)),
+        )
