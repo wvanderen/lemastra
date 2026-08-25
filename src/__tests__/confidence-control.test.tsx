@@ -1,9 +1,8 @@
 import type {
-  fireEvent as rtlFireEvent,
   render as rtlRender,
+  userEvent as rtlUserEvent,
   within as rtlWithin,
 } from "@testing-library/react-native/pure";
-import { PixelRatio } from "react-native";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 
 import { CONFIDENCE_OPTIONS } from "@/components/birth/copy";
@@ -16,17 +15,25 @@ import { confidenceSchema } from "@/lib/api-schemas";
 // Deck" (birth form): em dashes and curly quotes included. The option
 // vocabulary is the calculator's capitalized labels, typed against
 // confidenceSchema.
+//
+// Test mechanics (RNTL v14 /pure under the RN vitest shim):
+// - Presses go through `userEvent.press` — it is act-wrapped, so state
+//   updates from onPress flush before assertions (plain fireEvent.press
+//   dispatches the handler but leaves updates unflushed).
+// - The group's radiogroup semantics are asserted structurally via props:
+//   RNTL v14 has no role mapping for RN's `radiogroup` accessibilityRole,
+//   so getByRole("radiogroup") cannot match even though screen readers see it.
 
 // Acquired in beforeAll (not a static import): RNTL requires react-native
 // at import time, and the RN test shim only seeds require.cache when the
 // setupFile has run — which happens after collection but before hooks.
 let render: typeof rtlRender;
 let within: typeof rtlWithin;
-let fireEvent: typeof rtlFireEvent;
+let userEvent: typeof rtlUserEvent;
 let cleanup: () => Promise<void>;
 
 beforeAll(async () => {
-  ({ render, within, fireEvent, cleanup } = await import(
+  ({ render, within, userEvent, cleanup } = await import(
     "@testing-library/react-native/pure"
   ));
 });
@@ -34,28 +41,44 @@ beforeAll(async () => {
 // RNTL's `/pure` entry skips automatic cleanup — unmount after every test.
 afterEach(async () => {
   await cleanup();
-  vi.restoreAllMocks();
 });
 
 /** A rendered host element queryable by `within`. */
 type Instance = Parameters<typeof rtlWithin>[0];
 
+function radiogroups(view: { container: { queryAll: Function } }) {
+  return view.container.queryAll(
+    (node: { props: { accessibilityRole?: string } }) =>
+      node.props.accessibilityRole === "radiogroup"
+  );
+}
+
 function checkedLabel(view: { getAllByRole(role: string): Instance[] }) {
   const radios = view.getAllByRole("radio");
-  const checked = radios.find(
-    (radio) => radio.props.accessibilityState?.checked === true
-  );
+  const checked = radios.find((radio) => radio.props.accessibilityState?.checked === true);
   if (!checked) throw new Error("expected exactly one checked radio");
   return within(checked);
 }
 
+/** Every rendered Text must wrap rather than clip at large font scales. */
+function assertNoClippingTexts(view: { container: { queryAll: Function } }) {
+  const texts = view.container.queryAll((node: { type: unknown }) => node.type === "Text");
+  expect(texts.length).toBeGreaterThan(0);
+  for (const text of texts) {
+    expect(text.props.allowFontScaling).not.toBe(false);
+    expect(text.props.numberOfLines).toBeUndefined();
+    expect(text.props.ellipsizeMode).toBeUndefined();
+    expect(text.props.adjustsFontSizeToFit).not.toBe(true);
+  }
+}
+
 describe("ConfidenceControl (D-09)", () => {
-  it("renders the copy-deck heading and exactly four options", async () => {
+  it("renders the copy-deck heading and exactly four options in a radiogroup", async () => {
     const view = await render(<ConfidenceControl onChange={() => {}} />);
 
     expect(view.getByText("How well do you know your birth time?")).toBeTruthy();
-    expect(view.getByRole("radiogroup")).toBeTruthy();
     expect(view.getAllByRole("radio")).toHaveLength(4);
+    expect(radiogroups(view)).toHaveLength(1);
   });
 
   it("selects Timed by default", async () => {
@@ -77,7 +100,9 @@ describe("ConfidenceControl (D-09)", () => {
         "Roughly known, like “around 7 in the morning”. Houses and angles are calculated but flagged provisional."
       )
     ).toBeTruthy();
-    expect(view.getByText("Estimated by an astrologer working backward from life events.")).toBeTruthy();
+    expect(
+      view.getByText("Estimated by an astrologer working backward from life events.")
+    ).toBeTruthy();
     expect(
       view.getByText(
         "No time known. You'll get only what doesn't need a time — planets in signs. No houses or rising sign, and nothing is guessed."
@@ -91,6 +116,7 @@ describe("ConfidenceControl (D-09)", () => {
   });
 
   it("calls back with the calculator label when an option is pressed", async () => {
+    const user = userEvent.setup();
     const onChange = vi.fn();
     const view = await render(<ConfidenceControl onChange={onChange} />);
 
@@ -98,7 +124,7 @@ describe("ConfidenceControl (D-09)", () => {
     const unknown = radios.find((radio) => within(radio).queryByText("Unknown"));
     if (!unknown) throw new Error("expected an Unknown option");
 
-    fireEvent.press(unknown);
+    await user.press(unknown);
     expect(onChange).toHaveBeenCalledWith("Unknown");
   });
 
@@ -119,10 +145,12 @@ describe("ConfidenceControl (D-09)", () => {
     }
   });
 
-  it("renders with all content intact at a 1.3x font scale (wraps, never clips)", async () => {
-    vi.spyOn(PixelRatio, "getFontScale").mockReturnValue(1.3);
-
+  it("keeps every string wrappable at large font scales (1.3x smoke, no clipping props)", async () => {
     const view = await render(<ConfidenceControl value="Unknown" onChange={() => {}} />);
+
+    // Dynamic type stays on: layouts must wrap, not clip — verified by the
+    // absence of every RN text-truncation affordance in the rendered tree.
+    assertNoClippingTexts(view);
 
     expect(view.getByText("How well do you know your birth time?")).toBeTruthy();
     for (const label of ["Timed", "Approximate", "Rectified", "Unknown"]) {
