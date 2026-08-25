@@ -705,20 +705,26 @@ Notes: GitHub ubuntu runners ship a C toolchain, so the pyswisseph cp312 sdist b
 | A5 | Simulator loopback defaults (10.0.2.2 Android / localhost iOS) still current for Expo Go on SDK 57 | §3 CORS | Mis-documentation only; runtime probe at execution fixes |
 | A6 | GitHub ubuntu-latest runners still ship a C compiler for the pyswisseph sdist build | §8, P1 | If stripped, add `apt-get install build-essential` step — one-line CI fix |
 
-## Open Questions
+## Open Questions (RESOLVED)
+
+>All four questions below were adopted at planning time; each answer cites the plan/task that implements it.
 
 1. **D-10 vs calculator mechanics — confirm wrapper mapping** *(resolved technically, confirm at planning)*
    - What we know: `--time 12:00 --confidence unknown` ≡ `--noon-for-unknown` except one provenance sentence (verified diff, §6). D-10 says the flag is "deliberately not used."
    - What's unclear: whether D-10's author also dislikes the *explicit* `time: "12:00"` provenance sentence ("Input: … time 12:00").
    - Recommendation: proceed with `--time 12:00 --confidence unknown`; the response's `unavailable_factors` carries the real D-10 semantics (no time-dependent factors presented). If the user prefers "time (none)" provenance, switching to the flag is a one-line change with identical output.
+   - **Resolution:** Adopted as recommended — explicit time 12:00 + confidence unknown, flag never used; implemented in 02-01 Task 4 (`unknown_time_payload` helper) and 02-03 Task 2 (unknown-time contract with derived `unavailable_factors`).
 2. **Type-ahead: debounced Geocoding vs Places Autocomplete**
    - What we know: D-05 locked Google Geocoding as the type-ahead backend; Google docs say geocoding isn't an autocomplete service (ambiguous queries weakly supported).
    - Recommendation: debounced candidates (≥3 chars, 300 ms) with manual fallback is adequate for birthplace entry (city-level, not address-level); revisit Autocomplete only if UX testing shows bad candidates.
+   - **Resolution:** Adopted — debounced (≥3 chars, ≥300 ms) Geocoding type-ahead with always-available manual fallback; implemented in 02-04 Task 1 (server-side proxy + zones list) and 02-06 Task 1 (client component). Autocomplete revisit only on UX evidence.
 3. **House-system selector scope on the birth form (D-11)**
    - What we know: selector surfaced in "assumptions/advanced" control; 10 systems verified.
    - Recommendation: advanced collapsible with the 10 verified names; default Whole Sign. No open risk.
+   - **Resolution:** Adopted — collapsed "Assumptions & advanced" disclosure listing the ten verified names with Whole Sign pre-selected; implemented in 02-05 Task 2 (schema-enum-driven radio list).
 4. **Does the disclosure (D-04) need an explicit accept tap or is continue-implies-ack enough?**
    - Recommendation: one "Got it / Calculate" combined CTA on first run (friction-minimal, records an explicit acknowledgement event for the flag). Planner may surface to user in plan review.
+   - **Resolution:** Adopted — combined "Got it — Calculate chart" CTA persists the versioned `@lemastra:disclosure.calculation.v1` flag and fires the mutation; implemented in 02-08 Tasks 1–2 (disclosure component + confirm-screen intercept).
 
 ## Environment Availability
 
