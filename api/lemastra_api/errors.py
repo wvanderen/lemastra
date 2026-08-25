@@ -104,7 +104,9 @@ class AppError(Exception):
     ``recoverable`` is always ``True`` for the current taxonomy; it rides
     on the exception (not just the map) so future non-recoverable codes
     cannot silently lose the field. ``hint`` falls back to the per-code
-    default unless the raiser supplies sharper copy.
+    default unless the raiser supplies sharper copy. ``headers`` carries
+    optional extra response headers — used by the rate-limit call site
+    (``Retry-After`` on 429 provider-limit failures).
     """
 
     def __init__(
@@ -114,6 +116,7 @@ class AppError(Exception):
         *,
         hint: str | None = None,
         status_override: int | None = None,
+        headers: dict[str, str] | None = None,
     ) -> None:
         super().__init__(message)
         self.code = ErrorCode(code)
@@ -121,6 +124,7 @@ class AppError(Exception):
         self.recoverable = RECOVERABLE[self.code]
         self.hint = hint if hint is not None else DEFAULT_HINTS[self.code]
         self.status = status_override if status_override is not None else HTTP_STATUS[self.code]
+        self.headers = headers
 
 
 def error_body(exc: AppError) -> dict[str, Any]:
@@ -155,21 +159,36 @@ def _format_validation_errors(errors: list[dict[str, Any]]) -> str:
     return "; ".join(parts)
 
 
+def _validation_error_code(request: Request) -> ErrorCode:
+    """Per-route code for pydantic request-validation failures.
+
+    Places-search edge rejections carry their own code
+    (``PLACE_INVALID_QUERY`` — the short-query gate lives in the
+    request model, per plan 02-04); every other route keeps the
+    generic ``CALC_INVALID_INPUT`` single error surface from 02-03.
+    """
+    if request.url.path.startswith("/api/v1/places/search"):
+        return ErrorCode.PLACE_INVALID_QUERY
+    return ErrorCode.CALC_INVALID_INPUT
+
+
 def register_error_handlers(app: FastAPI) -> None:
     """Attach the CALC-04 handlers to an app (called from ``create_app``)."""
 
     @app.exception_handler(AppError)
     async def _app_error_handler(request: Request, exc: AppError) -> JSONResponse:
-        return JSONResponse(status_code=exc.status, content=error_body(exc))
+        return JSONResponse(
+            status_code=exc.status, content=error_body(exc), headers=exc.headers
+        )
 
     @app.exception_handler(RequestValidationError)
     async def _request_validation_handler(
         request: Request, exc: RequestValidationError
     ) -> JSONResponse:
-        # Pydantic 422s become CALC_INVALID_INPUT 400s with field-naming
-        # messages — one error surface for the client, not two.
+        # Pydantic 422s become 400s with field-naming messages — one
+        # error surface per route family, not two.
         mapped = AppError(
-            ErrorCode.CALC_INVALID_INPUT,
+            _validation_error_code(request),
             _format_validation_errors(exc.errors()),
         )
         return JSONResponse(status_code=mapped.status, content=error_body(mapped))

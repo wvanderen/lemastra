@@ -15,6 +15,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from lemastra_api.errors import register_error_handlers
 from lemastra_api.provenance import read_versions
 from lemastra_api.routes.charts import router as charts_router
+from lemastra_api.routes.meta import router as meta_router
+from lemastra_api.routes.places import router as places_router
 from lemastra_api.settings import Settings, load_settings
 
 logger = logging.getLogger(__name__)
@@ -45,6 +47,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     register_error_handlers(app)
 
     app.include_router(charts_router)
+    app.include_router(places_router)
+    app.include_router(meta_router)
 
     @app.get("/api/v1/health")
     def health() -> dict:
