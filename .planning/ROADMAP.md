@@ -70,7 +70,33 @@ Plans:
   4. User receives specific recovery guidance when resolution, calculation, or schema validation fails.
   5. Supported natal and transit math, civil-time ambiguity, unknown times, and representative high-latitude cases pass published reference fixtures.
 
-**Plans:** TBD
+**Plans:** 9/9 plans planned
+
+Plans:
+**Wave 1**
+
+- [ ] 02-01-PLAN.md — API foundation: uv bootstrap, vendored skill submodule, calculator subprocess wrapper, civil-time classification (CALC-03/04, BIRTH-03)
+- [ ] 02-02-PLAN.md — Client deps (legitimacy checkpoint) + zod API contracts, fetch client, query provider, disclosure hook (BIRTH-01)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 02-03-PLAN.md — Calculate endpoint: provenance envelope, unknown-time contract, CALC-04 error taxonomy (CALC-02/03/04, BIRTH-05)
+- [ ] 02-05-PLAN.md — Client shared UI: accent/error tokens, option-card, error-banner, confidence + assumptions controls (BIRTH-04, CALC-02/04)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 02-04-PLAN.md — Places endpoints: geocoding search, historical timezone resolution + drift, zones list (BIRTH-02/03, CALC-04)
+- [ ] 02-06-PLAN.md — Birth form route: RHF+zod form, place type-ahead + manual fallback, home CTA (BIRTH-01/04)
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
+- [ ] 02-07-PLAN.md — GATE-02 golden fixture suite (9 cases through the API) + CI api job (GATE-02, CALC-01)
+- [ ] 02-08-PLAN.md — Confirm screen: resolved-offset card, tricky-time picker, one-time disclosure, registry activation flip (BIRTH-02/03)
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
+- [ ] 02-09-PLAN.md — Result screen: placement list, assumptions card, expandable provenance, unavailable factors (CALC-02/03, BIRTH-05)
+
 **UI hint:** yes
 
 ### Phase 3: Private Local Workspace
