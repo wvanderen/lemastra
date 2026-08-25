@@ -68,7 +68,7 @@ Plans:
   2. User can record birth-time confidence, and an unknown time produces only supported factors without an invented time.
   3. User receives a validated natal chart with visible assumptions and complete calculation/input version provenance.
   4. User receives specific recovery guidance when resolution, calculation, or schema validation fails.
-  5. Supported natal and transit math, civil-time ambiguity, unknown times, and representative high-latitude cases pass published reference fixtures.
+  5. Supported natal math, civil-time ambiguity, unknown times, and representative high-latitude cases pass published reference fixtures. *(Per D-14, Phase 2's GATE-02 scope is natal-only — the transit fixture half completes in Phase 5; phase-end verification should not expect transit fixtures here.)*
 
 **Plans:** 9/9 plans planned
 
@@ -96,6 +96,8 @@ Plans:
 **Wave 5** *(blocked on Wave 4 completion)*
 
 - [ ] 02-09-PLAN.md — Result screen: placement list, assumptions card, expandable provenance, unavailable factors (CALC-02/03, BIRTH-05)
+
+> **Wave-shape note (intentional deviation):** Waves 1–2 are foundation-heavy by design, not a slicing gap: the D-03 two-step contract requires the API chain (02-01 → 02-03 → 02-04) and the shared client vocabulary (02-02/02-05) to exist before screens consume them. The first walkable screen lands in Wave 3 (02-06); from there the user-visible slice runs unbroken through 02-08/02-09 (entry → confirm → calculate → result).
 
 **UI hint:** yes
 
@@ -236,7 +238,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Trust and Release Boundary | 7/7 | Complete    | 2026-08-23 |
-| 2. Trustworthy Natal Chart | 0/TBD | Not started | - |
+| 2. Trustworthy Natal Chart | 0/9 | Not started | - |
 | 3. Private Local Workspace | 0/TBD | Not started | - |
 | 4. Semantic Chart Exploration | 0/TBD | Not started | - |
 | 5. Natal Transit Workspace | 0/TBD | Not started | - |

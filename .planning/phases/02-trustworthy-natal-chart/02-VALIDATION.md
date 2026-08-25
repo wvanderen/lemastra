@@ -39,16 +39,18 @@ created: 2026-08-25
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| *(filled by planner)* | | | BIRTH-01 | — | N/A | unit (client) | `npx vitest run` (birth-form test) | ❌ W0 | ⬜ pending |
-| | | | BIRTH-02 | T-2-geo | geocode server-side only | unit + integration | vitest confirm-screen; `uv run pytest tests/test_places.py -q` | ❌ W0 | ⬜ pending |
-| | | | BIRTH-03 | — | N/A | unit (API civil_time) + unit (client picker) | `uv run pytest tests/test_civil_time.py -q` | ❌ W0 | ⬜ pending |
-| | | | BIRTH-04 | — | N/A | unit (client) | vitest confidence-control test | ❌ W0 | ⬜ pending |
-| | | | BIRTH-05 | — | N/A | integration | `uv run pytest tests/test_calculate.py -k unknown -q` | ❌ W0 | ⬜ pending |
-| | | | CALC-01 | — | N/A | integration (golden) | `uv run pytest tests/test_golden.py -q` | ❌ W0 | ⬜ pending |
-| | | | CALC-02 | — | N/A | unit (client) | vitest assumptions-line test | ❌ W0 | ⬜ pending |
-| | | | CALC-03 | — | N/A | integration | `uv run pytest tests/test_calculate.py -k provenance -q` | ❌ W0 | ⬜ pending |
-| | | | CALC-04 | — | N/A | integration | `uv run pytest tests/test_errors.py -q` | ❌ W0 | ⬜ pending |
-| | | | GATE-02 | — | N/A | CI | `api` GitHub Actions job | ❌ W0 | ⬜ pending |
+| 02-06 T2 | 02-06 | 3 | BIRTH-01 | — | N/A | unit (client) | `npx vitest run` (birth-form test) | ❌ W0 | ⬜ pending |
+| 02-04 T1–T2 · 02-08 T2 | 02-04 / 02-08 | 3 / 4 | BIRTH-02 | T-2-geo | geocode server-side only | unit + integration | vitest confirm-screen; `uv run pytest tests/test_places.py -q` | ❌ W0 | ⬜ pending |
+| 02-01 T3 · 02-04 T2 · 02-08 T1 | 02-01 / 02-04 / 02-08 | 1 / 3 / 4 | BIRTH-03 | — | N/A | unit (API civil_time) + unit (client picker) | `uv run pytest tests/test_civil_time.py -q` | ❌ W0 | ⬜ pending |
+| 02-05 T2 · 02-06 T2 | 02-05 / 02-06 | 2 / 3 | BIRTH-04 | — | N/A | unit (client) | vitest confidence-control test | ❌ W0 | ⬜ pending |
+| 02-03 T2 · 02-09 T2 | 02-03 / 02-09 | 2 / 5 | BIRTH-05 | — | N/A | integration | `uv run pytest tests/test_calculate.py -k unknown -q` | ❌ W0 | ⬜ pending |
+| 02-07 T1–T2 | 02-07 | 4 | CALC-01 | — | N/A | integration (golden) | `uv run pytest tests/test_golden.py -q` | ❌ W0 | ⬜ pending |
+| 02-05 T2 · 02-09 T1–T2 | 02-05 / 02-09 | 2 / 5 | CALC-02 | — | N/A | unit (client) | vitest assumptions-line test | ❌ W0 | ⬜ pending |
+| 02-01 T2 · 02-03 T2 · 02-09 T2 | 02-01 / 02-03 / 02-09 | 1 / 2 / 5 | CALC-03 | — | N/A | integration | `uv run pytest tests/test_calculate.py -k provenance -q` | ❌ W0 | ⬜ pending |
+| 02-01 T4 · 02-03 T1/T3 · 02-05 T1 | 02-01 / 02-03 / 02-05 | 1 / 2 / 2 | CALC-04 | — | N/A | integration | `uv run pytest tests/test_errors.py -q` | ❌ W0 | ⬜ pending |
+| 02-07 T2 | 02-07 | 4 | GATE-02 | — | N/A | CI | `api` GitHub Actions job | ❌ W0 | ⬜ pending |
+
+*Task IDs reflect the post-revision plan structure (02-01 rebalanced to Tasks 1–4; 02-02 renumbered to Tasks 1–3). Frontmatter `nyquist_compliant` / `wave_0_complete` intentionally remain `false` until execution proves the suites green (flip via execution or `/gsd-validate-phase`).*
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
