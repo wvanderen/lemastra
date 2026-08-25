@@ -12,7 +12,9 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from lemastra_api.errors import register_error_handlers
 from lemastra_api.provenance import read_versions
+from lemastra_api.routes.charts import router as charts_router
 from lemastra_api.settings import Settings, load_settings
 
 logger = logging.getLogger(__name__)
@@ -37,6 +39,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+    # CALC-04 handlers: AppError bodies + RequestValidationError ->
+    # CALC_INVALID_INPUT with field-naming messages.
+    register_error_handlers(app)
+
+    app.include_router(charts_router)
 
     @app.get("/api/v1/health")
     def health() -> dict:
