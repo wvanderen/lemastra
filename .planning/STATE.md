@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 02
 current_phase_name: trustworthy-natal-chart
 status: executing
-stopped_at: "Completed 02-02-PLAN.md (client data layer: deps, zod contracts, parse-then-trust client, query provider, disclosure hook)"
-last_updated: "2026-08-25T18:40:51.890Z"
+stopped_at: "Completed 02-03-PLAN.md (calculate endpoint: provenance envelope, unknown-time contract, CALC-04 matrix)"
+last_updated: "2026-08-25T18:50:40.019Z"
 last_activity: 2026-08-25
 last_activity_desc: Phase 02 execution started
 progress:
   total_phases: 10
   completed_phases: 1
   total_plans: 16
-  completed_plans: 9
+  completed_plans: 10
   percent: 10
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-08-24)
 ## Current Position
 
 Phase: 02 (trustworthy-natal-chart) — EXECUTING
-Plan: 3 of 9
+Plan: 4 of 9
 Status: Ready to execute
 Last activity: 2026-08-25 — Phase 02 execution started
 
@@ -61,6 +61,7 @@ Progress: [███░░░░░░░] 29%
 | Phase 01 P07 | 1min | 3 tasks | 6 files |
 | Phase 02 P01 | 10 min | 4 tasks | 225 files |
 | Phase 02 P02 | 7 min | 3 tasks | 9 files |
+| Phase 02 P03 | 7 min | 3 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -84,6 +85,9 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - [Phase ?]: [Phase 01]: GATE-06 secret gate = gitleaks (default rules + custom expo-public-secret-name rule firing on the NAME EXPO_PUBLIC_*KEY|SECRET|TOKEN|PASSWORD, not the value) with empty rationale-contract .gitleaksignore; bundle scan (gitleaks dir dist/) is the authoritative check since EXPO_PUBLIC_ inlining happens at bundle time (01-05) — Every future gitleaks finding gets a classification (secret-isolation-policy.md §1) and only publishable-identifier entries may be allowlisted, each with class + rationale comment lines — prevents allowlist abuse (T-01-11) and keeps scanner signal meaningful
 - [Phase ?]: [Phase 01]: Governance set (SE posture, data inventory, retention/deletion, secret isolation) approved by human/product-owner 2026-08-23, no named approver supplied — product approval explicitly does NOT replace qualified legal review, which remains scheduled before public/commercial beta (GATE-01/05) — Honest closure of GATE-01/05 requires recorded product approval without overstating legal status
 - [Phase ?]: [Phase 01]: GATE-06 CI = three mandatory jobs (vitest+tsc, gitleaks full-history, gitleaks bundle scan of expo web export), zero continue-on-error; bundle-scan covers web export only until platform-conditional code appears, then extends to ios/android exports — GATE-06 requires automated enforcement at commit/build time on every push, not review time
+- [Phase 02]: [Phase 02] Engine errors: fixed client-safe message; tracebacks server-side with input_revision digest only (T-02-11, 02-03) — Threat-model info-disclosure guard: response bodies never carry engine tracebacks
+- [Phase 02]: [Phase 02] Missing birth time for known confidence is calculator-owned: exit-2 field-naming copy surfaces as CALC_INVALID_INPUT; pydantic stays pattern-only (02-03) — Plan verify command constructs a Timed request without time - calculator copy keeps one error surface
+- [Phase 02]: [Phase 02] input_revision = sha256[:12] of json-normalized calculator input (02-03) — STACK.md revision concept: changed inputs yield new revision ids, formalized in Phase 3
 
 ### Pending Todos
 
@@ -103,6 +107,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-25T18:40:51.884Z
-Stopped at: Completed 02-02-PLAN.md (client data layer: deps, zod contracts, parse-then-trust client, query provider, disclosure hook)
+Last session: 2026-08-25T18:50:34.793Z
+Stopped at: Completed 02-03-PLAN.md (calculate endpoint: provenance envelope, unknown-time contract, CALC-04 matrix)
 Resume file: None
