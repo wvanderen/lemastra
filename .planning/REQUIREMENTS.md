@@ -8,7 +8,7 @@
 ### Birth Data and Natal Calculation
 
 - [x] **BIRTH-01**: User can enter a birth date, local birth time, and birthplace to start a natal chart.
-- [ ] **BIRTH-02**: User can review and confirm the resolved latitude, longitude, and IANA timezone before calculation.
+- [x] **BIRTH-02**: User can review and confirm the resolved latitude, longitude, and IANA timezone before calculation.
 - [x] **BIRTH-03**: User is asked to resolve an ambiguous or nonexistent civil time rather than having the app silently choose one.
 - [x] **BIRTH-04**: User can mark a birth time as timed, approximate, rectified, or unknown.
 - [x] **BIRTH-05**: User with an unknown birth time can calculate only the factors supported by that uncertainty, without a silently invented noon time.
@@ -160,7 +160,7 @@ Every v1 requirement maps to exactly one roadmap phase.
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | BIRTH-01 | Phase 2 | Complete |
-| BIRTH-02 | Phase 2 | Pending |
+| BIRTH-02 | Phase 2 | Complete |
 | BIRTH-03 | Phase 2 | Complete |
 | BIRTH-04 | Phase 2 | Complete |
 | BIRTH-05 | Phase 2 | Complete |

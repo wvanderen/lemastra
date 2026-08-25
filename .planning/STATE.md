@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 02
 current_phase_name: trustworthy-natal-chart
 status: executing
-stopped_at: "Completed 02-05-PLAN.md (shared UI layer: accent/error tokens, option-card, error-banner, D-09/D-11 controls)"
-last_updated: "2026-08-25T19:06:09.501Z"
+stopped_at: Completed 02-04-PLAN.md (places search + resolve-time server half)
+last_updated: "2026-08-25T19:16:43.063Z"
 last_activity: 2026-08-25
 last_activity_desc: Phase 02 execution started
 progress:
   total_phases: 10
   completed_phases: 1
   total_plans: 16
-  completed_plans: 11
+  completed_plans: 12
   percent: 10
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-08-24)
 ## Current Position
 
 Phase: 02 (trustworthy-natal-chart) — EXECUTING
-Plan: 5 of 9
+Plan: 6 of 9
 Status: Ready to execute
 Last activity: 2026-08-25 — Phase 02 execution started
 
@@ -63,6 +63,7 @@ Progress: [███░░░░░░░] 29%
 | Phase 02 P02 | 7 min | 3 tasks | 9 files |
 | Phase 02 P03 | 7 min | 3 tasks | 7 files |
 | Phase 02 P05 | 10 min | 2 tasks | 13 files |
+| Phase 02 P04 | 5 min | 2 tasks | 12 files |
 
 ## Accumulated Context
 
@@ -92,6 +93,9 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - [Phase 02]: ErrorBanner interpolates copy-deck templates via optional query/houseSystem props; only CALC_INVALID_INPUT server messages render (T-02-18), all other banner strings come from the local copy deck keyed by an exhaustive ErrorCode switch (02-05)
 - [Phase 02]: House-system selector vocabulary is schema-driven (houseSystemSchema.options) and confidence options are copy-deck-ordered Confidence[]; selected state = fill + accent border + 600 label, never color alone (02-05)
 - [Phase 02]: use-theme resolves any non-dark scheme (incl. null) to light — fixes themed-component crash before Appearance loads (02-05)
+- [Phase ?]: [Phase 02] resolve-time: Google Time Zone supplies zone identity only (D-07); the historical birth-instant offset/classification/D-08 options are always computed locally via zoneinfo+pinned tzdata; drift = google rawOffset+dstOffset != local fold=0 — surfaced, never substituted (02-04)
+- [Phase ?]: [Phase 02] Geocoder errors map per endpoint family (search -> PLACE_*, resolve-time -> TIMEZONE_*); OVER_QUERY_LIMIT -> 429 + Retry-After via the new AppError.headers seam; unset key fails honestly as provider-unavailable pre-network (02-04)
+- [Phase ?]: [Phase 02] RequestValidationError is path-aware: places/search edge rejections surface as PLACE_INVALID_QUERY, other routes keep CALC_INVALID_INPUT; tz_override accepts IANA names (CLDR aliases resolve) or fixed offsets, invalid -> TIMEZONE_INVALID_ZONE 400 (02-04)
 
 ### Pending Todos
 
@@ -111,6 +115,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-25T19:06:09.492Z
-Stopped at: Completed 02-05-PLAN.md (shared UI layer: accent/error tokens, option-card, error-banner, D-09/D-11 controls)
+Last session: 2026-08-25T19:16:37.970Z
+Stopped at: Completed 02-04-PLAN.md (places search + resolve-time server half)
 Resume file: None
