@@ -1,14 +1,14 @@
 ---
-status: partial
+status: complete
 phase: 02-trustworthy-natal-chart
 source: [02-VERIFICATION.md]
-started: 2026-08-26T18:10:00Z
-updated: 2026-08-26T18:47:00Z
+started: 2026-08-26T10:10:00Z
+updated: 2026-08-26T19:05:00Z
 ---
 
 ## Current Test
 
-[testing paused — 1 item outstanding]
+[testing complete]
 
 ## Tests
 
@@ -17,9 +17,8 @@ updated: 2026-08-26T18:47:00Z
 Set `GOOGLE_API_KEY` in `api/.env` (GCP key restricted to Geocoding + Time Zone APIs), run the API + client, search a real birthplace.
 
 expected: Real labeled candidates with coordinates; confirm card shows the Google-resolved IANA zone plus the locally-computed historical offset; drift note only on genuine disagreement. Manual fallback path needs no key (already fixture- and walk-verified).
-result: blocked
-blocked_by: third-party
-reason: "Initially: CORS request did not succeed — API not running (localhost:8000 unreachable). With server running: 503 PLACE_PROVIDER_UNAVAILABLE — GOOGLE_API_KEY is not configured on the server. Live Google geocoding/timezone path needs the key set in api/.env before this test can run; manual fallback verified working in Test 2."
+result: pass
+note: Initially blocked (API down, then GOOGLE_API_KEY not loaded, then GCP APIs not enabled). Root causes resolved in session: API must be started with `uv run --env-file .env uvicorn ...` (settings.py reads os.environ only, no dotenv code), and Geocoding + Time Zone APIs must be enabled on the GCP project. Confirmed working via live request and user verification.
 
 ### 2. Full-flow walk on device/emulator
 
@@ -39,10 +38,10 @@ result: pass
 ## Summary
 
 total: 3
-passed: 2
+passed: 3
 issues: 0
 pending: 0
 skipped: 0
-blocked: 1
+blocked: 0
 
 ## Gaps
