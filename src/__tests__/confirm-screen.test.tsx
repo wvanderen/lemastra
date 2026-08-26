@@ -341,19 +341,21 @@ describe("Confirm screen — tricky-time gating", () => {
     const view = await renderConfirm(baseDraft({ resolve: RESOLVE_AMBIGUOUS, time: "01:30", date: "2024-11-03" }));
 
     const cta = () => view.getByTestId("confirm-calculate-cta");
-    expect(cta().props.disabled).toBe(true);
+    // Pressable consumes `disabled` and forwards it as accessibilityState
+    // on the host element (probe-verified under the RN shim).
+    expect(cta().props.accessibilityState?.disabled).toBe(true);
     expect(view.getByText(TRICKY_TIME_CHOICE_REQUIRED)).toBeTruthy();
 
     await userEvent.press(view.getByTestId("tricky-time-second_pass"));
 
-    expect(cta().props.disabled).toBe(false);
+    expect(cta().props.accessibilityState?.disabled).toBe(false);
     expect(view.queryByText(TRICKY_TIME_CHOICE_REQUIRED)).toBeNull();
   });
 
   it("keeps Calculate enabled without a picker for a normal classification", async () => {
     await preAcknowledge();
     const view = await renderConfirm();
-    expect(view.getByTestId("confirm-calculate-cta").props.disabled).toBe(false);
+    expect(view.getByTestId("confirm-calculate-cta").props.accessibilityState?.disabled).toBe(false);
     expect(view.queryByText(TRICKY_TIME_CHOICE_REQUIRED)).toBeNull();
     expect(view.queryByTestId("tricky-time-picker")).toBeNull();
   });
@@ -483,7 +485,7 @@ describe("Confirm screen — calculating state and navigation", () => {
     await userEvent.press(view.getByTestId("confirm-calculate-cta"));
 
     expect(view.getByText(CONFIRM_CALCULATING)).toBeTruthy();
-    expect(view.getByTestId("confirm-calculate-cta").props.disabled).toBe(true);
+    expect(view.getByTestId("confirm-calculate-cta").props.accessibilityState?.disabled).toBe(true);
     expect(view.getByTestId("confirm-calculating-indicator")).toBeTruthy();
 
     resolveCalculation(envelopeFixture());

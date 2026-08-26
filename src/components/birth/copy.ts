@@ -209,3 +209,87 @@ export const DISCLOSURE_CTA = "Got it — Calculate chart";
 
 /** Link to the full privacy screen. */
 export const DISCLOSURE_PRIVACY_LINK = "Read full privacy details";
+
+// ---------------------------------------------------------------------------
+// Confirm screen (/birth/confirm) — 02-UI-SPEC §"Copy Deck" section
+// ---------------------------------------------------------------------------
+
+/** Confirm screen title. */
+export const CONFIRM_TITLE = "Confirm birth details";
+
+/** Resolved-card field label — the place label. */
+export const CONFIRM_BIRTHPLACE_LABEL = "Birthplace";
+
+/** Resolved-card field label — the coordinates (Data mono value). */
+export const CONFIRM_COORDINATES_LABEL = "Coordinates";
+
+/** Resolved-card field label — the IANA zone (Data mono value). */
+export const CONFIRM_TIME_ZONE_LABEL = "Time zone";
+
+/** Resolved-card field label — the locally-resolved historical offset (D-06). */
+export const CONFIRM_OFFSET_LABEL_LABEL = "UTC offset at birth";
+
+/** Coordinates value — "{lat}°, {lon}°". */
+export function confirmCoordinates(lat: number, lon: number): string {
+  return `${lat}°, ${lon}°`;
+}
+
+/** Offset value — "{offset_label} ({timeZoneName})"; bare label when manual/null. */
+export function confirmOffsetValue(offsetLabel: string, timeZoneName?: string | null): string {
+  return timeZoneName ? `${offsetLabel} (${timeZoneName})` : offsetLabel;
+}
+
+/** Drift note — only rendered when the resolve payload says drift: true. */
+export const DRIFT_NOTE =
+  "Note: Google's current-rules offset differs from the historical record for this date. We used the historical one.";
+
+/** Zone-source note — Google server-side resolution (D-07). */
+export const ZONE_SOURCE_GOOGLE = "Time zone resolved via Google (server-side)";
+
+/** Zone-source note — manual tz_override entry (D-05). */
+export const ZONE_SOURCE_MANUAL = "Time zone entered manually";
+
+/** Birth summary line — "{date} · {time} · {confidence}"; empty time is omitted (Unknown). */
+export function confirmBirthSummary(date: string, time: string, confidence: string): string {
+  return [date, time, confidence].filter((segment) => segment.length > 0).join(" · ");
+}
+
+/** Confirm CTA — runs the calculate mutation (behind the D-04 first-run intercept). */
+export const CONFIRM_CTA = "Calculate chart";
+
+/** In-flight CTA label (calculating state). */
+export const CONFIRM_CALCULATING = "Calculating chart…";
+
+/** Back link — returns to /birth with the draft intact. */
+export const CONFIRM_BACK_LINK = "Edit birth details";
+
+// ---------------------------------------------------------------------------
+// Result screen (/chart/result, minimal) — 02-UI-SPEC §"Copy Deck" section
+// (placements/provenance/unavailable sections are 02-09 scope; only the
+// strings the minimal screen renders live here for now)
+// ---------------------------------------------------------------------------
+
+/** Result screen title (Display). */
+export const RESULT_TITLE = "Your natal chart";
+
+/** Identity line input — date/time/label with the envelope's confidence. */
+export interface ResultIdentity {
+  date: string;
+  time: string;
+  label: string;
+}
+
+/** Identity line — "{date} · {time} · {label} · {confidence}"; Unknown omits the time slot. */
+export function resultIdentityLine(
+  identity: ResultIdentity,
+  confidence: string
+): string {
+  return [identity.date, identity.time, identity.label, confidence]
+    .filter((segment) => segment.length > 0)
+    .join(" · ");
+}
+
+/** Validation-status line — schema gate the envelope already passed. */
+export function resultValidationStatus(schemaVersion: string): string {
+  return `Validated — passed chart schema ${schemaVersion}`;
+}
