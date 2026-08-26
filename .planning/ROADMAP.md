@@ -70,7 +70,7 @@ Plans:
   4. User receives specific recovery guidance when resolution, calculation, or schema validation fails.
   5. Supported natal math, civil-time ambiguity, unknown times, and representative high-latitude cases pass published reference fixtures. *(Per D-14, Phase 2's GATE-02 scope is natal-only — the transit fixture half completes in Phase 5; phase-end verification should not expect transit fixtures here.)*
 
-**Plans:** 5/9 plans executed
+**Plans:** 6/9 plans executed
 
 Plans:
 **Wave 1**
@@ -86,7 +86,7 @@ Plans:
 **Wave 3** *(blocked on Wave 2 completion)*
 
 - [x] 02-04-PLAN.md — Places endpoints: geocoding search, historical timezone resolution + drift, zones list (BIRTH-02/03, CALC-04)
-- [ ] 02-06-PLAN.md — Birth form route: RHF+zod form, place type-ahead + manual fallback, home CTA (BIRTH-01/04)
+- [x] 02-06-PLAN.md — Birth form route: RHF+zod form, place type-ahead + manual fallback, home CTA (BIRTH-01/04)
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
@@ -238,7 +238,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Trust and Release Boundary | 7/7 | Complete    | 2026-08-23 |
-| 2. Trustworthy Natal Chart | 5/9 | In Progress|  |
+| 2. Trustworthy Natal Chart | 6/9 | In Progress|  |
 | 3. Private Local Workspace | 0/TBD | Not started | - |
 | 4. Semantic Chart Exploration | 0/TBD | Not started | - |
 | 5. Natal Transit Workspace | 0/TBD | Not started | - |

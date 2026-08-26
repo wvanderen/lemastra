@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 02
 current_phase_name: trustworthy-natal-chart
 status: executing
-stopped_at: Completed 02-04-PLAN.md (places search + resolve-time server half)
-last_updated: "2026-08-25T19:16:43.063Z"
+stopped_at: Completed 02-06-PLAN.md (birth entry form + place search)
+last_updated: "2026-08-26T17:00:06.025Z"
 last_activity: 2026-08-25
 last_activity_desc: Phase 02 execution started
 progress:
   total_phases: 10
   completed_phases: 1
   total_plans: 16
-  completed_plans: 12
+  completed_plans: 13
   percent: 10
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-08-24)
 ## Current Position
 
 Phase: 02 (trustworthy-natal-chart) — EXECUTING
-Plan: 6 of 9
+Plan: 7 of 9
 Status: Ready to execute
 Last activity: 2026-08-25 — Phase 02 execution started
 
@@ -64,6 +64,7 @@ Progress: [███░░░░░░░] 29%
 | Phase 02 P03 | 7 min | 3 tasks | 7 files |
 | Phase 02 P05 | 10 min | 2 tasks | 13 files |
 | Phase 02 P04 | 5 min | 2 tasks | 12 files |
+| Phase 02 P06 | 2h 45m | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -96,6 +97,9 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - [Phase ?]: [Phase 02] resolve-time: Google Time Zone supplies zone identity only (D-07); the historical birth-instant offset/classification/D-08 options are always computed locally via zoneinfo+pinned tzdata; drift = google rawOffset+dstOffset != local fold=0 — surfaced, never substituted (02-04)
 - [Phase ?]: [Phase 02] Geocoder errors map per endpoint family (search -> PLACE_*, resolve-time -> TIMEZONE_*); OVER_QUERY_LIMIT -> 429 + Retry-After via the new AppError.headers seam; unset key fails honestly as provider-unavailable pre-network (02-04)
 - [Phase ?]: [Phase 02] RequestValidationError is path-aware: places/search edge rejections surface as PLACE_INVALID_QUERY, other routes keep CALC_INVALID_INPUT; tz_override accepts IANA names (CLDR aliases resolve) or fixed offsets, invalid -> TIMEZONE_INVALID_ZONE 400 (02-04)
+- [Phase 02]: 02-06: D-05 type-ahead = deferred-timer debounce (300 ms real-timer contract) + TanStack Query; colon-less times (1430) accepted per copy deck and normalized to HH:MM before any network call — T-02-22 enforced by tests against real timers; server pydantic pattern is HH:MM-only
+- [Phase 02]: 02-06: Unknown confidence resolves at the documented noon reference (12:00); the time field stays disabled+cleared and no form-level place error was invented (PlaceSearch empty state is the guidance) — D-10-compliant invocation; copy deck has no place-missing string
+- [Phase 02]: 02-06: draft hand-off contract = JSON.stringify({...formValues, resolve}) router param to /birth/confirm via exactly one scoped as-never cast marked TODO(02-08); birthFormSchema exported for 02-08 draft parsing — typedRoutes cannot type-check an unregistered route; 02-08 Task 2 removes the cast
 
 ### Pending Todos
 
@@ -115,6 +119,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-25T19:16:37.970Z
-Stopped at: Completed 02-04-PLAN.md (places search + resolve-time server half)
+Last session: 2026-08-26T17:00:06.019Z
+Stopped at: Completed 02-06-PLAN.md (birth entry form + place search)
 Resume file: None
