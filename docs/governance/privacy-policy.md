@@ -21,13 +21,17 @@ explains, in plain language, what data is involved and what leaves your device.
 
 LemAstra is built **local-first**:
 
-- **In the current release, no personal data leaves your device.** No remote feature is
-  enabled yet — there is no calculation server connection, no birthplace search, no AI
-  interpretation, and no diagnostics reporting in the version you are using.
+- **Two remote features are live in the current release, both user-initiated and ephemeral**:
+  chart calculation (LemAstra's own calculation service) and birthplace search (Google
+  geocoding and timezone services, called by our server). The app shows you exactly what is
+  sent — and asks once before your first calculation — and every such request is
+  **discarded immediately after your chart is returned**. Nothing from these requests is
+  retained server-side.
 - **Your charts, conversations, and reports are stored on your device** (once saving exists),
   and you never need an account to use LemAstra.
-- Every remote feature described below is **planned**. Each one is turned on only in a future
-  release, and this policy is updated before that happens.
+- Every other remote feature described below (AI interpretation, diagnostics, accounts and
+  sync) is **planned**. Each one is turned on only in a future release, and this policy is
+  updated before that happens.
 
 ## What each service receives when a remote feature is enabled
 

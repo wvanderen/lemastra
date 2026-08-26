@@ -4,7 +4,7 @@
     {
       "id": "lemastra-calculation",
       "name": "LemAstra Calculation Service",
-      "status": "planned",
+      "status": "active",
       "introducedInPhase": 2,
       "dataCategories": [
         "birth-date",
@@ -25,7 +25,7 @@
     {
       "id": "google-geocoding-timezone",
       "name": "Google Geocoding + Time Zone APIs (server-side)",
-      "status": "planned",
+      "status": "active",
       "introducedInPhase": 2,
       "dataCategories": [
         "place-query-text",
