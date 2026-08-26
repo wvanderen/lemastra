@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Pressable, ScrollView, StyleSheet, TextInput, View } from "react-native";
@@ -145,6 +145,12 @@ export type BirthFormValues = z.infer<typeof birthFormSchema>;
 export default function BirthForm() {
   const theme = useTheme();
 
+  // CALC_UNSUITABLE_HOUSE_SYSTEM deep-link landing (02-08): the confirm
+  // screen's "Open Assumptions" action navigates here with openAssumptions=1;
+  // the keyed remount lands the control expanded without touching form state.
+  const params = useLocalSearchParams<{ openAssumptions?: string }>();
+  const assumptionsOpen = params.openAssumptions === "1";
+
   const { control, handleSubmit, setValue, watch } = useForm<BirthFormValues>({
     resolver: zodResolver(birthFormSchema),
     defaultValues: {
@@ -186,12 +192,10 @@ export default function BirthForm() {
       return { values, response };
     },
     onSuccess: ({ values, response }) => {
-      // TODO(02-08): /birth/confirm is not yet a registered route — 02-08
-      // Task 2 registers it and removes this single scoped `as never` cast.
       router.push({
         pathname: "/birth/confirm",
         params: { draft: JSON.stringify({ ...values, resolve: response }) },
-      } as never);
+      });
     },
   });
 
@@ -301,6 +305,8 @@ export default function BirthForm() {
           name="house_system"
           render={({ field: { value } }) => (
             <AssumptionsControl
+              key={assumptionsOpen ? "assumptions-open" : "assumptions"}
+              defaultExpanded={assumptionsOpen}
               value={value}
               onChange={(system: HouseSystem) =>
                 setValue("house_system", system, { shouldValidate: true })

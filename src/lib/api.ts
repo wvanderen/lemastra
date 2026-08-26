@@ -92,7 +92,17 @@ export interface ResolveTimeRequest {
 export interface CalculateRequest {
   date: string;
   time?: string;
-  time_resolution?: { mode: TimeResolutionMode; wall_time?: string };
+  time_resolution?: {
+    mode: TimeResolutionMode;
+    /**
+     * Fold=1 UTC offset in seconds — required by the server for second_pass
+     * (derived from the resolve payload's option.utc vs the entered wall
+     * time; the UI never re-derives offsets from its own DST rules).
+     */
+    offset_seconds?: number;
+    /** Shifted HH:MM wall time — required by the server for shifted mode. */
+    wall_time?: string;
+  };
   confidence: "Timed" | "Approximate" | "Unknown" | "Rectified";
   house_system: HouseSystem;
   place: { label: string; lat: number; lon: number };

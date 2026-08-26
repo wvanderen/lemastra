@@ -63,6 +63,7 @@ vi.mock("expo-router", async () => {
   Stack.Screen = () => null;
   return {
     router: routerMock,
+    useLocalSearchParams: () => searchParamsState.value,
     Stack,
     ThemeProvider: ({ children }: { children?: ReactNode }) => <>{children ?? null}</>,
     DarkTheme: {},
@@ -71,6 +72,9 @@ vi.mock("expo-router", async () => {
     __probeQueryClient: () => probeQueryClient,
   };
 });
+
+/** Configurable local search params for the mocked useLocalSearchParams (02-08 deep-link). */
+const searchParamsState = vi.hoisted(() => ({ value: {} as Record<string, string | string[]> }));
 
 vi.mock("expo-splash-screen", () => ({
   preventAutoHideAsync: vi.fn(() => Promise.resolve()),
@@ -136,6 +140,7 @@ function zonesMock() {
 afterEach(async () => {
   await cleanup();
   vi.clearAllMocks();
+  searchParamsState.value = {};
 });
 
 /** A rendered host element queryable by `within`. */
