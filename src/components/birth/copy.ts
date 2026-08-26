@@ -160,3 +160,52 @@ export const BIRTH_TIME_ERROR = "Enter a valid time, like 09:30 or 1430.";
 
 /** Form CTA — runs zod validation, then the resolve-time call. */
 export const BIRTH_FORM_CTA = "Review birth details";
+
+// ---------------------------------------------------------------------------
+// Tricky-time picker (D-08) — 02-UI-SPEC §"Copy Deck", Tricky-time picker
+// ---------------------------------------------------------------------------
+
+/** Ambiguous (fall-back overlap) heading. */
+export const TRICKY_TIME_AMBIGUOUS_HEADING = "This time happened twice";
+
+/** Ambiguous body — {date}/{iana_zone}/{time} interpolated from the draft. */
+export function trickyTimeAmbiguousBody(date: string, ianaZone: string, time: string): string {
+  return `On ${date}, clocks fell back in ${ianaZone}, so ${time} occurred twice. Which one is your birth time?`;
+}
+
+/** Nonexistent (spring-forward gap) heading. */
+export const TRICKY_TIME_NONEXISTENT_HEADING = "This time didn't exist";
+
+/** Nonexistent body — {date}/{iana_zone}/{time} interpolated from the draft. */
+export function trickyTimeNonexistentBody(date: string, ianaZone: string, time: string): string {
+  return `On ${date}, clocks sprung forward in ${ianaZone}, so ${time} never happened.`;
+}
+
+/** Picker footnote (both cases) — the never-silent-choice promise. */
+export const TRICKY_TIME_FOOTNOTE = "We never pick for you — ambiguous times change the chart.";
+
+/** Required-choice helper — visible while no option is selected. */
+export const TRICKY_TIME_CHOICE_REQUIRED = "Choose a time above to continue";
+
+/** Helper under the first-pass option card. */
+export const TRICKY_TIME_FIRST_HELPER = "Before the clocks changed";
+
+/** Helper under the second-pass option card. */
+export const TRICKY_TIME_SECOND_HELPER = "After the clocks changed";
+
+// ---------------------------------------------------------------------------
+// One-time calculation disclosure (D-04) — 02-UI-SPEC §"Copy Deck" section
+// ---------------------------------------------------------------------------
+
+/** Disclosure intercept heading. */
+export const DISCLOSURE_HEADING = "Before your first calculation";
+
+/** Disclosure intro — provider facts below come from the registry itself. */
+export const DISCLOSURE_INTRO =
+  "Here's exactly what leaves your device, where it goes, and for how long — from our privacy registry:";
+
+/** Disclosure acknowledgement CTA — persists the v1 flag and proceeds. */
+export const DISCLOSURE_CTA = "Got it — Calculate chart";
+
+/** Link to the full privacy screen. */
+export const DISCLOSURE_PRIVACY_LINK = "Read full privacy details";
