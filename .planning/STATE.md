@@ -4,17 +4,17 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: 02
 current_phase_name: trustworthy-natal-chart
-status: executing
-stopped_at: Completed 02-08-PLAN.md
-last_updated: "2026-08-26T17:45:50.769Z"
+status: verifying
+stopped_at: Completed 02-09-PLAN.md
+last_updated: "2026-08-26T17:59:53.724Z"
 last_activity: 2026-08-25
 last_activity_desc: Phase 02 execution started
 progress:
   total_phases: 10
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 16
-  completed_plans: 15
-  percent: 10
+  completed_plans: 16
+  percent: 20
 ---
 
 # Project State
@@ -30,7 +30,7 @@ See: .planning/PROJECT.md (updated 2026-08-24)
 
 Phase: 02 (trustworthy-natal-chart) — EXECUTING
 Plan: 9 of 9
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-08-25 — Phase 02 execution started
 
 Progress: [███░░░░░░░] 29%
@@ -67,6 +67,7 @@ Progress: [███░░░░░░░] 29%
 | Phase 02 P06 | 2h 45m | 2 tasks | 7 files |
 | Phase 02 P07 | 15 min | 2 tasks | 12 files |
 | Phase 02 P08 | 16 min | 3 tasks | 17 files |
+| Phase 02 P09 | 9 min | 2 tasks | 13 files |
 
 ## Accumulated Context
 
@@ -109,6 +110,9 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - [Phase ?]: 02-08: time_resolution translation = server-data arithmetic only (second_pass offset_seconds from option.utc vs entered wall time; shifted wall_time via Intl render of the server instant in the server-resolved zone) — UI never re-derives offsets (T-02-31) — The resolve payload carries only {mode,label,utc}; deriving the fold offset and shifted wall time from server products keeps D-08 honest while the server revalidates the mode
 - [Phase ?]: 02-08: governed registry flip (lemastra-calculation + google-geocoding-timezone → active) shipped with in-change governance reconciliation (Play CSV overview TRUE + two collected type rows, apple-labels §1, privacy-policy posture, data-inventory §4) — Phase-1 consistency tests enforce truthful store drafts once any provider is active, and the 01-04 rule requires the policy to update before any handling change ships; tests were reconciled against, never weakened
 - [Phase ?]: 02-08: confirm draft parsing = birthFormSchema.extend({ resolve }) and result carries envelope (CalculateResponse JSON) + identity (date/time/label) params; confidence read from chart_data.birth_time_confidence — One source of truth for the form contract downstream; 02-06's scoped as-never cast removed with both routes typechecking uncast
+- [Phase ?]: 02-09: D-10 factor cards render server reasons VERBATIM; only the id→display-name mapping (ascendant_mc → 'Rising sign & Midheaven') is client copy with raw-id fallback — never invented values
+- [Phase ?]: 02-09: zone_source travels in the identity param (confirm→result) for the CALC-03 place-resolution row — server provenance has no zone fields by design and the API is frozen this phase; identity without it redirects
+- [Phase ?]: 02-09: one degree split (floor + rounded minutes, 60′ carry) feeds BOTH the D°MM′ visual and the spoken a11y sentence (A-UI-4/T-02-36); per-placement notes stay unrendered — the provisional_factors card is the D-10 Moon-caveat surface
 
 ### Pending Todos
 
@@ -128,6 +132,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-26T17:45:50.761Z
-Stopped at: Completed 02-08-PLAN.md
+Last session: 2026-08-26T17:59:53.718Z
+Stopped at: Completed 02-09-PLAN.md
 Resume file: None
