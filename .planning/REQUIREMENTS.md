@@ -12,7 +12,7 @@
 - [x] **BIRTH-03**: User is asked to resolve an ambiguous or nonexistent civil time rather than having the app silently choose one.
 - [x] **BIRTH-04**: User can mark a birth time as timed, approximate, rectified, or unknown.
 - [x] **BIRTH-05**: User with an unknown birth time can calculate only the factors supported by that uncertainty, without a silently invented noon time.
-- [ ] **CALC-01**: User can calculate a natal chart whose placements, angles, houses, aspects, and related supported factors pass the product's reference fixtures.
+- [x] **CALC-01**: User can calculate a natal chart whose placements, angles, houses, aspects, and related supported factors pass the product's reference fixtures.
 - [x] **CALC-02**: User can see the calculation assumptions used for a chart, including house system, zodiac mode, ephemeris mode, and relevant orb policy.
 - [x] **CALC-03**: Every calculated chart records its input revision and calculator, ephemeris, timezone-data, and schema versions.
 - [x] **CALC-04**: User receives a specific recoverable error when place/time resolution, calculation, or schema validation fails.
@@ -98,7 +98,7 @@
 ### Release Gates
 
 - [x] **GATE-01**: The project records an approved Swiss Ephemeris licensing and distribution posture before public or commercial beta.
-- [ ] **GATE-02**: Golden natal and transit fixtures cover supported calculations, civil-time ambiguity, unknown birth time, and representative high-latitude behavior.
+- [x] **GATE-02**: Golden natal and transit fixtures cover supported calculations, civil-time ambiguity, unknown birth time, and representative high-latitude behavior.
 - [ ] **GATE-03**: Cross-contract tests verify raw input through chart, reading plan, interpretation, and report artifacts.
 - [ ] **GATE-04**: Evaluation suites meet defined thresholds for evidence fidelity, methodology adherence, uncertainty, safety, and beginner/technical consistency.
 - [x] **GATE-05**: The release has an approved data inventory, retention/deletion policy, provider inventory, and accurate Apple and Google privacy disclosures.
@@ -164,7 +164,7 @@ Every v1 requirement maps to exactly one roadmap phase.
 | BIRTH-03 | Phase 2 | Complete |
 | BIRTH-04 | Phase 2 | Complete |
 | BIRTH-05 | Phase 2 | Complete |
-| CALC-01 | Phase 2 | Pending |
+| CALC-01 | Phase 2 | Complete |
 | CALC-02 | Phase 2 | Complete |
 | CALC-03 | Phase 2 | Complete |
 | CALC-04 | Phase 2 | Complete |
@@ -226,7 +226,7 @@ Every v1 requirement maps to exactly one roadmap phase.
 | A11Y-02 | Phase 4 | Pending |
 | A11Y-03 | Phase 4 | Pending |
 | GATE-01 | Phase 1 | Complete |
-| GATE-02 | Phase 2 | Pending |
+| GATE-02 | Phase 2 | Complete |
 | GATE-03 | Phase 10 | Pending |
 | GATE-04 | Phase 7 | Pending |
 | GATE-05 | Phase 1 | Complete |

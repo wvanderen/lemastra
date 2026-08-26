@@ -70,7 +70,7 @@ Plans:
   4. User receives specific recovery guidance when resolution, calculation, or schema validation fails.
   5. Supported natal math, civil-time ambiguity, unknown times, and representative high-latitude cases pass published reference fixtures. *(Per D-14, Phase 2's GATE-02 scope is natal-only — the transit fixture half completes in Phase 5; phase-end verification should not expect transit fixtures here.)*
 
-**Plans:** 6/9 plans executed
+**Plans:** 7/9 plans executed
 
 Plans:
 **Wave 1**
@@ -90,7 +90,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 02-07-PLAN.md — GATE-02 golden fixture suite (9 cases through the API) + CI api job (GATE-02, CALC-01)
+- [x] 02-07-PLAN.md — GATE-02 golden fixture suite (9 cases through the API) + CI api job (GATE-02, CALC-01)
 - [ ] 02-08-PLAN.md — Confirm screen: resolved-offset card, tricky-time picker, one-time disclosure, registry activation flip (BIRTH-02/03)
 
 **Wave 5** *(blocked on Wave 4 completion)*
@@ -238,7 +238,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Trust and Release Boundary | 7/7 | Complete    | 2026-08-23 |
-| 2. Trustworthy Natal Chart | 6/9 | In Progress|  |
+| 2. Trustworthy Natal Chart | 7/9 | In Progress|  |
 | 3. Private Local Workspace | 0/TBD | Not started | - |
 | 4. Semantic Chart Exploration | 0/TBD | Not started | - |
 | 5. Natal Transit Workspace | 0/TBD | Not started | - |

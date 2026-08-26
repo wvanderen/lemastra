@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 02
 current_phase_name: trustworthy-natal-chart
 status: executing
-stopped_at: Completed 02-06-PLAN.md (birth entry form + place search)
-last_updated: "2026-08-26T17:00:06.025Z"
+stopped_at: Completed 02-07-PLAN.md
+last_updated: "2026-08-26T17:23:37.016Z"
 last_activity: 2026-08-25
 last_activity_desc: Phase 02 execution started
 progress:
   total_phases: 10
   completed_phases: 1
   total_plans: 16
-  completed_plans: 13
+  completed_plans: 14
   percent: 10
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-08-24)
 ## Current Position
 
 Phase: 02 (trustworthy-natal-chart) — EXECUTING
-Plan: 7 of 9
+Plan: 8 of 9
 Status: Ready to execute
 Last activity: 2026-08-25 — Phase 02 execution started
 
@@ -65,6 +65,7 @@ Progress: [███░░░░░░░] 29%
 | Phase 02 P05 | 10 min | 2 tasks | 13 files |
 | Phase 02 P04 | 5 min | 2 tasks | 12 files |
 | Phase 02 P06 | 2h 45m | 2 tasks | 7 files |
+| Phase 02 P07 | 15 min | 2 tasks | 12 files |
 
 ## Accumulated Context
 
@@ -100,6 +101,10 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - [Phase 02]: 02-06: D-05 type-ahead = deferred-timer debounce (300 ms real-timer contract) + TanStack Query; colon-less times (1430) accepted per copy deck and normalized to HH:MM before any network call — T-02-22 enforced by tests against real timers; server pydantic pattern is HH:MM-only
 - [Phase 02]: 02-06: Unknown confidence resolves at the documented noon reference (12:00); the time field stays disabled+cleared and no form-level place error was invented (PlaceSearch empty state is the guidance) — D-10-compliant invocation; copy deck has no place-missing string
 - [Phase 02]: 02-06: draft hand-off contract = JSON.stringify({...formValues, resolve}) router param to /birth/confirm via exactly one scoped as-never cast marked TODO(02-08); birthFormSchema exported for 02-08 draft parsing — typedRoutes cannot type-check an unregistered route; 02-08 Task 2 removes the cast
+- [Phase ?]: [Phase 02]: 02-07 GATE-02 closed with nine golden case contracts generated through the real calculate endpoint; digests are a strict whitelist vocabulary (unknown keys fail) so version-bearing fields (source_notes/provenance) can never be compared — Digest-field design per D-14: deliberate dependency promotion shows up as a reviewable digest diff instead of silently breaking
+- [Phase ?]: [Phase 02]: 02-07 setup-uv pinned to immutable commit of v10.0.1 (verified current release 2026-08-14) — upstream dropped floating major tags after v7; SHA pin exceeds T-02-27's intent and resolves research A1 — Supply-chain: job cannot silently ride a floating tag
+- [Phase ?]: [Phase 02]: 02-07 CI runs the vendored skill's four smoke scripts via 'uv run --project api --locked' from the repo root — bare 'uv run' there has no project context (research sketch would miss pyswisseph) — Locked-env invariant (T-02-26) holds for the upstream regression too
+- [Phase ?]: [Phase 02]: 02-07 golden second-pass digests are asserted through the API contract (time_resolution second_pass + offset_seconds); dst-nonexistent pins the D-08 shifted resolution (03:30) as its primary input — D-14: the suite regression-tests the endpoint, not the raw script
 
 ### Pending Todos
 
@@ -119,6 +124,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-26T17:00:06.019Z
-Stopped at: Completed 02-06-PLAN.md (birth entry form + place search)
+Last session: 2026-08-26T17:23:37.010Z
+Stopped at: Completed 02-07-PLAN.md
 Resume file: None
