@@ -1,7 +1,7 @@
 ---
 phase: 02-trustworthy-natal-chart
 verified: 2026-08-26T18:05:33Z
-status: verified
+status: passed
 score: 5/5 must-haves verified
 behavior_unverified: 0
 overrides_applied: 0
@@ -27,7 +27,7 @@ human_verification:
 
 **Phase Goal:** Users can resolve birth details and calculate a validated, provenance-rich natal chart.
 **Verified:** 2026-08-26T18:05:33Z
-**Status:** verified (human verification completed 2026-08-26 via UAT — 3/3 passed, see 02-UAT.md)
+**Status:** passed (human verification completed 2026-08-26 via UAT — 3/3 passed, see 02-UAT.md)
 **Re-verification:** No — initial verification
 
 > **MVP-mode goal-format discrepancy (surfaced, non-blocking):** ROADMAP marks this phase `Mode: mvp`, and `user-story.validate` returns `false` — the goal is a "Users can …" capability statement, not the strict "As a [role], I want …, so that …" user-story format set by `/gsd mvp-phase`. Because the goal is still a coherent user capability, this report substitutes a User Flow Coverage section built from the goal's natural flow rather than refusing verification. Recommend running `/gsd mvp-phase 2` at the next planning touch to normalize the goal format.
