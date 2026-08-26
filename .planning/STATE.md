@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 02
 current_phase_name: trustworthy-natal-chart
 status: executing
-stopped_at: Completed 02-07-PLAN.md
-last_updated: "2026-08-26T17:23:37.016Z"
+stopped_at: Completed 02-08-PLAN.md
+last_updated: "2026-08-26T17:45:50.769Z"
 last_activity: 2026-08-25
 last_activity_desc: Phase 02 execution started
 progress:
   total_phases: 10
   completed_phases: 1
   total_plans: 16
-  completed_plans: 14
+  completed_plans: 15
   percent: 10
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-08-24)
 ## Current Position
 
 Phase: 02 (trustworthy-natal-chart) — EXECUTING
-Plan: 8 of 9
+Plan: 9 of 9
 Status: Ready to execute
 Last activity: 2026-08-25 — Phase 02 execution started
 
@@ -66,6 +66,7 @@ Progress: [███░░░░░░░] 29%
 | Phase 02 P04 | 5 min | 2 tasks | 12 files |
 | Phase 02 P06 | 2h 45m | 2 tasks | 7 files |
 | Phase 02 P07 | 15 min | 2 tasks | 12 files |
+| Phase 02 P08 | 16 min | 3 tasks | 17 files |
 
 ## Accumulated Context
 
@@ -105,6 +106,9 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - [Phase ?]: [Phase 02]: 02-07 setup-uv pinned to immutable commit of v10.0.1 (verified current release 2026-08-14) — upstream dropped floating major tags after v7; SHA pin exceeds T-02-27's intent and resolves research A1 — Supply-chain: job cannot silently ride a floating tag
 - [Phase ?]: [Phase 02]: 02-07 CI runs the vendored skill's four smoke scripts via 'uv run --project api --locked' from the repo root — bare 'uv run' there has no project context (research sketch would miss pyswisseph) — Locked-env invariant (T-02-26) holds for the upstream regression too
 - [Phase ?]: [Phase 02]: 02-07 golden second-pass digests are asserted through the API contract (time_resolution second_pass + offset_seconds); dst-nonexistent pins the D-08 shifted resolution (03:30) as its primary input — D-14: the suite regression-tests the endpoint, not the raw script
+- [Phase ?]: 02-08: time_resolution translation = server-data arithmetic only (second_pass offset_seconds from option.utc vs entered wall time; shifted wall_time via Intl render of the server instant in the server-resolved zone) — UI never re-derives offsets (T-02-31) — The resolve payload carries only {mode,label,utc}; deriving the fold offset and shifted wall time from server products keeps D-08 honest while the server revalidates the mode
+- [Phase ?]: 02-08: governed registry flip (lemastra-calculation + google-geocoding-timezone → active) shipped with in-change governance reconciliation (Play CSV overview TRUE + two collected type rows, apple-labels §1, privacy-policy posture, data-inventory §4) — Phase-1 consistency tests enforce truthful store drafts once any provider is active, and the 01-04 rule requires the policy to update before any handling change ships; tests were reconciled against, never weakened
+- [Phase ?]: 02-08: confirm draft parsing = birthFormSchema.extend({ resolve }) and result carries envelope (CalculateResponse JSON) + identity (date/time/label) params; confidence read from chart_data.birth_time_confidence — One source of truth for the form contract downstream; 02-06's scoped as-never cast removed with both routes typechecking uncast
 
 ### Pending Todos
 
@@ -124,6 +128,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-26T17:23:37.010Z
-Stopped at: Completed 02-07-PLAN.md
+Last session: 2026-08-26T17:45:50.761Z
+Stopped at: Completed 02-08-PLAN.md
 Resume file: None
