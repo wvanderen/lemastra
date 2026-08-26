@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "id": "natal-1992-kentucky",
+  "category": "natal_normal",
+  "description": "Normal natal chart at a different longitude (Louisville, KY) sharing the America/New_York zone, per the 02-07 case list.",
+  "input": {
+    "date": "1992-07-04",
+    "time": "10:15",
+    "confidence": "Timed",
+    "house_system": "Whole Sign",
+    "place": {
+      "label": "Louisville, Kentucky",
+      "lat": 38.2527,
+      "lon": -85.7585
+    },
+    "iana_zone": "America/New_York",
+    "zone_source": "google"
+  },
+  "expect": {
+    "outcome": "success",
+    "digest": {
+      "ascendant.absolute_degree": 148.3577,
+      "midheaven.absolute_degree": 53.225,
+      "placements.Sun.absolute_degree": 102.8379,
+      "placements.Moon.absolute_degree": 159.5452,
+      "placements.Mercury.absolute_degree": 128.8699,
+      "placements.Venus.absolute_degree": 108.5831,
+      "placements.Mars.absolute_degree": 44.4881,
+      "placements.Jupiter.absolute_degree": 160.2889,
+      "placements.Saturn.absolute_degree": 317.4292,
+      "placements.Uranus.absolute_degree": 286.1663,
+      "placements.Neptune.absolute_degree": 287.7064,
+      "placements.Pluto.absolute_degree": 230.3362,
+      "placements.True Node.absolute_degree": 270.6418,
+      "house_cusps_count": 12,
+      "aspects_count_range": [
+        32,
+        38
+      ],
+      "birth_time_confidence": "Timed"
+    }
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "id": "dst-ambiguous-ny-2024",
+  "category": "dst_ambiguous",
+  "description": "Fall-back overlap: 2024-11-03 01:30 America/New_York occurs twice. The base input is the FIRST pass (fold=0, EDT −04:00); expect.second_pass pins the second pass (EST −05:00) via the fixed-offset D-08 resolution.",
+  "input": {
+    "date": "2024-11-03",
+    "time": "01:30",
+    "confidence": "Timed",
+    "house_system": "Whole Sign",
+    "place": {
+      "label": "Brooklyn, New York",
+      "lat": 40.7128,
+      "lon": -74.006
+    },
+    "iana_zone": "America/New_York",
+    "zone_source": "google"
+  },
+  "expect": {
+    "outcome": "success",
+    "digest": {
+      "ascendant.absolute_degree": 149.5557,
+      "midheaven.absolute_degree": 53.8442,
+      "placements.Sun.absolute_degree": 221.2883,
+      "placements.Moon.absolute_degree": 240.0897,
+      "placements.Mercury.absolute_degree": 240.5906,
+      "placements.Venus.absolute_degree": 259.7814,
+      "placements.Mars.absolute_degree": 119.6741,
+      "placements.Jupiter.absolute_degree": 80.311,
+      "placements.Saturn.absolute_degree": 342.8263,
+      "placements.Uranus.absolute_degree": 55.8122,
+      "placements.Neptune.absolute_degree": 357.4599,
+      "placements.Pluto.absolute_degree": 299.7599,
+      "placements.True Node.absolute_degree": 6.2315,
+      "house_cusps_count": 12,
+      "aspects_count_range": [
+        31,
+        37
+      ],
+      "birth_time_confidence": "Timed"
+    },
+    "second_pass": {
+      "time_resolution": {
+        "mode": "second_pass",
+        "offset_seconds": -18000
+      },
+      "digest": {
+        "ascendant.absolute_degree": 161.3879,
+        "midheaven.absolute_degree": 68.2574,
+        "placements.Sun.absolute_degree": 221.33,
+        "placements.Moon.absolute_degree": 240.5986,
+        "placements.Mercury.absolute_degree": 240.6484,
+        "placements.Venus.absolute_degree": 259.8314,
+        "placements.Mars.absolute_degree": 119.6887,
+        "placements.Jupiter.absolute_degree": 80.3076,
+        "placements.Saturn.absolute_degree": 342.8254,
+        "placements.Uranus.absolute_degree": 55.8105,
+        "placements.Neptune.absolute_degree": 357.4592,
+        "placements.Pluto.absolute_degree": 299.7603,
+        "placements.True Node.absolute_degree": 6.2271,
+        "house_cusps_count": 12,
+        "aspects_count_range": [
+          28,
+          34
+        ],
+        "birth_time_confidence": "Timed"
+      }
+    }
+  }
+}

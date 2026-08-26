@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "id": "natal-southern-hemisphere",
+  "category": "natal_normal",
+  "description": "Southern-hemisphere natal chart (Sydney, southern winter, AEST +10:00) — opposite-latitude geometry sanity.",
+  "input": {
+    "date": "1985-08-21",
+    "time": "09:05",
+    "confidence": "Timed",
+    "house_system": "Whole Sign",
+    "place": {
+      "label": "Sydney, Australia",
+      "lat": -33.8688,
+      "lon": 151.2093
+    },
+    "iana_zone": "Australia/Sydney",
+    "zone_source": "google"
+  },
+  "expect": {
+    "outcome": "success",
+    "digest": {
+      "ascendant.absolute_degree": 205.1335,
+      "midheaven.absolute_degree": 105.3716,
+      "placements.Sun.absolute_degree": 147.8517,
+      "placements.Moon.absolute_degree": 208.349,
+      "placements.Mercury.absolute_degree": 133.2139,
+      "placements.Venus.absolute_degree": 111.521,
+      "placements.Mars.absolute_degree": 137.2091,
+      "placements.Jupiter.absolute_degree": 309.9555,
+      "placements.Saturn.absolute_degree": 232.0167,
+      "placements.Uranus.absolute_degree": 253.9642,
+      "placements.Neptune.absolute_degree": 270.98,
+      "placements.Pluto.absolute_degree": 212.365,
+      "placements.True Node.absolute_degree": 42.0997,
+      "house_cusps_count": 12,
+      "aspects_count_range": [
+        25,
+        31
+      ],
+      "birth_time_confidence": "Timed"
+    }
+  }
+}
