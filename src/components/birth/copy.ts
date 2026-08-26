@@ -132,3 +132,31 @@ export const HOME_CTA = "Calculate your first chart";
 
 /** Privacy link label (home + birth form footer). */
 export const PRIVACY_LINK = "See what we send — privacy & data";
+
+// ---------------------------------------------------------------------------
+// Birth form screen — 02-UI-SPEC §"Copy Deck", Birth form (/birth) section
+// ---------------------------------------------------------------------------
+
+/** Birth screen title. */
+export const BIRTH_FORM_TITLE = "Birth details";
+
+/** Date field label. */
+export const BIRTH_DATE_LABEL = "Birth date";
+
+/** Date field placeholder (formatted text input per A-UI-6). */
+export const BIRTH_DATE_PLACEHOLDER = "YYYY-MM-DD";
+
+/** Date field error — empty, malformed, and nonexistent-calendar dates alike. */
+export const BIRTH_DATE_ERROR = "Enter a valid date (YYYY-MM-DD).";
+
+/** Time field label. */
+export const BIRTH_TIME_LABEL = "Birth time";
+
+/** Time field placeholder (formatted text input per A-UI-6). */
+export const BIRTH_TIME_PLACEHOLDER = "HH:MM (24-hour)";
+
+/** Time field error — the copy deck names both the colon and colon-less forms. */
+export const BIRTH_TIME_ERROR = "Enter a valid time, like 09:30 or 1430.";
+
+/** Form CTA — runs zod validation, then the resolve-time call. */
+export const BIRTH_FORM_CTA = "Review birth details";

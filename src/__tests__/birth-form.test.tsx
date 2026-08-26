@@ -193,6 +193,7 @@ async function pressReview(view: { getByText: (text: string) => Instance }) {
 /** Select the Lisbon candidate through the debounced search branch. */
 async function selectLisbon(view: {
   getByTestId: (id: string) => Instance;
+  getByText: (text: string) => Instance;
   getAllByRole: (role: string) => Instance[];
 }) {
   await act(async () => {
@@ -255,22 +256,24 @@ describe("Birth form (/birth) — validation", () => {
 describe("Birth form (/birth) — unknown-time interdependency (BIRTH-04)", () => {
   it("Unknown disables and clears the time field and swaps its helper; other confidences still require a time", async () => {
     const { view } = await renderBirthForm();
-    const time = view.getByTestId("birth-time-input");
-    expect(time.props.editable).toBe(true);
+    // Re-query after every interaction: TestInstance props are snapshots
+    // of the render they were found in (see place-search.test.tsx notes).
+    const timeField = () => view.getByTestId("birth-time-input");
+    expect(timeField().props.editable).toBe(true);
 
     await act(async () => {
-      fireEvent.changeText(time, "14:32");
+      fireEvent.changeText(timeField(), "14:32");
     });
     await userEvent.press(view.getByTestId("confidence-unknown"));
 
-    expect(time.props.editable).toBe(false);
-    expect(time.props.value).toBe("");
+    expect(timeField().props.editable).toBe(false);
+    expect(timeField().props.value).toBe("");
     expect(view.getByText(UNKNOWN_TIME_FIELD_HELPER)).toBeTruthy();
 
     // Switching back to a time-requiring confidence re-enables the field,
     // removes the helper, and re-requires a time (the clear is not undone).
     await userEvent.press(view.getByTestId("confidence-approximate"));
-    expect(time.props.editable).toBe(true);
+    expect(timeField().props.editable).toBe(true);
     expect(view.queryByText(UNKNOWN_TIME_FIELD_HELPER)).toBeNull();
 
     await pressReview(view);
@@ -297,7 +300,7 @@ describe("Birth form (/birth) — resolve-then-navigate (BIRTH-02 client half)",
     });
 
     await waitFor(() => expect(routerMock.push).toHaveBeenCalledTimes(1));
-    const pushed = routerMock.mock.calls[0][0] as { pathname: string; params: { draft: string } };
+    const pushed = routerMock.push.mock.calls[0][0] as { pathname: string; params: { draft: string } };
     expect(pushed.pathname).toBe("/birth/confirm");
     const draft = JSON.parse(pushed.params.draft) as Record<string, unknown>;
     expect(draft.date).toBe("1990-05-21");
@@ -397,7 +400,10 @@ describe("Birth form (/birth) — resolve-then-navigate (BIRTH-02 client half)",
 
     // The banner's "Enter coordinates manually" action switches PlaceSearch
     // to its manual branch (the form drives the controlled branch prop).
-    const banner = view.getByRole("alert");
+    // Located structurally (the banner heading's parent) — RNTL role queries
+    // match only accessibility elements, and a plain banner View is not one.
+    const banner = view.getByText("Place search is unavailable right now.").parent;
+    if (!banner) throw new Error("expected the error banner");
     await userEvent.press(within(banner).getByText(PLACE_MANUAL_ACTION));
     expect(view.getByTestId("manual-place-name")).toBeTruthy();
   });
