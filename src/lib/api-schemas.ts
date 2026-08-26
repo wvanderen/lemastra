@@ -356,6 +356,9 @@ export const calculateResponseSchema = z.object({
 
 export type Placement = z.infer<typeof placementSchema>;
 export type CalculateResponse = z.infer<typeof calculateResponseSchema>;
+export type CalculateProvenance = z.infer<typeof calculateProvenanceSchema>;
+export type FactorAvailability = z.infer<typeof factorAvailabilitySchema>;
+export type ProvisionalFactor = z.infer<typeof provisionalFactorSchema>;
 
 // ---------------------------------------------------------------------------
 // GET /api/v1/meta/zones
