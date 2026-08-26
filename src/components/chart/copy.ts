@@ -97,3 +97,71 @@ export const ASSUMPTIONS_APPROXIMATE_CAVEAT =
 
 /** The confidences whose envelope carries provisional factors (D-10). */
 export const PROVISIONAL_CONFIDENCES: readonly Confidence[] = ["Approximate", "Unknown"];
+
+// ---------------------------------------------------------------------------
+// CALC-03 expandable "Calculation details" disclosure
+// ---------------------------------------------------------------------------
+
+/** Disclosure header (collapsed by default — progressive disclosure). */
+export const CALCULATION_DETAILS_HEADER = "Calculation details";
+
+/** Provenance row labels — the seven-row version chain (02-UI-SPEC). */
+export const PROVENANCE_LABEL_SKILL_REVISION = "Skill revision";
+export const PROVENANCE_LABEL_SWISSEPH = "Swiss Ephemeris version";
+export const PROVENANCE_LABEL_TZDATA = "Timezone database";
+export const PROVENANCE_LABEL_SCHEMA = "Schema";
+export const PROVENANCE_LABEL_INPUT_REVISION = "Input revision";
+export const PROVENANCE_LABEL_PLACE_RESOLUTION = "Place resolution";
+export const PROVENANCE_LABEL_CALCULATOR_CMD = "Calculator command";
+
+/**
+ * Place-resolution row value — zone source + provider of record.
+ *
+ * The google branch renders the locked registry provider id
+ * (`google-geocoding-timezone`, the Phase-1 provider vocabulary — a
+ * machine identifier, not disclosure prose); the manual branch records
+ * that the user entered the zone (no external provider was consulted).
+ */
+export function placeResolutionValue(zoneSource: "google" | "manual"): string {
+  return zoneSource === "google"
+    ? "google · google-geocoding-timezone"
+    : "manual · user-entered zone";
+}
+
+// ---------------------------------------------------------------------------
+// D-10 unavailable + provisional factor cards
+// ---------------------------------------------------------------------------
+
+/** Unavailable-factors section heading (Unknown mode only). */
+export const UNAVAILABLE_HEADING = "Not available without a birth time";
+
+/** Label on each provisional factor card. */
+export const PROVISIONAL_LABEL = "Provisional";
+
+/**
+ * Server factor ids → copy-deck display names. Unknown ids (future server
+ * factors) fall back to the raw id — never an invented label (D-10).
+ */
+const FACTOR_LABELS: Readonly<Record<string, string>> = {
+  houses: "Houses",
+  ascendant_mc: "Rising sign & Midheaven",
+  sect: "Sect",
+  lots: "Lots",
+  moon: "Moon",
+  angles_houses: "Angles & houses",
+};
+
+/** Display name for a server factor id. */
+export function factorLabel(factor: string): string {
+  return FACTOR_LABELS[factor] ?? factor;
+}
+
+/** Unavailable card text — "{Factor} — {reason}" (reason verbatim). */
+export function factorCardText(factor: string, reason: string): string {
+  return `${factorLabel(factor)} — ${reason}`;
+}
+
+/** Provisional card text — "{factor} — {reason}" (reason verbatim). */
+export function provisionalCardText(factor: string, reason: string): string {
+  return `${factorLabel(factor)} — ${reason}`;
+}

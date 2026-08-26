@@ -511,6 +511,7 @@ describe("Confirm screen — calculating state and navigation", () => {
       date: "1990-05-21",
       time: "14:32",
       label: "Lisbon, Portugal",
+      zone_source: "google",
     });
   });
 
@@ -599,7 +600,12 @@ describe("Result screen (/chart/result) — minimal contract", () => {
   it("redirects to /birth with a malformed envelope", async () => {
     paramsState.value = {
       envelope: '{"chart_data": {}}',
-      identity: JSON.stringify({ date: "1990-05-21", time: "14:32", label: "Lisbon, Portugal" }),
+      identity: JSON.stringify({
+        date: "1990-05-21",
+        time: "14:32",
+        label: "Lisbon, Portugal",
+        zone_source: "google",
+      }),
     };
     await render(<ResultScreen />);
     await act(async () => {});
@@ -610,7 +616,12 @@ describe("Result screen (/chart/result) — minimal contract", () => {
     const envelope = envelopeFixture();
     paramsState.value = {
       envelope: JSON.stringify(envelope),
-      identity: JSON.stringify({ date: "1990-05-21", time: "14:32", label: "Lisbon, Portugal" }),
+      identity: JSON.stringify({
+        date: "1990-05-21",
+        time: "14:32",
+        label: "Lisbon, Portugal",
+        zone_source: "google",
+      }),
     };
     const view = await render(<ResultScreen />);
     await act(async () => {});
@@ -628,7 +639,12 @@ describe("Result screen (/chart/result) — minimal contract", () => {
     const envelope = envelopeFixture("Unknown");
     paramsState.value = {
       envelope: JSON.stringify(envelope),
-      identity: JSON.stringify({ date: "1990-05-21", time: "", label: "Lisbon, Portugal" }),
+      identity: JSON.stringify({
+        date: "1990-05-21",
+        time: "",
+        label: "Lisbon, Portugal",
+        zone_source: "google",
+      }),
     };
     const view = await render(<ResultScreen />);
     await act(async () => {});

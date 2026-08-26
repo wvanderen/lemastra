@@ -165,6 +165,10 @@ export default function ConfirmScreen() {
             date: draft.date,
             time: displayTime,
             label: draft.place?.label ?? "",
+            // Zone resolution travels with the identity so the result
+            // screen can render the CALC-03 place-resolution row
+            // (zone source + provider — 02-09).
+            zone_source: draft.resolve.zone_source,
           }),
         },
       });

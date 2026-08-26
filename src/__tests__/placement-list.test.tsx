@@ -98,12 +98,18 @@ const MARS_LEO_NO_HOUSE: Placement = {
 const ORB_POLICY =
   "birth_to_chart.py default orb table (luminaries 10°, personal 7°, Jupiter–Pluto 8°, Node 5°, angles 8°; sextile capped 6°)";
 
-/** Provenance fields the assumptions card consumes (CALC-03 block subset). */
+/** Full CALC-03 provenance block (fields the assumptions card consumes + the rest of the chain). */
 const PROVENANCE = {
+  skill_revision: "660d992",
+  swisseph_version: "2.10.03",
+  tzdata_version: "2026.3",
+  schema_version: "chart-input v1",
+  ephemeris_mode: "Moshier (built-in)",
   house_system: "Whole Sign",
   zodiac_mode: "tropical",
-  ephemeris_mode: "Moshier (built-in)",
   orb_policy: ORB_POLICY,
+  input_revision: "abc123def456",
+  calculator_cmd: "python tools/birth_to_chart.py --input <temp-json> --validate",
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -137,16 +143,19 @@ describe("PlacementList — rows honor present-only fields", () => {
     expect(view.getByText(PLACEMENTS_HEADING)).toBeTruthy();
     expect(view.getAllByRole("listitem")).toHaveLength(2);
 
+    const rows = view.getAllByRole("listitem");
+    const sunRow = rows.find((row) => within(row).queryByText("Sun") !== null)!;
+    const moonRow = rows.find((row) => within(row).queryByText("Moon") !== null)!;
+
     // The UI-SPEC worked example: Sun in Gemini 0°26′, House 10, Direct.
-    expect(view.getByText("Sun")).toBeTruthy();
-    expect(view.getByText("Gemini 0°26′")).toBeTruthy();
-    expect(view.getByText("House 10")).toBeTruthy();
-    expect(view.getByText("Direct")).toBeTruthy();
+    expect(within(sunRow).getByText("Sun")).toBeTruthy();
+    expect(within(sunRow).getByText("Gemini 0°26′")).toBeTruthy();
+    expect(within(sunRow).getByText("House 10")).toBeTruthy();
+    expect(within(sunRow).getByText("Direct")).toBeTruthy();
 
     // Second row carries its dignity (only where present).
-    expect(view.getByText("Moon")).toBeTruthy();
-    expect(view.getByText("Cancer 14°03′")).toBeTruthy();
-    expect(view.getByText("Domicile")).toBeTruthy();
+    expect(within(moonRow).getByText("Cancer 14°03′")).toBeTruthy();
+    expect(within(moonRow).getByText("Domicile")).toBeTruthy();
   });
 
   it("renders no dignity column or dash placeholder when dignities are absent", async () => {

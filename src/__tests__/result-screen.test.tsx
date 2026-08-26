@@ -318,7 +318,9 @@ describe("Result screen — Unknown envelope composition (D-10)", () => {
     const view = await renderResult(unknownEnvelope(), { ...UNKNOWN_IDENTITY });
 
     expect(view.getByText("Leo 10°00′")).toBeTruthy();
-    expect(view.queryByText(/House/)).toBeNull();
+    // No house SLOT on the placement rows — "House {n}" never renders
+    // (the word "Houses" in the unavailable cards below is expected).
+    expect(view.queryByText(/^House \d+$/)).toBeNull();
 
     expect(view.getByText(PROVISIONAL_LABEL)).toBeTruthy();
     expect(
