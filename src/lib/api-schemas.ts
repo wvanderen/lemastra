@@ -112,6 +112,13 @@ export const placeCandidateSchema = z.object({
     .string()
     .optional()
     .describe("Google place_id; optional because partial/interpolated results may lack it."),
+  partial_match: z
+    .boolean()
+    .optional()
+    .describe(
+      "Google partial_match caveat — emitted only when true (best-match " +
+        "approximation); drives the selected-candidate precision note (D-05)."
+    ),
 });
 
 export const placeProvenanceSchema = z.object({

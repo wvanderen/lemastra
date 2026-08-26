@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type {
   render as rtlRender,
@@ -20,7 +21,8 @@ import {
   TIME_ZONE_ERROR,
 } from "@/components/birth/copy";
 import { PlaceSearch, type PlaceSelection } from "@/components/birth/place-search";
-import { ApiError, fetchZones, postPlaceSearch } from "@/lib/api";
+import { ApiError } from "@/lib/api";
+import type { PlaceCandidate, PlaceSearchResponse } from "@/lib/api-schemas";
 
 // PlaceSearch tests (02-06 Task 1) — the D-05 debounced type-ahead with the
 // always-available manual fallback.
@@ -59,12 +61,26 @@ let userEvent: typeof rtlUserEvent;
 let cleanup: () => Promise<void>;
 let act: <T>(callback: () => T | Promise<T>) => Promise<T>;
 let fireEvent: typeof import("@testing-library/react-native/pure").fireEvent;
+let waitFor: typeof import("@testing-library/react-native/pure").waitFor;
+/** The mocked api module — network fns are vi.fn()s (see vi.mock above). */
+let api: typeof import("@/lib/api");
 
 beforeAll(async () => {
-  ({ render, within, userEvent, cleanup, act, fireEvent } = await import(
+  ({ render, within, userEvent, cleanup, act, fireEvent, waitFor } = await import(
     "@testing-library/react-native/pure"
   ));
+  api = await import("@/lib/api");
 });
+
+/** The mocked type-ahead endpoint (typed via vi.mocked for tsc). */
+function placeSearchMock() {
+  return vi.mocked(api.postPlaceSearch);
+}
+
+/** The mocked zones endpoint (typed via vi.mocked for tsc). */
+function zonesMock() {
+  return vi.mocked(api.fetchZones);
+}
 
 afterEach(async () => {
   await cleanup();
@@ -74,9 +90,12 @@ afterEach(async () => {
 /** A rendered host element queryable by `within`. */
 type Instance = Parameters<typeof rtlWithin>[0];
 
-const PROVENANCE = { provider: "google-geocoding-timezone", lookup_timestamp: "2026-08-26T00:00:00Z" };
+const PROVENANCE: PlaceSearchResponse["provenance"] = {
+  provider: "google-geocoding-timezone",
+  lookup_timestamp: "2026-08-26T00:00:00Z",
+};
 
-function candidate(overrides: Record<string, unknown> = {}) {
+function candidate(overrides: Partial<PlaceCandidate> = {}): PlaceCandidate {
   return {
     label: "Lisbon, Portugal",
     lat: 38.7223,
@@ -102,12 +121,45 @@ async function renderPlaceSearch(props?: {
   return { view, onChange };
 }
 
-/** The search input, located by its copy-deck placeholder. */
-function searchInput(view: { getByPlaceholderText: (p: string) => Instance }) {
-  return view.getByPlaceholderText(PLACE_SEARCH_PLACEHOLDER);
+/**
+ * Stateful harness — PlaceSearch is controlled, so tests that exercise the
+ * resolved-candidate view must feed emissions back as the birth form does.
+ */
+function StatefulPlaceSearch({ onChange: spy }: { onChange?: (value: PlaceSelection | null) => void }) {
+  const [value, setValue] = useState<PlaceSelection | null>(null);
+  return (
+    <PlaceSearch
+      value={value}
+      onChange={(next) => {
+        setValue(next);
+        spy?.(next);
+      }}
+    />
+  );
 }
 
-async function typeQuery(view: { getByPlaceholderText: (p: string) => Instance }, text: string) {
+/** Render the stateful harness inside a fresh retry-off QueryClient. */
+async function renderStatefulPlaceSearch(onChange?: (value: PlaceSelection | null) => void) {
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  const view = await render(
+    <QueryClientProvider client={client}>
+      <StatefulPlaceSearch onChange={onChange} />
+    </QueryClientProvider>
+  );
+  return { view };
+}
+
+/**
+ * The search input. Located by testID (structural query): RNTL v14's
+ * placeholder query matches only host type 'TextInput', but this repo's RN
+ * shim renders TextInput as RCTSinglelineTextInputView — the same
+ * role-mapping limitation documented in confidence-control.test.tsx.
+ */
+function searchInput(view: { getByTestId: (id: string) => Instance }) {
+  return view.getByTestId("place-search-input");
+}
+
+async function typeQuery(view: { getByTestId: (id: string) => Instance }, text: string) {
   await act(async () => {
     fireEvent.changeText(searchInput(view), text);
   });
@@ -132,16 +184,16 @@ describe("PlaceSearch (D-05) — debounced type-ahead", () => {
     await typeQuery(view, "br");
     // Past the full debounce window with only 2 chars — guard blocks the call.
     await new Promise((resolve) => setTimeout(resolve, PLACE_SEARCH_DEBOUNCE_MS + 150));
-    expect(postPlaceSearch).not.toHaveBeenCalled();
+    expect(placeSearchMock()).not.toHaveBeenCalled();
 
     await typeQuery(view, "bro");
-    await view.waitFor(() => expect(postPlaceSearch).toHaveBeenCalledTimes(1), { timeout: 2000 });
-    expect(postPlaceSearch).toHaveBeenCalledWith({ query: "bro" });
+    await waitFor(() => expect(placeSearchMock()).toHaveBeenCalledTimes(1), { timeout: 2000 });
+    expect(placeSearchMock()).toHaveBeenCalledWith({ query: "bro" });
   });
 
   it("renders the empty state before 3 characters and the searching state while pending", async () => {
     let release: () => void = () => {};
-    postPlaceSearch.mockReturnValue(
+    placeSearchMock().mockReturnValue(
       new Promise((resolve) => {
         release = () => resolve({ candidates: [], provenance: PROVENANCE });
       })
@@ -151,16 +203,17 @@ describe("PlaceSearch (D-05) — debounced type-ahead", () => {
     expect(view.getByText(PLACE_EMPTY_HEADING)).toBeTruthy();
     expect(view.getByText(PLACE_EMPTY_BODY)).toBeTruthy();
     expect(view.getByText(PLACE_LABEL)).toBeTruthy();
+    expect(searchInput(view).props.placeholder).toBe(PLACE_SEARCH_PLACEHOLDER);
 
     await typeQuery(view, "lis");
-    await view.waitFor(() => expect(view.getByText(PLACE_SEARCHING)).toBeTruthy(), {
+    await waitFor(() => expect(view.getByText(PLACE_SEARCHING)).toBeTruthy(), {
       timeout: 2000,
     });
     release();
   });
 
   it("renders at most five candidate cards and selecting one emits the google selection with a coords line", async () => {
-    postPlaceSearch.mockResolvedValue({
+    placeSearchMock().mockResolvedValue({
       candidates: [
         candidate({ label: "Lisbon, Portugal", place_id: "p1" }),
         candidate({ label: "Lisbon, Iowa, USA", place_id: "p2" }),
@@ -172,10 +225,11 @@ describe("PlaceSearch (D-05) — debounced type-ahead", () => {
       provenance: PROVENANCE,
     });
 
-    const { view, onChange } = await renderPlaceSearch();
+    const onChange = vi.fn();
+    const { view } = await renderStatefulPlaceSearch(onChange);
     await typeQuery(view, "lisbon");
 
-    await view.waitFor(() => expect(view.getAllByRole("button")).toHaveLength(6), {
+    await waitFor(() => expect(view.getAllByRole("button")).toHaveLength(6), {
       timeout: 2000,
     }); // 5 candidate cards + the persistent manual toggle
 
@@ -199,13 +253,13 @@ describe("PlaceSearch (D-05) — debounced type-ahead", () => {
   });
 
   it("shows the approximate-match note when location_type is APPROXIMATE", async () => {
-    postPlaceSearch.mockResolvedValue({
+    placeSearchMock().mockResolvedValue({
       candidates: [candidate({ location_type: "APPROXIMATE" })],
       provenance: PROVENANCE,
     });
-    const { view } = await renderPlaceSearch();
+    const { view } = await renderStatefulPlaceSearch();
     await typeQuery(view, "lis");
-    await view.waitFor(() => expect(view.queryByText("Lisbon, Portugal")).toBeTruthy(), {
+    await waitFor(() => expect(view.queryByText("Lisbon, Portugal")).toBeTruthy(), {
       timeout: 2000,
     });
     await pressCandidate(view, "Lisbon, Portugal");
@@ -213,13 +267,13 @@ describe("PlaceSearch (D-05) — debounced type-ahead", () => {
   });
 
   it("shows the approximate-match note when partial_match is set", async () => {
-    postPlaceSearch.mockResolvedValue({
+    placeSearchMock().mockResolvedValue({
       candidates: [candidate({ partial_match: true })],
       provenance: PROVENANCE,
     });
-    const { view } = await renderPlaceSearch();
+    const { view } = await renderStatefulPlaceSearch();
     await typeQuery(view, "lisb");
-    await view.waitFor(() => expect(view.queryByText("Lisbon, Portugal")).toBeTruthy(), {
+    await waitFor(() => expect(view.queryByText("Lisbon, Portugal")).toBeTruthy(), {
       timeout: 2000,
     });
     await pressCandidate(view, "Lisbon, Portugal");
@@ -227,7 +281,7 @@ describe("PlaceSearch (D-05) — debounced type-ahead", () => {
   });
 
   it("renders the zero-results inline state with the manual action", async () => {
-    postPlaceSearch.mockRejectedValue(
+    placeSearchMock().mockRejectedValue(
       new ApiError({
         code: "PLACE_ZERO_RESULTS",
         message: "No match found for “zzz”.",
@@ -236,15 +290,17 @@ describe("PlaceSearch (D-05) — debounced type-ahead", () => {
     );
     const { view } = await renderPlaceSearch();
     await typeQuery(view, "zzz");
-    await view.waitFor(() => expect(view.getByText("No match found for “zzz”.")).toBeTruthy(), {
+    await waitFor(() => expect(view.getByText("No match found for “zzz”.")).toBeTruthy(), {
       timeout: 2000,
     });
     expect(view.getByText("Try a nearby city or a larger place name.")).toBeTruthy();
-    expect(view.getByText(PLACE_MANUAL_ACTION)).toBeTruthy();
+    // Manual is reachable from the inline state AND the persistent toggle —
+    // both carry the copy-deck action label.
+    expect(view.getAllByText(PLACE_MANUAL_ACTION).length).toBeGreaterThanOrEqual(2);
   });
 
   it("renders the provider-unavailable inline state with the manual action", async () => {
-    postPlaceSearch.mockRejectedValue(
+    placeSearchMock().mockRejectedValue(
       new ApiError({
         code: "PLACE_PROVIDER_UNAVAILABLE",
         message: "upstream unavailable",
@@ -253,7 +309,7 @@ describe("PlaceSearch (D-05) — debounced type-ahead", () => {
     );
     const { view } = await renderPlaceSearch();
     await typeQuery(view, "lis");
-    await view.waitFor(
+    await waitFor(
       () => expect(view.getByText("Place search is unavailable right now.")).toBeTruthy(),
       { timeout: 2000 }
     );
@@ -263,7 +319,7 @@ describe("PlaceSearch (D-05) — debounced type-ahead", () => {
 
 describe("PlaceSearch (D-05) — manual fallback branch", () => {
   it("swaps branches via the persistent toggle without losing the other branch's state", async () => {
-    postPlaceSearch.mockResolvedValue({
+    placeSearchMock().mockResolvedValue({
       candidates: [candidate()],
       provenance: PROVENANCE,
     });
@@ -277,7 +333,7 @@ describe("PlaceSearch (D-05) — manual fallback branch", () => {
     if (!toggle) throw new Error("expected the persistent manual toggle");
     await userEvent.press(toggle);
 
-    expect(view.getByPlaceholderText("For reference on your chart")).toBeTruthy();
+    expect(view.getByTestId("manual-place-name")).toBeTruthy();
     expect(view.getByText(PLACE_SEARCH_INSTEAD_ACTION)).toBeTruthy();
 
     // Back to search — the query text (and its candidates) survive the swap.
@@ -287,7 +343,7 @@ describe("PlaceSearch (D-05) — manual fallback branch", () => {
     if (!back) throw new Error("expected the search-by-name toggle");
     await userEvent.press(back);
     expect(searchInput(view).props.value).toBe("lis");
-    await view.waitFor(() => expect(view.getByText("Lisbon, Portugal")).toBeTruthy(), {
+    await waitFor(() => expect(view.getByText("Lisbon, Portugal")).toBeTruthy(), {
       timeout: 2000,
     });
   });
@@ -296,7 +352,7 @@ describe("PlaceSearch (D-05) — manual fallback branch", () => {
     const { view } = await renderPlaceSearch();
     await userEvent.press(view.getByText(PLACE_MANUAL_ACTION));
 
-    const name = view.getByPlaceholderText("For reference on your chart");
+    const name = view.getByTestId("manual-place-name");
     const latitude = view.getByTestId("manual-latitude");
     const longitude = view.getByTestId("manual-longitude");
     await act(async () => {
@@ -310,13 +366,13 @@ describe("PlaceSearch (D-05) — manual fallback branch", () => {
   });
 
   it("populates the zone picker from fetchZones, filters it, and emits a complete manual place", async () => {
-    fetchZones.mockResolvedValue({
+    zonesMock().mockResolvedValue({
       zones: ["Africa/Cairo", "America/New_York", "Europe/Lisbon", "Europe/London"],
     });
     const { view, onChange } = await renderPlaceSearch();
     await userEvent.press(view.getByText(PLACE_MANUAL_ACTION));
 
-    const name = view.getByPlaceholderText("For reference on your chart");
+    const name = view.getByTestId("manual-place-name");
     const latitude = view.getByTestId("manual-latitude");
     const longitude = view.getByTestId("manual-longitude");
     await act(async () => {

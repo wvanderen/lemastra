@@ -56,3 +56,79 @@ export const HOUSE_SYSTEM_LABEL = "House system";
 /** Quadrant-failure helper — why Whole Sign is the default. */
 export const HOUSE_SYSTEM_HELPER =
   "Whole Sign is the default and works everywhere, including extreme latitudes. Quadrant systems like Placidus can fail near the poles.";
+
+// ---------------------------------------------------------------------------
+// Place search & manual fallback (D-05) — 02-UI-SPEC §"Copy Deck", place rows
+// ---------------------------------------------------------------------------
+
+/** Field label above the type-ahead / manual place entry. */
+export const PLACE_LABEL = "Birthplace";
+
+/** Type-ahead placeholder. */
+export const PLACE_SEARCH_PLACEHOLDER = "City or town (e.g. Lisbon)";
+
+/** Loading state while the debounced query is in flight. */
+export const PLACE_SEARCHING = "Searching…";
+
+/** Empty state, before 3 characters are typed. */
+export const PLACE_EMPTY_HEADING = "Search for your birthplace";
+
+/** Empty state body. */
+export const PLACE_EMPTY_BODY =
+  "Type at least 3 letters — a city or town works best. You can also enter coordinates manually.";
+
+/** Precision note under a selected approximate candidate. */
+export const PLACE_APPROXIMATE_NOTE = "Approximate match — verify before calculating.";
+
+/** Action that clears a resolved candidate back to the search list. */
+export const PLACE_CHANGE_ACTION = "Change";
+
+/** Persistent toggle into the manual branch (also the zero/unavailable action). */
+export const PLACE_MANUAL_ACTION = "Enter coordinates manually";
+
+/** Toggle back into the search branch. */
+export const PLACE_SEARCH_INSTEAD_ACTION = "Search by name instead";
+
+/** Manual-branch place-name placeholder. */
+export const PLACE_NAME_PLACEHOLDER = "For reference on your chart";
+
+/** Manual-branch latitude label. */
+export const LATITUDE_LABEL = "Latitude";
+
+/** Manual-branch latitude error (−90..90 — U+2212 minus, exact deck copy). */
+export const LATITUDE_ERROR = "Enter a number between −90 and 90.";
+
+/** Manual-branch longitude label. */
+export const LONGITUDE_LABEL = "Longitude";
+
+/** Manual-branch longitude error (−180..180 — U+2212 minus, exact deck copy). */
+export const LONGITUDE_ERROR = "Enter a number between −180 and 180.";
+
+/** Manual-branch zone picker label. */
+export const TIME_ZONE_LABEL = "Time zone";
+
+/** Manual-branch zone-required error. */
+export const TIME_ZONE_ERROR = "Choose a time zone.";
+
+/**
+ * Zone-picker filter placeholder — functional copy; the copy deck specifies
+ * "Time zone (searchable picker from /api/v1/meta/zones)" without a filter
+ * string.
+ */
+export const TIME_ZONE_SEARCH_PLACEHOLDER = "Search time zones";
+
+// ---------------------------------------------------------------------------
+// Home screen — 02-UI-SPEC §"Copy Deck", Home (`/`) section
+// ---------------------------------------------------------------------------
+
+/** Home heading. */
+export const HOME_HEADING = "LemAstra";
+
+/** Home sub-line (Label). */
+export const HOME_SUBLINE = "Accurate charts. Transparent evidence.";
+
+/** Home primary CTA into the birth flow. */
+export const HOME_CTA = "Calculate your first chart";
+
+/** Privacy link label (home + birth form footer). */
+export const PRIVACY_LINK = "See what we send — privacy & data";
