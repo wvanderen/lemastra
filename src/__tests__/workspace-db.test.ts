@@ -210,8 +210,11 @@ describe("workspace db migration gate (Pattern 1, Pitfall 3)", () => {
     expect(revisionRow.created_at.getTime()).toBe(CREATED_AT.getTime());
 
     // --- Simulate app restart: drop the singleton, close the file ---
+    // (The facade memoizes handles by name, so this closes the very
+    // handle the db gate opened — WITHOUT deleting the temp dir, unlike
+    // SQLite.reset() which is the per-test world reset.)
     resetWorkspaceDbForTests();
-    SQLite.reset();
+    SQLite.openDatabaseSync(WORKSPACE_DB_NAME).closeSync();
 
     // Reopen: the gate re-runs over the SAME file. Migrations must not
     // re-apply destructively — the row survives intact.
