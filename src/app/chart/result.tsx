@@ -13,6 +13,7 @@ import {
   DEDUPE_HELPER,
   SAVE_CTA,
   SAVE_ERROR_COPY,
+  SAVE_NEW_VERSION_CTA,
   SAVED_STATE,
 } from "@/components/workspace/copy";
 import { ErrorCard } from "@/components/workspace/error-card";
@@ -49,6 +50,12 @@ import { storedCalculationInputsSchema } from "@/lib/workspace/schema";
  * unavailable-factors section (Unknown mode) → provisional-factors
  * cards. Post-save the CTA block becomes the neutral "Saved ✓" chip
  * in the same position (dedupe adds the already-saved helper).
+ *
+ * Revise flow (03-07, D-08): a chartId param (threaded by the confirm
+ * screen) swaps the CTA label to "Save new version" and the save calls
+ * repository.saveChart WITH chartId — appending under the same chart
+ * while prior revisions stay byte-identical. No chartId → fresh flow,
+ * new chart, "Save chart" label exactly as before.
  */
 
 /** Identity-line inputs carried alongside the envelope by the confirm screen. */
@@ -65,7 +72,18 @@ export default function ResultScreen() {
   const theme = useTheme();
   const save = useSaveChart();
   const [promptVisible, setPromptVisible] = useState(false);
-  const params = useLocalSearchParams<{ envelope?: string; identity?: string; request?: string }>();
+  const params = useLocalSearchParams<{
+    envelope?: string;
+    identity?: string;
+    request?: string;
+    chartId?: string;
+  }>();
+
+  // D-08: present only when launched from a saved chart's revise flow —
+  // the Save CTA reads "Save new version" and the save appends under the
+  // SAME chart. The fresh flow carries no chartId (creates a new chart).
+  const chartId =
+    typeof params.chartId === "string" && params.chartId.length > 0 ? params.chartId : undefined;
 
   const parsed = useMemo(() => {
     if (!params.envelope || !params.identity) return null;
@@ -105,7 +123,15 @@ export default function ResultScreen() {
   const handleSave = (label: string) => {
     if (!requestInputs) return;
     save.mutate(
-      { label, envelope, inputs: requestInputs, identity },
+      {
+        // Revise flow: saveChart WITH chartId appends under the same
+        // chart (dedupe honest via appended:false, D-06).
+        ...(chartId !== undefined ? { chartId } : {}),
+        label,
+        envelope,
+        inputs: requestInputs,
+        identity,
+      },
       { onSettled: () => setPromptVisible(false) }
     );
   };
@@ -148,7 +174,7 @@ export default function ResultScreen() {
             <ActivityIndicator color={theme.background} testID="result-saving-indicator" />
           ) : null}
           <ThemedText type="default" style={[styles.saveCtaLabel, { color: theme.background }]}>
-            {SAVE_CTA}
+            {chartId !== undefined ? SAVE_NEW_VERSION_CTA : SAVE_CTA}
           </ThemedText>
         </Pressable>
       )}

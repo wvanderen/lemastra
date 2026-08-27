@@ -86,7 +86,13 @@ function wallTimeInZone(utc: string, ianaZone: string): string {
 
 export default function ConfirmScreen() {
   const theme = useTheme();
-  const params = useLocalSearchParams<{ draft?: string }>();
+  const params = useLocalSearchParams<{ draft?: string; chartId?: string }>();
+
+  // D-08 threading: a revise-flow draft keeps appending under the SAME
+  // chart — the chartId rides beside the draft and re-emits on the result
+  // push. The fresh flow carries nothing.
+  const chartId =
+    typeof params.chartId === "string" && params.chartId.length > 0 ? params.chartId : undefined;
 
   const draft = useMemo(() => {
     if (!params.draft) return null;
@@ -172,6 +178,10 @@ export default function ConfirmScreen() {
             // (zone source + provider — 02-09).
             zone_source: draft.resolve.zone_source,
           }),
+          // D-08 threading: the revise flow's chartId rides alongside so
+          // the result Save CTA reads "Save new version" and appends
+          // under the same chart.
+          ...(chartId !== undefined ? { chartId } : {}),
           // Pattern 5 / A6: the built CalculateRequest plus the draft's
           // place-union branch — exactly the storedCalculationInputs
           // contract the Save path persists so the D-08 revise flow can

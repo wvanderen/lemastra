@@ -13,11 +13,14 @@ import {
   EXPORT_ERROR_COPY,
   LOADING_CHART,
   OPEN_FAILED_ERROR_COPY,
+  REVISE_ACTION,
+  REVISE_HELPER,
 } from "@/components/workspace/copy";
 import { DataActions } from "@/components/workspace/data-actions";
 import { DeleteConfirm } from "@/components/workspace/delete-confirm";
 import { ErrorCard } from "@/components/workspace/error-card";
 import { RenameControl } from "@/components/workspace/rename-control";
+import { RevisionHistory } from "@/components/workspace/revision-history";
 import { WebUnsupported } from "@/components/workspace/web-unsupported";
 import { MaxContentWidth, Spacing } from "@/constants/theme";
 import { useDeleteChart, useRenameChart, useWorkspaceChart } from "@/hooks/use-workspace";
@@ -47,7 +50,13 @@ import { buildExportPayload, exportChartRevision } from "@/lib/workspace/export"
  * pretty JSON through the capability-gated share sheet) and delete
  * (D-14: modal-confirm-gated transactional cascade; success dismisses
  * the detail home, failure renders the exact error deck with Try
- * again and removes nothing). History arrives in a later plan.
+ * again and removes nothing).
+ *
+ * Revisions (03-07): the assumptions action is the D-08 revise entry
+ * ("Revise birth details" — prefills /birth from the latest stored
+ * inputs, appending under this same chart on save), and the History
+ * section (D-07) lists prior revisions as read-only links rendering
+ * only when more than one exists.
  */
 
 /** Export flow state — every outcome is a real rendered surface, never a toast. */
@@ -144,8 +153,22 @@ export default function SavedChartScreen() {
       <AssumptionsLine
         provenance={envelope.provenance}
         confidence={confidence}
+        actionLabel={REVISE_ACTION}
+        actionHelper={REVISE_HELPER}
         onAdjust={() =>
-          router.navigate({ pathname: "/birth", params: { openAssumptions: "1" } })
+          // D-08: the revise flow prefills /birth from the LATEST stored
+          // inputs; the recalculation runs the unchanged Phase-2 chain and
+          // saving appends under this same chart. The param carries
+          // {chartId, inputs} only — an id-style payload, never an envelope.
+          router.push({
+            pathname: "/birth",
+            params: {
+              revise: JSON.stringify({
+                chartId: detail.chart.chartId,
+                inputs: detail.latest.inputs,
+              }),
+            },
+          })
         }
       />
 
@@ -161,6 +184,15 @@ export default function SavedChartScreen() {
       <UnavailableFactors
         unavailable={envelope.unavailable_factors}
         provisional={envelope.provisional_factors}
+      />
+
+      {/* D-07: prior revisions, read-only navigation (renders only >1). */}
+      <RevisionHistory
+        revisions={detail.revisions}
+        onOpenRevision={(revisionId) =>
+          router.push({ pathname: "/chart/revision", params: { id: revisionId } })
+        }
+        testID="saved-chart-history"
       />
 
       <DataActions
