@@ -30,7 +30,7 @@ See: .planning/PROJECT.md (updated 2026-08-26)
 Phase: 3 — Private Local Workspace
 Plan: Not started
 Status: Phase 02 shipped — PR #1
-Last activity: 2026-08-26
+Last activity: 2026-08-27 - Completed quick task 260826-tob: fix aspect schema contract mismatch (PR #1)
 
 Progress: [████████████████████] 16/16 plans (100%)
 
@@ -123,6 +123,12 @@ None yet.
 - [Phase 1 — resolved-to-scheduled]: Swiss Ephemeris posture APPROVED 2026-08-23 by human/product-owner (Professional License option-a) in docs/governance/swiss-ephemeris-posture.md; product approval does NOT replace qualified review — contract execution (CHF 700, O1) and qualified legal review remain scheduled before public or commercial beta (GATE-01).
 - [Phase 1 — resolved]: Data inventory, retention/deletion policy, and secret-isolation policy approved 2026-08-23 by human/product-owner (plan 01-07 approval checkpoint); Apple/Google store disclosures drafted and consistency-tested (01-06) — store publication deferred to Phase 10.
 - [Phase 1 — follow-up]: Registry category slugs `account-identifier`, `synced-artifacts`, `crash-diagnostics` (supabase/sentry) are not defined in data-inventory.md §3 vocabulary; consistency gate checks provider ids only (01-VERIFICATION.md warning). Small fix: extend inventory §3 or drop slugs + add slug-vocabulary assertion to disclosures-consistency.test.ts.
+
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 260826-tob | Fix aspect schema contract mismatch (applying/separating optional presence flags) — real calculate responses failed zod parse, rendering the network-error banner | 2026-08-27 | 9036b6b | [260826-tob-fix-aspect-schema-contract-mismatch-calc](./quick/260826-tob-fix-aspect-schema-contract-mismatch-calc/) |
 
 ## Deferred Items
 
