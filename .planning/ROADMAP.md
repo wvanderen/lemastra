@@ -115,7 +115,7 @@ Plans:
   4. User can export one chart's structured data and provenance or export/delete all locally stored personal data.
   5. Charts and later personal artifacts are local and private by default, while analytics, logs, and crash telemetry exclude or redact sensitive content and credentials.
 
-**Plans:** 6/8 plans executed
+**Plans:** 7/8 plans executed
 
 Plans:
 **Wave 1**
@@ -141,7 +141,7 @@ Plans:
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
-- [ ] 03-07-PLAN.md — Revision History + read-only revision view + revise-birth-details prefill appending under the same chart (WORK-04)
+- [x] 03-07-PLAN.md — Revision History + read-only revision view + revise-birth-details prefill appending under the same chart (WORK-04)
 - [ ] 03-08-PLAN.md — /privacy "Your data": export-all file + confirm-gated delete-all sparing disclosure flags (PRIV-05, PRIV-06)
 
 > **Wave-shape note (intentional deviation):** Waves 1–2 are data-layer-heavy by design: the D-03 adapter seam, the node:sqlite test facade, and the revision model must exist (and be proven against real SQL) before any screen mounts on them — the repo's first persistence code has no UI to mount on otherwise. The first user-visible slice lands in Wave 3 (Save CTA) and the walkable loop runs unbroken through Wave 6 (save → browse → reopen → revise → history → data controls).
@@ -269,7 +269,7 @@ Plans:
 |-------|----------------|--------|-----------|
 | 1. Trust and Release Boundary | 7/7 | Complete    | 2026-08-23 |
 | 2. Trustworthy Natal Chart | 9/9 | Complete    | 2026-08-26 |
-| 3. Private Local Workspace | 6/8 | In Progress|  |
+| 3. Private Local Workspace | 7/8 | In Progress|  |
 | 4. Semantic Chart Exploration | 0/TBD | Not started | - |
 | 5. Natal Transit Workspace | 0/TBD | Not started | - |
 | 6. Repeatable Reading Method | 0/TBD | Not started | - |
