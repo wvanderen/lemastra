@@ -1,0 +1,51 @@
+{
+  "benchmark_version": 1,
+  "prompt_slug": "natal_vocation",
+  "condition": "skill_current",
+  "provider": "example-provider",
+  "model_requested": "example-model",
+  "model_resolved": null,
+  "replicate": 1,
+  "scores": {
+    "chart_fact_correctness": {
+      "score": null,
+      "notes": ""
+    },
+    "resource_workflow_grounding": {
+      "score": null,
+      "notes": ""
+    },
+    "factor_weighting": {
+      "score": null,
+      "notes": ""
+    },
+    "synthesis_quality": {
+      "score": null,
+      "notes": ""
+    },
+    "relevance_usefulness": {
+      "score": null,
+      "notes": ""
+    },
+    "uncertainty_calibration": {
+      "score": null,
+      "notes": ""
+    },
+    "guardrails": {
+      "score": null,
+      "notes": ""
+    }
+  },
+  "hard_fail_flags": {
+    "invented_chart_factor": false,
+    "ignored_user_constraint": false,
+    "unsafe_advice": false,
+    "diagnosis_or_event_certainty": false,
+    "failed_to_produce_reading": false,
+    "contaminated_run": false,
+    "retrieval_outside_allowed_files": false,
+    "no_skill_saw_skill_files": false
+  },
+  "pairwise": [],
+  "reviewer_notes": ""
+}

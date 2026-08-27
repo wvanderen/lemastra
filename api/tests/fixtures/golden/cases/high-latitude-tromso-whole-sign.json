@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "id": "high-latitude-tromso-whole-sign",
+  "category": "high_latitude",
+  "description": "High-latitude success pair (1/2): Tromsø 69.6496°N at mid-summer solstice with Whole Sign houses — computable and digest-pinned.",
+  "input": {
+    "date": "2024-06-21",
+    "time": "12:00",
+    "confidence": "Timed",
+    "house_system": "Whole Sign",
+    "place": {
+      "label": "Tromsø, Norway",
+      "lat": 69.6496,
+      "lon": 18.9553
+    },
+    "iana_zone": "Europe/Oslo",
+    "zone_source": "google"
+  },
+  "expect": {
+    "outcome": "success",
+    "digest": {
+      "ascendant.absolute_degree": 174.5008,
+      "midheaven.absolute_degree": 79.9334,
+      "placements.Sun.absolute_degree": 90.5227,
+      "placements.Moon.absolute_degree": 262.6274,
+      "placements.Mercury.absolute_degree": 98.6481,
+      "placements.Venus.absolute_degree": 95.1015,
+      "placements.Mars.absolute_degree": 39.0102,
+      "placements.Jupiter.absolute_degree": 66.1037,
+      "placements.Saturn.absolute_degree": 349.3694,
+      "placements.Uranus.absolute_degree": 55.2631,
+      "placements.Neptune.absolute_degree": 359.8989,
+      "placements.Pluto.absolute_degree": 301.5775,
+      "placements.True Node.absolute_degree": 12.353,
+      "house_cusps_count": 12,
+      "aspects_count_range": [
+        23,
+        29
+      ],
+      "birth_time_confidence": "Timed"
+    }
+  }
+}

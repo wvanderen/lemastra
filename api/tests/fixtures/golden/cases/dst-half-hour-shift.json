@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "id": "dst-half-hour-shift",
+  "category": "dst_half_hour",
+  "description": "Half-hour DST zone: Lord Howe Island shifts only 30 minutes (+11:00 → +10:30). 2024-04-07 01:45 is ambiguous; the base input is the first pass (fold=0, +11:00) and second_pass pins the +10:30 occurrence.",
+  "input": {
+    "date": "2024-04-07",
+    "time": "01:45",
+    "confidence": "Timed",
+    "house_system": "Whole Sign",
+    "place": {
+      "label": "Lord Howe Island, Australia",
+      "lat": -31.5559,
+      "lon": 159.0819
+    },
+    "iana_zone": "Australia/Lord_Howe",
+    "zone_source": "google"
+  },
+  "expect": {
+    "outcome": "success",
+    "digest": {
+      "ascendant.absolute_degree": 313.843,
+      "midheaven.absolute_degree": 218.0794,
+      "placements.Sun.absolute_degree": 17.2859,
+      "placements.Moon.absolute_degree": 347.0567,
+      "placements.Mercury.absolute_degree": 26.0166,
+      "placements.Venus.absolute_degree": 1.789,
+      "placements.Mars.absolute_degree": 341.3796,
+      "placements.Jupiter.absolute_degree": 48.5719,
+      "placements.Saturn.absolute_degree": 344.2223,
+      "placements.Uranus.absolute_degree": 51.0619,
+      "placements.Neptune.absolute_degree": 358.1125,
+      "placements.Pluto.absolute_degree": 301.9423,
+      "placements.True Node.absolute_degree": 15.6215,
+      "house_cusps_count": 12,
+      "aspects_count_range": [
+        19,
+        25
+      ],
+      "birth_time_confidence": "Timed"
+    },
+    "second_pass": {
+      "time_resolution": {
+        "mode": "second_pass",
+        "offset_seconds": 37800
+      },
+      "digest": {
+        "ascendant.absolute_degree": 320.1432,
+        "midheaven.absolute_degree": 225.6976,
+        "placements.Sun.absolute_degree": 17.3064,
+        "placements.Moon.absolute_degree": 347.3689,
+        "placements.Mercury.absolute_degree": 26.0064,
+        "placements.Venus.absolute_degree": 1.8148,
+        "placements.Mars.absolute_degree": 341.3958,
+        "placements.Jupiter.absolute_degree": 48.5764,
+        "placements.Saturn.absolute_degree": 344.2246,
+        "placements.Uranus.absolute_degree": 51.0629,
+        "placements.Neptune.absolute_degree": 358.1133,
+        "placements.Pluto.absolute_degree": 301.9425,
+        "placements.True Node.absolute_degree": 15.6215,
+        "house_cusps_count": 12,
+        "aspects_count_range": [
+          21,
+          27
+        ],
+        "birth_time_confidence": "Timed"
+      }
+    }
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "benchmark_version": 1,
+  "description": "Example smoke configuration for the comparative astrology reading benchmark. Replace model ids before running a provider-backed pass.",
+  "prompt_source": "../forward_testing/structured_reading_prompts.md",
+  "prompt_slugs": [
+    "natal_vocation"
+  ],
+  "conditions": [
+    "skill_current",
+    "no_skill"
+  ],
+  "models": [
+    {
+      "provider": "example-provider-a",
+      "model": "example-model-a"
+    },
+    {
+      "provider": "example-provider-b",
+      "model": "example-model-b"
+    }
+  ],
+  "replicates": 1,
+  "runs_dir": null,
+  "artifact_policy": {
+    "default_runs_dir": "system_temp/astrology_comparative_benchmark/<timestamp>",
+    "check_raw_outputs_into_repo": false,
+    "record_aggregate_findings_in_repo": true
+  },
+  "rubrics": {
+    "natal_vocation": "rubrics/natal_vocation.json"
+  },
+  "scoring": {
+    "score_min": 0,
+    "score_max": 4,
+    "weights": {
+      "chart_fact_correctness": 0.2,
+      "resource_workflow_grounding": 0.15,
+      "factor_weighting": 0.2,
+      "synthesis_quality": 0.15,
+      "relevance_usefulness": 0.1,
+      "uncertainty_calibration": 0.1,
+      "guardrails": 0.1
+    }
+  }
+}

@@ -1,7 +1,10 @@
 # LemAstra CI — GATE-06 automated enforcement (plan 01-07).
 #
-# Three gates, all exit-nonzero-on-findings; no step may swallow failures.
+# Four gates, all exit-nonzero-on-findings; no step may swallow failures.
 #   test        — vitest suite + strict tsc over the installed toolchain
+#   api         — pytest suite incl. GATE-02 golden fixtures, plus the
+#                 vendored skill's own smoke tests, under the locked uv
+#                 environment (plan 02-07)
 #   gitleaks    — full-git-history secret scan (repo .gitleaks.toml rules)
 #   bundle-scan — exported web-bundle secret scan (authoritative GATE-06
 #                 check: EXPO_PUBLIC_ inlining happens at bundle time)
@@ -60,6 +63,43 @@ jobs:
           fi
       - run: npx tsc --noEmit
       - run: npx vitest run
+
+  api:
+    name: API tests + golden fixtures (pytest, uv)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        # vendor/astrology-skill is a committed archive snapshot (02-01
+        # sanctioned deviation from the submodule plan): plain checkout
+        # materializes the pinned tree — no submodule wiring; provenance
+        # reads vendor/astrology-skill/UPSTREAM.revision (660d992…).
+      # T-02-27: upstream stopped publishing floating major tags; pin the
+      # immutable commit of the verified current release v10.0.1
+      # (2026-08-14 — research A1 flagged the old v5 tag as ASSUMED).
+      - uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          python-version: "3.12"
+          enable-cache: true
+          cache-dependency-glob: api/uv.lock
+      # T-02-26: --locked, never bare sync — dependency promotion
+      # (tzdata/pyswisseph/skill rev) is a deliberate reviewed change with
+      # golden-digest regeneration, never a CI-side re-resolve.
+      - name: Sync locked environment
+        run: uv sync --locked
+        working-directory: api
+      # Full suite — the GATE-02 golden fixtures run on every push.
+      - name: Run API suite (golden fixtures included)
+        run: uv run pytest -q
+        working-directory: api
+      # Upstream regression (STACK.md testing table): the vendored skill's
+      # own smoke tests against the same locked environment, driven from
+      # the repo root via --project so the api venv is used.
+      - name: Vendored skill smoke tests
+        run: |
+          uv run --project api --locked python vendor/astrology-skill/tools/smoke_test.py
+          uv run --project api --locked python vendor/astrology-skill/tools/tz_smoke_test.py
+          uv run --project api --locked python vendor/astrology-skill/tools/dignity_smoke_test.py
+          uv run --project api --locked python vendor/astrology-skill/tools/timing_smoke_test.py
 
   gitleaks:
     name: Full-history secret scan

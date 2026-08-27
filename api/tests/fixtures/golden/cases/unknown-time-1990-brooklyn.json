@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "id": "unknown-time-1990-brooklyn",
+  "category": "unknown_time",
+  "description": "D-10 unknown-time contract: no time, confidence Unknown. Time-dependent factors are ABSENT (not empty) and unavailable_factors are output-derived; no invented noon chart.",
+  "input": {
+    "date": "1990-05-21",
+    "confidence": "Unknown",
+    "house_system": "Whole Sign",
+    "place": {
+      "label": "Brooklyn, New York",
+      "lat": 40.7128,
+      "lon": -74.006
+    },
+    "iana_zone": "America/New_York",
+    "zone_source": "google"
+  },
+  "expect": {
+    "outcome": "success",
+    "digest": {
+      "placements.Sun.absolute_degree": 60.3359,
+      "placements.Moon.absolute_degree": 20.2373,
+      "placements.Mercury.absolute_degree": 38.7144,
+      "placements.Venus.absolute_degree": 19.8814,
+      "placements.Mars.absolute_degree": 352.9053,
+      "placements.Jupiter.absolute_degree": 100.7311,
+      "placements.Saturn.absolute_degree": 295.1153,
+      "placements.Uranus.absolute_degree": 279.02,
+      "placements.Neptune.absolute_degree": 284.2537,
+      "placements.Pluto.absolute_degree": 225.9984,
+      "placements.True Node.absolute_degree": 310.0383,
+      "aspects_count_range": [
+        18,
+        24
+      ],
+      "birth_time_confidence": "Unknown"
+    },
+    "absent_keys": [
+      "house_system",
+      "ascendant",
+      "midheaven",
+      "house_cusps",
+      "sect",
+      "lots"
+    ],
+    "placement_house_keys_absent": true,
+    "unavailable_factors": [
+      "ascendant_mc",
+      "houses",
+      "lots",
+      "sect"
+    ],
+    "provisional_factors": [
+      "moon"
+    ]
+  }
+}

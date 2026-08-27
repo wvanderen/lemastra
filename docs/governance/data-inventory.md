@@ -67,13 +67,16 @@ category may not be used in any disclosure unless it is defined here.
 
 ## 4. Current Posture
 
-**Phase 1 truth: no personal data transmits off-device.** In the Phase 1 release, every
-provider listed above is **planned, not active** — no calculation, geocoding, model,
-account, or diagnostics traffic exists, and no provider receives any data. Saved charts and
-conversations do not yet exist in Phase 1. Local-first storage arrives in Phase 3 and **stays
-on-device** in v1: charts, conversations, and reports are stored on the user's device only.
-Each provider's remote flow is introduced only in the phase named in its "Introduced" column,
-and activating any provider requires updating this inventory, the provider registry, and the
+**Phase 2 truth: two live flows, both ephemeral and user-initiated.** The
+`lemastra-calculation` and `google-geocoding-timezone` flows are **active** since plan
+02-08 wired the birth flow (chart calculation + birthplace search); their requests are
+compute-and-discard per §1/retention policy and the app discloses them before the first
+calculation (D-04). Every other provider remains **planned, not active** — no model,
+account, or diagnostics traffic exists. Saved charts and conversations do not yet exist.
+Local-first storage arrives in Phase 3 and **stays on-device** in v1: charts,
+conversations, and reports are stored on the user's device only. Each provider's remote
+flow is introduced only in the phase named in its "Introduced" column, and activating any
+provider requires updating this inventory, the provider registry, and the
 retention/deletion policy first (retention-deletion-policy.md §7).
 
 ## 5. Approval

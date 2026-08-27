@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "id": "dst-nonexistent-ny-2024",
+  "category": "dst_nonexistent",
+  "description": "Spring-forward gap: 2024-03-10 02:30 America/New_York never happened. D-08 'shifted' resolution feeds the calculator the adjacent valid wall time 03:30 EDT; the digest pins that shifted-instant chart.",
+  "input": {
+    "date": "2024-03-10",
+    "time": "02:30",
+    "time_resolution": {
+      "mode": "shifted",
+      "wall_time": "03:30"
+    },
+    "confidence": "Timed",
+    "house_system": "Whole Sign",
+    "place": {
+      "label": "Brooklyn, New York",
+      "lat": 40.7128,
+      "lon": -74.006
+    },
+    "iana_zone": "America/New_York",
+    "zone_source": "google"
+  },
+  "expect": {
+    "outcome": "success",
+    "digest": {
+      "ascendant.absolute_degree": 274.7279,
+      "midheaven.absolute_degree": 209.007,
+      "placements.Sun.absolute_degree": 350.2171,
+      "placements.Moon.absolute_degree": 349.3216,
+      "placements.Mercury.absolute_degree": 0.2766,
+      "placements.Venus.absolute_degree": 328.0223,
+      "placements.Mars.absolute_degree": 320.1413,
+      "placements.Jupiter.absolute_degree": 42.9804,
+      "placements.Saturn.absolute_degree": 341.0479,
+      "placements.Uranus.absolute_degree": 49.8762,
+      "placements.Neptune.absolute_degree": 357.0881,
+      "placements.Pluto.absolute_degree": 301.4484,
+      "placements.True Node.absolute_degree": 15.7356,
+      "house_cusps_count": 12,
+      "aspects_count_range": [
+        17,
+        23
+      ],
+      "birth_time_confidence": "Timed"
+    }
+  }
+}

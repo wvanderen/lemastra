@@ -47,10 +47,20 @@ describe("bundled provider registry", () => {
     expect(registry.providers.map((p) => p.id).sort()).toEqual(CANONICAL_PROVIDER_IDS);
   });
 
-  it("marks every provider as planned (Phase 1 truth: no remote feature active)", () => {
+  it("marks exactly the two Phase-2 live providers active (calculation + geocoding flows)", () => {
     const registry = providerRegistrySchema.parse(providerRegistryData);
+    const active = registry.providers
+      .filter((provider) => provider.status === "active")
+      .map((provider) => provider.id)
+      .sort();
+    // Phase-2 truth (plan 02-08): the calculation + geocoding/timezone flows
+    // are wired, so exactly these two ids are active — everything else stays
+    // planned until its own phase flips it (governed act, Pitfall 9).
+    expect(active).toEqual(["google-geocoding-timezone", "lemastra-calculation"]);
     for (const provider of registry.providers) {
-      expect(provider.status).toBe("planned");
+      if (!active.includes(provider.id)) {
+        expect(provider.status, `${provider.id} must remain planned`).toBe("planned");
+      }
     }
   });
 

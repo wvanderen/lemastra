@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "high-latitude-tromso-placidus",
+  "category": "high_latitude_failure",
+  "description": "High-latitude expected-failure pair (2/2): identical input but Placidus — the quadrant house system cannot be computed at this latitude/date and the endpoint must answer 422 CALC_UNSUITABLE_HOUSE_SYSTEM with the Whole Sign/Equal hint.",
+  "input": {
+    "date": "2024-06-21",
+    "time": "12:00",
+    "confidence": "Timed",
+    "house_system": "Placidus",
+    "place": {
+      "label": "Tromsø, Norway",
+      "lat": 69.6496,
+      "lon": 18.9553
+    },
+    "iana_zone": "Europe/Oslo",
+    "zone_source": "google"
+  },
+  "expect": {
+    "outcome": "error",
+    "error": {
+      "status": 422,
+      "code": "CALC_UNSUITABLE_HOUSE_SYSTEM",
+      "recoverable": true
+    }
+  }
+}

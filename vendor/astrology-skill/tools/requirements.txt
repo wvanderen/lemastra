@@ -1,0 +1,6 @@
+pyswisseph>=2.10.3.2
+# tzdata: the IANA timezone database. stdlib zoneinfo consults the system
+# tzdb first and falls back to this package, so any real IANA zone resolves
+# regardless of host OS (macOS/Windows/minimal containers ship an incomplete
+# or stale system db). Guarantees deterministic, host-independent zone coverage.
+tzdata>=2024.1

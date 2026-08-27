@@ -1,0 +1,157 @@
+{
+  "version": 1,
+  "prompt_slug": "natal_vocation",
+  "prompt_title": "Natal Vocation Prompt",
+  "reading_type": "natal",
+  "tradition_mode": "blended",
+  "user_question_focus": "Choose the strongest vocational pattern among stable operations work, teaching/writing, and independent consulting from the supplied chart data.",
+  "score_axes": {
+    "chart_fact_correctness": {
+      "weight": 0.2,
+      "score_min": 0,
+      "score_max": 4,
+      "anchor_4": "Uses only supplied chart factors and preserves all signs, houses, aspects, dignity labels, sect, and rulerships accurately.",
+      "anchor_2": "Mostly accurate but contains a minor chart-fact slip that does not drive the main interpretation.",
+      "anchor_0": "Invents or changes major chart facts, or bases the conclusion on unavailable data."
+    },
+    "resource_workflow_grounding": {
+      "weight": 0.15,
+      "score_min": 0,
+      "score_max": 4,
+      "anchor_4": "In skill_current, retrieves the expected vocational, natal, foundation, planet, house, condition, rulership, and aspect resources without irrelevant sprawl. In no_skill, avoids fake citations and unsupported source claims.",
+      "anchor_2": "Uses some expected resources or grounded reasoning but misses a relevant major module or over-relies on generic phrasing.",
+      "anchor_0": "Ignores the skill workflow in skill_current or fabricates source grounding in no_skill."
+    },
+    "factor_weighting": {
+      "weight": 0.2,
+      "score_min": 0,
+      "score_max": 4,
+      "anchor_4": "Makes Mercury's stacked testimony the headline and weighs teaching/writing/consulting above stable operations while preserving Saturn and Jupiter qualifications.",
+      "anchor_2": "Mentions the right factors but gives excessive weight to a secondary symbol or leaves the vocational options under-ranked.",
+      "anchor_0": "Centers the conclusion on a weak, unsupported, or invented factor."
+    },
+    "synthesis_quality": {
+      "weight": 0.15,
+      "score_min": 0,
+      "score_max": 4,
+      "anchor_4": "Integrates chart ruler, 10th ruler, MC contact, aspects, resources, work routines, and 9th-house themes into one coherent vocational judgment.",
+      "anchor_2": "Provides useful observations but reads like a placement list or leaves tensions unresolved.",
+      "anchor_0": "Fragments the chart into disconnected statements with no vocational synthesis."
+    },
+    "relevance_usefulness": {
+      "weight": 0.1,
+      "score_min": 0,
+      "score_max": 4,
+      "anchor_4": "Directly answers the user's choice question with practical tradeoffs for operations, teaching/writing, and consulting.",
+      "anchor_2": "Generally vocational but does not clearly compare the three options.",
+      "anchor_0": "Does not answer the vocational choice question."
+    },
+    "uncertainty_calibration": {
+      "weight": 0.1,
+      "score_min": 0,
+      "score_max": 4,
+      "anchor_4": "Names interpretation limits proportionally while noting the supplied birth time is high confidence and houses/MC are usable.",
+      "anchor_2": "Includes some limits but overstates certainty or adds generic caveats that do not track the fixture.",
+      "anchor_0": "Presents deterministic claims or invents missing uncertainty."
+    },
+    "guardrails": {
+      "weight": 0.1,
+      "score_min": 0,
+      "score_max": 4,
+      "anchor_4": "Avoids fatalism and does not tell the user to make employment or financial decisions solely from astrology.",
+      "anchor_2": "Mostly safe but a few phrases sound overly deterministic.",
+      "anchor_0": "Gives high-stakes career or financial directives as astrological certainty."
+    }
+  },
+  "must_mention": [
+    "Mercury in Gemini in the 10th house",
+    "Mercury as both Ascendant ruler and 10th-house ruler",
+    "Mercury conjunct the Midheaven within 1 degree",
+    "Mercury trine Jupiter with a 1.2 degree applying orb",
+    "Mercury trine Saturn with a 2.7 degree separating orb",
+    "Sun in Taurus in the 9th house square Saturn with a 0.8 degree applying orb",
+    "Saturn in Aquarius in the 6th house in domicile",
+    "Jupiter in Libra in the 2nd house",
+    "Mars in Cancer in the 11th in fall square Jupiter",
+    "The strongest vocational pattern favors teaching, writing, advising, analysis, or consulting over pure operations"
+  ],
+  "must_not_claim": [
+    "Do not claim the chart guarantees career success, income, promotion, or business outcomes.",
+    "Do not invent transits, progressions, profections, lots, degrees, or planets not supplied.",
+    "Do not say houses or the Midheaven are unavailable; this fixture supplies high birth-time confidence.",
+    "Do not treat Venus or Mars as the primary vocational significator over Mercury.",
+    "Do not diagnose burnout, health conditions, or mental health conditions.",
+    "Do not tell the user to quit or take a job solely because of astrology."
+  ],
+  "weighting_targets": {
+    "primary": [
+      "Mercury in Gemini in the 10th",
+      "Mercury ruling the Ascendant and 10th",
+      "Mercury conjunct the Midheaven",
+      "Mercury trine Jupiter",
+      "Mercury trine Saturn"
+    ],
+    "secondary": [
+      "Sun in the 9th square Saturn",
+      "Saturn in domicile in the 6th",
+      "Jupiter in the 2nd",
+      "Mars square Jupiter"
+    ],
+    "background": [
+      "Moon in Capricorn in the 5th",
+      "Venus in Aries in the 8th"
+    ]
+  },
+  "expected_retrieval": {
+    "skill_current": {
+      "must_include": [
+        "SKILL.md",
+        "references/reading_types/natal.md",
+        "references/foundations/synthesis_rules.md",
+        "references/foundations/ethics_and_scope.md",
+        "references/foundations/anti_patterns.md",
+        "references/synthesis_patterns/vocation.md",
+        "references/synthesis_patterns/consulting_advisory_vocation.md",
+        "references/planets/mercury.md",
+        "references/signs/gemini.md",
+        "references/houses/10th.md",
+        "references/placements/planet_in_sign/mercury_gemini.md",
+        "references/placements/planet_in_house/mercury_10th.md",
+        "references/aspects/by_planet_pair/mercury_trine_jupiter.md",
+        "references/aspects/by_planet_pair/mercury_trine_saturn.md",
+        "references/aspects/by_planet_pair/sun_square_saturn.md",
+        "references/traditions/classical/dignities.md",
+        "references/traditions/classical/sect.md"
+      ],
+      "nice_to_include": [
+        "references/synthesis_patterns/resources.md",
+        "references/placements/planet_condition/domicile.md",
+        "references/placements/planet_condition/fall.md",
+        "references/rulerships/mercury.md",
+        "references/rulerships/jupiter.md",
+        "references/rulerships/saturn.md"
+      ]
+    },
+    "no_skill": {
+      "must_include": [],
+      "must_not_read": [
+        "SKILL.md",
+        "references/",
+        "assets/"
+      ]
+    }
+  },
+  "known_traps": [
+    "Overweighting the Moon in Capricorn in the 5th as creative work without tying it to the stronger Mercury/10th testimony.",
+    "Treating Saturn in the 6th as a simple argument for staying in operations, despite Mercury's stronger angular vocational stack.",
+    "Turning Jupiter in the 2nd into guaranteed income.",
+    "Ignoring that Mercury rules both the Ascendant and 10th house.",
+    "Inventing timing advice even though no timing technique was supplied."
+  ],
+  "guardrail_checks": [
+    "Career recommendations must be framed as symbolic vocational emphasis, not instructions.",
+    "Financial outcomes must remain non-guaranteed.",
+    "Burnout or health language must remain non-diagnostic.",
+    "Any choice guidance should recommend integrating real-world constraints and judgment."
+  ]
+}

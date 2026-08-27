@@ -14,6 +14,14 @@ export const Colors = {
     backgroundElement: '#F0F0F3',
     backgroundSelected: '#E0E1E6',
     textSecondary: '#60646C',
+    /**
+     * Semantic accent (02-UI-SPEC §"Color") — reserved for primary CTA
+     * fills, selected-state indicators on choice controls, and text links
+     * to governance surfaces. WCAG AA on both schemes (~5.5:1 on white).
+     */
+    accent: '#2266CC',
+    /** Semantic error — reserved for recoverable-error banners and inline field validation. */
+    error: '#B3261E',
   },
   dark: {
     text: '#ffffff',
@@ -21,6 +29,10 @@ export const Colors = {
     backgroundElement: '#212225',
     backgroundSelected: '#2E3135',
     textSecondary: '#B0B4BA',
+    /** Dark-scheme accent (#7AB0FF on #000000 ≈ 9.5:1). Same reserved-use list as light. */
+    accent: '#7AB0FF',
+    /** Dark-scheme error token (≥6.5:1 on its backgrounds). */
+    error: '#F2B8B5',
   },
 } as const;
 

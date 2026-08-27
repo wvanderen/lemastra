@@ -1,0 +1,158 @@
+{
+  "version": 1,
+  "description_under_test": "SKILL.md frontmatter description",
+  "pass_criteria": {
+    "train": {
+      "minimum_accuracy": 0.91,
+      "maximum_false_positives": 1,
+      "maximum_false_negatives": 1
+    },
+    "validation": {
+      "minimum_accuracy": 1.0,
+      "maximum_false_positives": 0,
+      "maximum_false_negatives": 0
+    }
+  },
+  "cases": [
+    {
+      "id": "train_should_01_casual_natal",
+      "split": "train",
+      "expected_trigger": true,
+      "tags": ["casual", "natal", "placements"],
+      "query": "Can you read this for me? Leo rising, Sun in Gemini in the 11th, Moon in Capricorn in the 6th, Mars in Cancer in the 12th. I mostly want the work/life theme."
+    },
+    {
+      "id": "train_should_02_structured_chart_json",
+      "split": "train",
+      "expected_trigger": true,
+      "tags": ["structured", "natal", "houses", "aspects"],
+      "query": "{\"reading_type\":\"natal\",\"tone\":\"practical\",\"chart_data\":{\"ascendant\":{\"sign\":\"Virgo\",\"degree\":12.4},\"sect\":\"day\",\"placements\":[{\"body\":\"Mercury\",\"sign\":\"Gemini\",\"house\":10},{\"body\":\"Saturn\",\"sign\":\"Pisces\",\"house\":7}],\"aspects\":[{\"body1\":\"Mercury\",\"aspect\":\"square\",\"body2\":\"Saturn\",\"orb\":1.2}]},\"user_question\":\"What does this suggest about consulting work?\"}"
+    },
+    {
+      "id": "train_should_03_transit_supplied",
+      "split": "train",
+      "expected_trigger": true,
+      "tags": ["transit", "timing", "aspects"],
+      "query": "Interpret this transit, please: transiting Saturn in Pisces is conjunct my natal Moon in Pisces in the 4th within 0.8 degrees, applying. Natal chart is night sect. Keep it grounded."
+    },
+    {
+      "id": "train_should_04_synastry_nonromantic",
+      "split": "train",
+      "expected_trigger": true,
+      "tags": ["synastry", "professional", "near-miss-romance"],
+      "query": "We are creative collaborators, not dating. Person A Mercury Gemini 10th trines Person B Saturn Aquarius 6th; A Venus Taurus 9th squares B Mars Leo 12th. Can you synthesize the working dynamic?"
+    },
+    {
+      "id": "train_should_05_horary_details",
+      "split": "train",
+      "expected_trigger": true,
+      "tags": ["horary", "rulerships", "dignities"],
+      "query": "Horary reading request: Virgo rising, Mercury in Gemini in the 10th, quesited ruler Jupiter in Sagittarius in the 4th, Moon in Libra applying trine Mercury. Is the project likely to move forward?"
+    },
+    {
+      "id": "train_should_06_electional_compare",
+      "split": "train",
+      "expected_trigger": true,
+      "tags": ["electional", "comparison", "constraints"],
+      "query": "I already have two electional charts for launching a newsletter. Chart A has Libra rising with Venus in Taurus in the 8th; Chart B has Sagittarius rising with Jupiter in Gemini in the 7th. Compare only these supplied factors."
+    },
+    {
+      "id": "train_not_01_calculate_birth_chart",
+      "split": "train",
+      "expected_trigger": false,
+      "tags": ["calculation", "birth-data", "near-miss"],
+      "query": "I was born March 5, 1994 at 8:15 AM in Austin, Texas. Can you calculate my full birth chart and tell me my houses?"
+    },
+    {
+      "id": "train_not_02_generic_spiritual_advice",
+      "split": "train",
+      "expected_trigger": false,
+      "tags": ["spiritual-advice", "no-chart-data"],
+      "query": "I feel spiritually blocked and keep seeing repeated numbers. What does the universe want me to know this week?"
+    },
+    {
+      "id": "train_not_03_explain_term",
+      "split": "train",
+      "expected_trigger": false,
+      "tags": ["education", "no-reading"],
+      "query": "What does sect mean in traditional astrology? Give me a concise definition and a couple examples."
+    },
+    {
+      "id": "train_not_04_write_horoscope",
+      "split": "train",
+      "expected_trigger": false,
+      "tags": ["content", "sun-sign", "no-chart-data"],
+      "query": "Write a playful weekly horoscope blurb for each zodiac sign for my newsletter."
+    },
+    {
+      "id": "train_not_05_software_schema",
+      "split": "train",
+      "expected_trigger": false,
+      "tags": ["coding", "schema", "adjacent"],
+      "query": "Design a JSON schema for storing astrology chart data in my app. I do not need an interpretation."
+    },
+    {
+      "id": "train_not_06_astronomy_chart",
+      "split": "train",
+      "expected_trigger": false,
+      "tags": ["astronomy", "chart-word", "near-miss"],
+      "query": "Make a chart showing the apparent magnitude of Venus, Mars, and Jupiter over the next six months."
+    },
+    {
+      "id": "validation_should_01_indirect_reading",
+      "split": "validation",
+      "expected_trigger": true,
+      "tags": ["indirect", "natal", "vocation"],
+      "query": "I do not need calculations, just help making sense of the chart I already pulled: MC in Taurus, Venus in the 9th in Taurus, 10th ruler angular by whole sign, Saturn in the 6th. What kind of work rhythm is implied?"
+    },
+    {
+      "id": "validation_should_02_solar_return",
+      "split": "validation",
+      "expected_trigger": true,
+      "tags": ["solar-return", "structured", "houses"],
+      "query": "Solar return: Scorpio rising, Mars in Virgo in the 11th, Moon in Aquarius in the 4th square Uranus in Taurus in the 7th. Give me the year's main themes from these factors."
+    },
+    {
+      "id": "validation_should_03_annual_profection",
+      "split": "validation",
+      "expected_trigger": true,
+      "tags": ["annual-profection", "dignity", "timing"],
+      "query": "I am in a 10th house profection year. Capricorn is on the 10th, Saturn is in Aquarius in the 11th and in sect; natal Sun squares Saturn. Can you synthesize career timing without inventing transits?"
+    },
+    {
+      "id": "validation_should_04_mundane",
+      "split": "validation",
+      "expected_trigger": true,
+      "tags": ["mundane", "collective", "scope"],
+      "query": "Mundane ingress chart already calculated: Aries rising, Mars in Cancer in the 4th, Moon in Capricorn in the 10th opposite Mars, Jupiter in Gemini in the 3rd. What public themes does this suggest, with uncertainty?"
+    },
+    {
+      "id": "validation_not_01_calculate_synastry",
+      "split": "validation",
+      "expected_trigger": false,
+      "tags": ["calculation", "synastry", "birth-data"],
+      "query": "Here are two birth dates, times, and cities. Can you calculate our synastry aspects and composite chart?"
+    },
+    {
+      "id": "validation_not_02_tarot",
+      "split": "validation",
+      "expected_trigger": false,
+      "tags": ["tarot", "spiritual-advice"],
+      "query": "Pull a three-card tarot spread for whether I should move apartments."
+    },
+    {
+      "id": "validation_not_03_medical_decision",
+      "split": "validation",
+      "expected_trigger": false,
+      "tags": ["medical", "high-stakes", "no-chart-data"],
+      "query": "Which astrology transit means I can stop taking my medication?"
+    },
+    {
+      "id": "validation_not_04_file_edit",
+      "split": "validation",
+      "expected_trigger": false,
+      "tags": ["repo-work", "skill-doc", "no-reading"],
+      "query": "Update the astrology skill README to list the supported reading types and install steps."
+    }
+  ]
+}

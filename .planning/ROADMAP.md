@@ -7,7 +7,7 @@ LemAstra advances through ten vertical slices: establish a lawful and private re
 ## Phases
 
 - [x] **Phase 1: Trust and Release Boundary** - Users can understand the supported product, providers, and privacy posture before sensitive data leaves their device. (completed 2026-08-23)
-- [ ] **Phase 2: Trustworthy Natal Chart** - Users can resolve birth details and calculate a validated, provenance-rich natal chart.
+- [x] **Phase 2: Trustworthy Natal Chart** - Users can resolve birth details and calculate a validated, provenance-rich natal chart. (completed 2026-08-26)
 - [ ] **Phase 3: Private Local Workspace** - Users can save, revise, reopen, export, and delete charts without an account.
 - [ ] **Phase 4: Semantic Chart Exploration** - Users can explore the natal wheel and the same evidence through accessible beginner and technical views.
 - [ ] **Phase 5: Natal Transit Workspace** - Users can calculate, inspect, save, and reopen a transit comparison tied to an exact natal revision.
@@ -68,9 +68,37 @@ Plans:
   2. User can record birth-time confidence, and an unknown time produces only supported factors without an invented time.
   3. User receives a validated natal chart with visible assumptions and complete calculation/input version provenance.
   4. User receives specific recovery guidance when resolution, calculation, or schema validation fails.
-  5. Supported natal and transit math, civil-time ambiguity, unknown times, and representative high-latitude cases pass published reference fixtures.
+  5. Supported natal math, civil-time ambiguity, unknown times, and representative high-latitude cases pass published reference fixtures. *(Per D-14, Phase 2's GATE-02 scope is natal-only — the transit fixture half completes in Phase 5; phase-end verification should not expect transit fixtures here.)*
 
-**Plans:** TBD
+**Plans:** 9/9 plans complete
+
+Plans:
+**Wave 1**
+
+- [x] 02-01-PLAN.md — API foundation: uv bootstrap, vendored skill submodule, calculator subprocess wrapper, civil-time classification (CALC-03/04, BIRTH-03)
+- [x] 02-02-PLAN.md — Client deps (legitimacy checkpoint) + zod API contracts, fetch client, query provider, disclosure hook (BIRTH-01)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [x] 02-03-PLAN.md — Calculate endpoint: provenance envelope, unknown-time contract, CALC-04 error taxonomy (CALC-02/03/04, BIRTH-05)
+- [x] 02-05-PLAN.md — Client shared UI: accent/error tokens, option-card, error-banner, confidence + assumptions controls (BIRTH-04, CALC-02/04)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [x] 02-04-PLAN.md — Places endpoints: geocoding search, historical timezone resolution + drift, zones list (BIRTH-02/03, CALC-04)
+- [x] 02-06-PLAN.md — Birth form route: RHF+zod form, place type-ahead + manual fallback, home CTA (BIRTH-01/04)
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
+- [x] 02-07-PLAN.md — GATE-02 golden fixture suite (9 cases through the API) + CI api job (GATE-02, CALC-01)
+- [x] 02-08-PLAN.md — Confirm screen: resolved-offset card, tricky-time picker, one-time disclosure, registry activation flip (BIRTH-02/03)
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
+- [x] 02-09-PLAN.md — Result screen: placement list, assumptions card, expandable provenance, unavailable factors (CALC-02/03, BIRTH-05)
+
+> **Wave-shape note (intentional deviation):** Waves 1–2 are foundation-heavy by design, not a slicing gap: the D-03 two-step contract requires the API chain (02-01 → 02-03 → 02-04) and the shared client vocabulary (02-02/02-05) to exist before screens consume them. The first walkable screen lands in Wave 3 (02-06); from there the user-visible slice runs unbroken through 02-08/02-09 (entry → confirm → calculate → result).
+
 **UI hint:** yes
 
 ### Phase 3: Private Local Workspace
@@ -209,8 +237,8 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Trust and Release Boundary | 7/7 | Complete   | 2026-08-23 |
-| 2. Trustworthy Natal Chart | 0/TBD | Not started | - |
+| 1. Trust and Release Boundary | 7/7 | Complete    | 2026-08-23 |
+| 2. Trustworthy Natal Chart | 9/9 | Complete    | 2026-08-26 |
 | 3. Private Local Workspace | 0/TBD | Not started | - |
 | 4. Semantic Chart Exploration | 0/TBD | Not started | - |
 | 5. Natal Transit Workspace | 0/TBD | Not started | - |

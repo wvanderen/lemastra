@@ -14,22 +14,24 @@ taxonomy only** — see §4.
 
 ## 1. Current release answer
 
-**Data Not Collected.**
+**Collected — the Phase-2 live flows below** (updated when the calculation +
+geocoding providers flipped to `active`, plan 02-08).
 
-For the Phase 1 release, the answer to whether this app collects data is **no** — no data
-types are collected, linked to identity, or used for tracking:
+Since Phase 2 wired the birth-flow, two registry providers are **active**
+(`lemastra-calculation`, `google-geocoding-timezone`) and their data types are
+collected for **App Functionality** only — never linked to identity (account-less
+v1) and never used for tracking. The answers are exactly the §2 rows for those
+two providers:
 
-- Every provider in the registry is **planned, not active** (`data-inventory.md` §4): no
-  calculation, geocoding, model, account, or diagnostics flow exists, so nothing transmits
-  off-device at all.
-- Saved charts do not exist yet in Phase 1; when local saving arrives (Phase 3) it stays
-  on-device, and Apple exempts **on-device-only processing** from disclosure — data accessed
-  and processed only on the user's device is never "collected".
-- Apple's definition of collection also excludes **service-and-discard transmission** (data
-  transmitted off-device solely to service the request in real time and not retained). Phase
-  2's calculation/geocoding traffic is designed to qualify
-  (`retention-deletion-policy.md` §1) — but the current release needs neither exemption: no
-  remote feature exists.
+- **Location → Precise Location** and **User Content → Other User Content**,
+  per the user-initiated birthplace search / chart-calculation request.
+- All transmission is **ephemeral, compute-and-discard**
+  (`retention-deletion-policy.md` §1): the request payload is discarded
+  immediately after the response; charts persist device-side only in v1.
+- Every other provider remains **planned, not active** — no model, account, or
+  diagnostics flow exists, so nothing else transmits off-device.
+- Saved charts do not exist yet; when local saving arrives (Phase 3) it stays
+  on-device, and Apple exempts **on-device-only processing** from disclosure.
 
 ## 2. Prepared answers per provider
 

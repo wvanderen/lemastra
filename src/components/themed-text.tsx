@@ -22,6 +22,10 @@ export function ThemedText({ style, type = 'default', themeColor, ...rest }: The
         type === 'subtitle' && styles.subtitle,
         type === 'link' && styles.link,
         type === 'linkPrimary' && styles.linkPrimary,
+        // linkPrimary resolves to the semantic accent token (02-UI-SPEC
+        // §"Color") instead of a hard-coded hex — the token is the single
+        // source of truth for both schemes.
+        type === 'linkPrimary' && { color: theme.accent },
         type === 'code' && styles.code,
         style,
       ]}
@@ -63,7 +67,6 @@ const styles = StyleSheet.create({
   linkPrimary: {
     lineHeight: 30,
     fontSize: 14,
-    color: '#3c87f7',
   },
   code: {
     fontFamily: Fonts.mono,

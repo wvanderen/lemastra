@@ -14,11 +14,10 @@ Users can move from an accurately calculated chart and transparent astrological 
 
 ### Validated
 
-(None yet — ship to validate)
+- ✓ Users can enter birth data and calculate an accurate natal chart — Phase 02
 
 ### Active
 
-- [ ] Users can enter birth data and calculate an accurate natal chart.
 - [ ] Users can save and reopen natal charts in a personal workspace.
 - [ ] Users can render and explore a clear chart wheel with placements, houses, and aspects.
 - [ ] Users can choose a moment and compare its transits with a natal chart.
@@ -67,6 +66,8 @@ The longer vision treats astrology as both a personal temporal record and a shar
 | Serve beginners and serious enthusiasts through progressive disclosure | Broadens access while preserving the technical depth needed for trust and learning | — Pending |
 | Use React Native | Supports the desired cross-platform UI direction from a shared client architecture | — Pending |
 | Defer animated calendars, event timelines, historical observations, and social aggregation | Preserves the long-term vision while keeping v1 executable and privacy-conscious | — Pending |
+| Swiss Ephemeris distribution via Professional License (option-a), product-approved 2026-08-23 | Clears GATE-01 posture before any server exists; qualified legal review + contract execution scheduled before public/commercial beta | ✓ Recorded — Phase 01 |
+| Google supplies timezone identity only; the historical birth-instant offset is always computed locally (drift surfaced, never substituted) | Keeps historical offset deterministic and auditable while Google resolves zone identity; trust boundary between provider data and computed facts | ✓ Shipped — Phase 02 |
 
 ## Evolution
 
@@ -86,4 +87,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-08-22 after initialization*
+*Last updated: 2026-08-26 after Phase 02*

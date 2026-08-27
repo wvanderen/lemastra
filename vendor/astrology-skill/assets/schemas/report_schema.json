@@ -1,0 +1,248 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://astrology-skill.local/assets/schemas/report_schema.json",
+  "title": "Astrology Skill Reading Report",
+  "description": "Canonical contract for a standardized reading report produced by the astrology skill. A report wraps the synthesized reading with provenance metadata (client, reading type, date of reading) and attaches the JSON chart artefact(s) it was built from. Every reading may be delivered as plain prose in chat; a REPORT (this schema) is produced when the host or user wants a saved, archived, or deliverable artefact. Inlines the reading_type / tradition_mode / tone enums from chart_input_schema.json by value so the schema validates anywhere without a cross-file resolver; enum drift is caught by the parity check (run `python3 quick_validate.py`).",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "schema_version",
+    "report_id",
+    "generated_at",
+    "reading_type",
+    "chart_artefacts",
+    "reading"
+  ],
+  "properties": {
+    "schema_version": {
+      "description": "Report schema version. Bumped on backwards-incompatible structural change.",
+      "type": "string",
+      "const": "1.0"
+    },
+    "report_id": {
+      "description": "Stable identifier for this report (slug, ULID, or UUID). Unique within the producing host.",
+      "type": "string",
+      "minLength": 1
+    },
+    "generated_at": {
+      "description": "Date/time the reading was generated (the 'date of reading'). ISO-8601, timezone-aware.",
+      "type": "string",
+      "format": "date-time"
+    },
+    "timezone": {
+      "description": "Optional IANA timezone label for presenting generated_at to a human (e.g. 'America/New_York'). generated_at remains authoritative.",
+      "type": "string"
+    },
+    "client": {
+      "description": "The person the reading is for. Prefer a pseudonymous label for privacy unless a real name is explicitly intended for the artefact.",
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "name": {
+          "description": "Client display name. Optional; omit for anonymous readings.",
+          "type": "string",
+          "minLength": 1
+        },
+        "label": {
+          "description": "Pseudonymous label, e.g. 'Subject A'. Use in place of name for privacy-preserving artefacts.",
+          "type": "string",
+          "minLength": 1
+        },
+        "birth_date": {
+          "description": "Optional ISO date (YYYY-MM-DD). For context only; the authoritative birth data lives in the chart_input artefact.",
+          "type": "string",
+          "format": "date"
+        },
+        "notes": { "type": "string" }
+      }
+    },
+    "reading_type": {
+      "description": "Mirrors chart_input_schema.json → properties.reading_type.enum. Kept in sync by the parity check.",
+      "type": "string",
+      "enum": [
+        "natal",
+        "transit",
+        "synastry",
+        "solar_return",
+        "annual_profection",
+        "horary",
+        "electional",
+        "mundane"
+      ]
+    },
+    "tradition_mode": {
+      "description": "Mirrors chart_input_schema.json → properties.tradition_mode.enum.",
+      "type": "string",
+      "enum": ["classical", "modern", "blended"]
+    },
+    "tone": {
+      "description": "Mirrors chart_input_schema.json → properties.tone.enum.",
+      "type": "string",
+      "enum": [
+        "practical",
+        "poetic",
+        "psychological",
+        "technical",
+        "beginner-friendly"
+      ]
+    },
+    "user_question": {
+      "description": "The querent's explicit focus, verbatim where possible.",
+      "type": "string"
+    },
+    "practitioner": {
+      "description": "The reader or producing agent, for archival provenance.",
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "role": { "type": "string" },
+        "notes": { "type": "string" }
+      }
+    },
+    "chart_artefacts": {
+      "description": "The JSON chart artefact(s) the reading was built from. At least one entry with role 'chart_input' is expected for every reading report; additional entries may attach the reading plan, a secondary chart (synastry, return), or timing factors. An artefact is either embedded as an 'object' or referenced by 'ref'; at least one of the two must be present.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": ["role", "source"],
+        "anyOf": [
+          { "required": ["object"] },
+          { "required": ["ref"] }
+        ],
+        "properties": {
+          "role": {
+            "description": "How this artefact relates to the reading.",
+            "type": "string",
+            "enum": [
+              "chart_input",
+              "reading_plan",
+              "secondary_chart",
+              "timing",
+              "other"
+            ]
+          },
+          "schema_ref": {
+            "description": "Informational pointer to the schema the embedded/ref object conforms to (e.g. 'assets/schemas/chart_input_schema.json'). Not a JSON $ref; validation of the object against that schema is the producer's responsibility.",
+            "type": "string"
+          },
+          "source": {
+            "description": "Where the artefact came from: a file path, '<inline>', or a provenance line (e.g. 'tools/birth_to_chart.py' or 'external program').",
+            "type": "string",
+            "minLength": 1
+          },
+          "object": {
+            "description": "The embedded JSON artefact. For role 'chart_input' SHOULD conform to chart_input_schema.json; for role 'reading_plan' SHOULD conform to reading_plan_schema.json.",
+            "type": "object"
+          },
+          "ref": {
+            "description": "Path or URI to the artefact when it is not embedded inline.",
+            "type": "string",
+            "minLength": 1
+          },
+          "notes": { "type": "string" }
+        }
+      }
+    },
+    "reading": {
+      "description": "The synthesized reading. Provide either a free-form 'body' (Markdown) or structured 'sections' (or both); at least one must be present.",
+      "type": "object",
+      "additionalProperties": true,
+      "anyOf": [
+        {
+          "required": ["body"],
+          "properties": { "body": { "minLength": 1 } }
+        },
+        {
+          "required": ["sections"],
+          "properties": {
+            "sections": { "minItems": 1 }
+          }
+        }
+      ],
+      "properties": {
+        "title": {
+          "description": "Report headline, e.g. 'Natal Reading — Subject A'.",
+          "type": "string"
+        },
+        "summary": {
+          "description": "Two-to-four sentence overview of the main synthesis. Written after the body.",
+          "type": "string"
+        },
+        "sections": {
+          "description": "Structured rendering. Use when a host renders the report into fixed sections.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true,
+            "required": ["heading", "body"],
+            "properties": {
+              "heading": { "type": "string", "minLength": 1 },
+              "body": { "type": "string", "minLength": 1 },
+              "weight": {
+                "description": "Optional priority hint (primary, secondary, supporting).",
+                "type": "string",
+                "enum": ["primary", "secondary", "supporting"]
+              }
+            }
+          }
+        },
+        "body": {
+          "description": "Free-form Markdown prose of the reading. The default rendering target.",
+          "type": "string"
+        },
+        "scope_notes": {
+          "description": "What the reading covers and deliberately does not cover (topics, time horizons, tradition limits).",
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "uncertainty_notes": {
+          "description": "Named data limits, unconfirmed factors, mixed testimony, and confidence bounds, in proportion to their importance.",
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "self_check": {
+      "description": "The reading self-check from SKILL.md, materialized for traceability. Each field records a pass/warn/fail verdict plus optional notes. Omit the object entirely for chat prose; include it for archival or audit reports.",
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "resource_grounding": { "$ref": "#/$defs/self_check_item" },
+        "factor_weighting": { "$ref": "#/$defs/self_check_item" },
+        "uncertainty": { "$ref": "#/$defs/self_check_item" },
+        "scope_guardrails": { "$ref": "#/$defs/self_check_item" },
+        "synthesis_quality": { "$ref": "#/$defs/self_check_item" }
+      }
+    },
+    "references_used": {
+      "description": "Bundled reference files actually loaded for this reading (repo-relative paths). Supports traceability and the resource-grounding self-check.",
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "disclaimer": {
+      "description": "Scope-of-practice disclaimer. Defaults to the skill's standard ethics-and-scope line when omitted.",
+      "type": "string"
+    },
+    "language": {
+      "description": "BCP-47 language tag the reading was written in (e.g. 'en').",
+      "type": "string"
+    }
+  },
+  "$defs": {
+    "self_check_item": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["status"],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["pass", "warn", "fail"]
+        },
+        "notes": { "type": "string" }
+      }
+    }
+  }
+}

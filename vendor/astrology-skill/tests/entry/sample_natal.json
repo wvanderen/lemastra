@@ -1,0 +1,31 @@
+{
+  "reading_type": "natal",
+  "tradition_mode": "blended",
+  "tone": "practical",
+  "user_question": "I am choosing between a stable operations role, teaching/writing, or an independent consulting practice. What vocational pattern is strongest from the supplied chart data?",
+  "chart_data": {
+    "source_notes": "Already-calculated tropical chart from an external astrology program.",
+    "birth_time_confidence": "high; birth certificate time",
+    "house_system": "Whole Sign",
+    "ascendant": { "sign": "Virgo", "degree": 18.4 },
+    "midheaven": { "sign": "Gemini", "degree": 16.1 },
+    "sect": {
+      "status": "day",
+      "luminary_of_sect": "Sun",
+      "sect_mate_planets": ["Jupiter", "Saturn"]
+    },
+    "placements": [
+      { "body": "Sun", "sign": "Taurus", "degree": 12.2, "house": 9, "motion": "direct", "rules_houses": [12] },
+      { "body": "Moon", "sign": "Capricorn", "degree": 8.6, "house": 5, "motion": "direct", "rules_houses": [11] },
+      { "body": "Mercury", "sign": "Gemini", "degree": 15.7, "house": 10, "motion": "direct", "condition": ["domicile"], "dignity": ["domicile"], "rules_houses": [1, 10] },
+      { "body": "Venus", "sign": "Aries", "degree": 26.3, "house": 8, "motion": "direct", "condition": ["detriment"], "rules_houses": [2, 9] },
+      { "body": "Mars", "sign": "Cancer", "degree": 17.5, "house": 11, "motion": "direct", "condition": ["fall"], "rules_houses": [3, 8] },
+      { "body": "Jupiter", "sign": "Libra", "degree": 4.9, "house": 2, "motion": "retrograde", "rules_houses": [4, 7] },
+      { "body": "Saturn", "sign": "Aquarius", "degree": 21.8, "house": 6, "motion": "direct", "condition": ["domicile"], "dignity": ["domicile"], "rules_houses": [5, 6] }
+    ],
+    "aspects": [
+      { "body_a": "Mercury", "aspect": "trine", "body_b": "Jupiter", "orb_degrees": 1.2, "applying": true },
+      { "body_a": "Sun", "aspect": "square", "body_b": "Saturn", "orb_degrees": 0.9, "applying": true }
+    ]
+  }
+}

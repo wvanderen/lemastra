@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "id": "natal-1990-brooklyn",
+  "category": "natal_normal",
+  "description": "Reference natal chart: Brooklyn 1990-05-21 14:32 EDT, Timed, Whole Sign — the canonical happy-path payload from 02-03.",
+  "input": {
+    "date": "1990-05-21",
+    "time": "14:32",
+    "confidence": "Timed",
+    "house_system": "Whole Sign",
+    "place": {
+      "label": "Brooklyn, New York",
+      "lat": 40.7128,
+      "lon": -74.006
+    },
+    "iana_zone": "America/New_York",
+    "zone_source": "google"
+  },
+  "expect": {
+    "outcome": "success",
+    "digest": {
+      "ascendant.absolute_degree": 174.5496,
+      "midheaven.absolute_degree": 83.6944,
+      "placements.Sun.absolute_degree": 60.4375,
+      "placements.Moon.absolute_degree": 21.802,
+      "placements.Mercury.absolute_degree": 38.7513,
+      "placements.Venus.absolute_degree": 20.0028,
+      "placements.Mars.absolute_degree": 352.9834,
+      "placements.Jupiter.absolute_degree": 100.7519,
+      "placements.Saturn.absolute_degree": 295.1125,
+      "placements.Uranus.absolute_degree": 279.017,
+      "placements.Neptune.absolute_degree": 284.2519,
+      "placements.Pluto.absolute_degree": 225.9955,
+      "placements.True Node.absolute_degree": 310.0243,
+      "house_cusps_count": 12,
+      "aspects_count_range": [
+        24,
+        30
+      ],
+      "birth_time_confidence": "Timed"
+    }
+  }
+}
