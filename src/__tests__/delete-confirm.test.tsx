@@ -78,13 +78,13 @@ async function renderConfirm(overrides: ConfirmOverrides = {}) {
   return { view, props };
 }
 
-/** Style arrays on RN hosts may arrive flattened or not — normalize. */
+/** Style arrays on RN hosts may arrive nested — flatten to plain objects. */
 function styleEntries(node: { props: { style?: unknown } }): Record<string, unknown>[] {
-  const style = node.props.style;
-  const list = Array.isArray(style) ? style : [style];
-  return list.filter(
+  const flatten = (value: unknown): unknown[] =>
+    Array.isArray(value) ? value.flatMap(flatten) : [value];
+  return flatten(node.props.style).filter(
     (entry): entry is Record<string, unknown> =>
-      typeof entry === "object" && entry !== null
+      typeof entry === "object" && entry !== null && !Array.isArray(entry)
   );
 }
 

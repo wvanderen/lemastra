@@ -157,3 +157,52 @@ export const DELETE_ALL_ERROR_COPY: WorkspaceErrorCopy = {
   body: "Nothing was removed. Try again.",
   action: "Try again",
 };
+
+// ---------------------------------------------------------------------------
+// Rename (D-12) — inline title swap on /chart/saved
+// ---------------------------------------------------------------------------
+
+/** Inline rename trigger beside the saved-chart title (Label/600 default text — A-3-UI-8, never accent). */
+export const RENAME_ACTION = "Rename";
+
+/** Rename confirm (Label/600 default text — accent stays reserved, A-3-UI-8). */
+export const RENAME_SAVE = "Save name";
+
+/** Rename cancel (Label, textSecondary). */
+export const RENAME_CANCEL = "Cancel";
+
+// LABEL_FIELD_ERROR (above) is shared by the save prompt and the inline
+// rename — one bound, one error string (A-3-UI-4).
+
+// ---------------------------------------------------------------------------
+// Deletion (D-14/D-15) — the shared destructive-confirm dialog copy
+// ---------------------------------------------------------------------------
+
+/** Chart-variant heading — names the chart being deleted (curly quotes per UI-SPEC). */
+export function deleteChartHeading(label: string): string {
+  return `Delete “${label}”?`;
+}
+
+/** Chart-variant body — names the revision count, permanence, and can't-undo (T-03-19). */
+export function deleteChartBody(revisionCount: number): string {
+  return `This permanently removes this chart and its ${revisionCount} saved revision(s) from this device. This can't be undone.`;
+}
+
+/** Chart-variant confirm — full action label (a11y contract). */
+export const DELETE_CHART_CONFIRM = "Delete chart";
+
+/** Shared dialog cancel — default-toned, always available. */
+export const DELETE_CANCEL = "Cancel";
+
+/** Pending state on the confirm button while a delete is in flight (D-14). */
+export const DELETING = "Deleting…";
+
+/** Delete-all heading (D-15 — rendered by the all variant, reused by 03-08). */
+export const DELETE_ALL_HEADING = "Delete all your data?";
+
+/** Delete-all body — scope, permanence, and the surviving non-personal preference. */
+export const DELETE_ALL_BODY =
+  "This permanently removes every saved chart and revision stored on this device by LemAstra. This can't be undone. Your privacy acknowledgement preference stays.";
+
+/** Delete-all confirm — full action label (a11y contract). */
+export const DELETE_ALL_CONFIRM = "Delete everything";
