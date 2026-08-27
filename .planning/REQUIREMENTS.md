@@ -86,8 +86,8 @@
 - [ ] **PRIV-02**: The app sends only the user-approved bounded payload to the selected calculation, place/time, or model provider.
 - [x] **PRIV-03**: Birth data, chart content, questions, conversations, and report prose are excluded from product analytics.
 - [x] **PRIV-04**: Logs and crash telemetry redact provider credentials and sensitive astrology payloads.
-- [ ] **PRIV-05**: User can export all personal data stored locally by the app.
-- [ ] **PRIV-06**: User can delete all personal data stored locally by the app.
+- [x] **PRIV-05**: User can export all personal data stored locally by the app.
+- [x] **PRIV-06**: User can delete all personal data stored locally by the app.
 - [x] **PRIV-07**: User can review current provider, retention, and data-transmission disclosures before enabling remote calculation or model features.
 - [ ] **PLAT-01**: User can complete the natal-to-report core workflow on supported iOS devices.
 - [ ] **PLAT-02**: User can complete the natal-to-report core workflow on supported Android devices.
@@ -217,8 +217,8 @@ Every v1 requirement maps to exactly one roadmap phase.
 | PRIV-02 | Phase 7 | Pending |
 | PRIV-03 | Phase 3 | Complete |
 | PRIV-04 | Phase 3 | Complete |
-| PRIV-05 | Phase 3 | Pending |
-| PRIV-06 | Phase 3 | Pending |
+| PRIV-05 | Phase 3 | Complete |
+| PRIV-06 | Phase 3 | Complete |
 | PRIV-07 | Phase 1 | Complete |
 | PLAT-01 | Phase 10 | Pending |
 | PLAT-02 | Phase 10 | Pending |

@@ -8,7 +8,7 @@ LemAstra advances through ten vertical slices: establish a lawful and private re
 
 - [x] **Phase 1: Trust and Release Boundary** - Users can understand the supported product, providers, and privacy posture before sensitive data leaves their device. (completed 2026-08-23)
 - [x] **Phase 2: Trustworthy Natal Chart** - Users can resolve birth details and calculate a validated, provenance-rich natal chart. (completed 2026-08-26)
-- [ ] **Phase 3: Private Local Workspace** - Users can save, revise, reopen, export, and delete charts without an account.
+- [x] **Phase 3: Private Local Workspace** - Users can save, revise, reopen, export, and delete charts without an account. (completed 2026-08-27)
 - [ ] **Phase 4: Semantic Chart Exploration** - Users can explore the natal wheel and the same evidence through accessible beginner and technical views.
 - [ ] **Phase 5: Natal Transit Workspace** - Users can calculate, inspect, save, and reopen a transit comparison tied to an exact natal revision.
 - [ ] **Phase 6: Repeatable Reading Method** - Users can select a focus and inspect a reproducible `astrology-skill` reading plan before generation.
@@ -115,7 +115,7 @@ Plans:
   4. User can export one chart's structured data and provenance or export/delete all locally stored personal data.
   5. Charts and later personal artifacts are local and private by default, while analytics, logs, and crash telemetry exclude or redact sensitive content and credentials.
 
-**Plans:** 7/8 plans executed
+**Plans:** 8/8 plans complete
 
 Plans:
 **Wave 1**
@@ -142,7 +142,7 @@ Plans:
 **Wave 6** *(blocked on Wave 5 completion)*
 
 - [x] 03-07-PLAN.md — Revision History + read-only revision view + revise-birth-details prefill appending under the same chart (WORK-04)
-- [ ] 03-08-PLAN.md — /privacy "Your data": export-all file + confirm-gated delete-all sparing disclosure flags (PRIV-05, PRIV-06)
+- [x] 03-08-PLAN.md — /privacy "Your data": export-all file + confirm-gated delete-all sparing disclosure flags (PRIV-05, PRIV-06)
 
 > **Wave-shape note (intentional deviation):** Waves 1–2 are data-layer-heavy by design: the D-03 adapter seam, the node:sqlite test facade, and the revision model must exist (and be proven against real SQL) before any screen mounts on them — the repo's first persistence code has no UI to mount on otherwise. The first user-visible slice lands in Wave 3 (Save CTA) and the walkable loop runs unbroken through Wave 6 (save → browse → reopen → revise → history → data controls).
 
@@ -269,7 +269,7 @@ Plans:
 |-------|----------------|--------|-----------|
 | 1. Trust and Release Boundary | 7/7 | Complete    | 2026-08-23 |
 | 2. Trustworthy Natal Chart | 9/9 | Complete    | 2026-08-26 |
-| 3. Private Local Workspace | 7/8 | In Progress|  |
+| 3. Private Local Workspace | 8/8 | Complete   | 2026-08-27 |
 | 4. Semantic Chart Exploration | 0/TBD | Not started | - |
 | 5. Natal Transit Workspace | 0/TBD | Not started | - |
 | 6. Repeatable Reading Method | 0/TBD | Not started | - |
