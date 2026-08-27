@@ -523,18 +523,23 @@ export function openDatabaseSyncFacade(path: string) {
 | A5 | `drizzle-kit generate` with `driver: 'expo'` emits a JS `migrations` index compatible with `migrate(db, migrations)` import in an Expo bundle | Pattern 1 | Medium — docs show exactly this import (`./drizzle/migrations`); verify at Wave 0 and fall back to `useMigrations` hook wiring if the module shape differs |
 | A6 | The one extra identity/copy extension ("request param") to the result screen fits within native router param limits (envelope already travels there today) | Pattern 5 | Low-Medium — request JSON is small (~300B); if param limits bite, save from a point where draft+request are available (confirm screen) instead |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **ID format: UUIDv4 vs UUIDv7/ULID for chart/revision ids**
+> All three questions were resolved during Phase-3 planning (2026-08-27). Each adopted recommendation below cites the plan that implements it.
+
+1. **ID format: UUIDv4 vs UUIDv7/ULID for chart/revision ids** — RESOLVED
    - What we know: STACK.md says "UUIDv7 or ULID identifiers" for server artifacts; this phase's ids are client-local. List ordering uses `updated_at` (D-11), so time-ordered ids are NOT required for sort.
-   - What's unclear: whether the project wants lexical-sortable local ids for future sync conflict handling.
-   - Recommendation: `expo-crypto.randomUUID()` (v4) now — simplest documented path; UUIDv7 formatting can be layered later behind `ids.ts` (single swap point). Planner discretion; not blocking.
-2. **Repository mount: lazy module singleton vs `SQLiteProvider` context**
+   - What was unclear: whether the project wants lexical-sortable local ids for future sync conflict handling.
+   - Recommendation: `expo-crypto.randomUUID()` (v4) now — simplest documented path; UUIDv7 formatting can be layered later behind `ids.ts` (single swap point).
+   - **RESOLVED — adopted:** `expo-crypto.randomUUID()` (UUIDv4). Implemented in 03-03 Task 1 (`src/lib/workspace/ids.ts`); a future UUIDv7 swap stays confined to that single module.
+2. **Repository mount: lazy module singleton vs `SQLiteProvider` context** — RESOLVED
    - What we know: Both verified available; docs favor the provider; D-03 favors a thin module seam.
-   - Recommendation: lazy module singleton (Pattern 1) — fewer React couplings, identical guarantees, easier to fake in tests. Discretion area per CONTEXT.
-3. **Where the Save CTA gets the CalculateRequest** (Pattern 5 / A6)
+   - Recommendation: lazy module singleton (Pattern 1) — fewer React couplings, identical guarantees, easier to fake in tests.
+   - **RESOLVED — adopted:** lazy module singleton. Implemented in 03-01 Task 3 (`src/lib/workspace/db.ts` — `getWorkspaceDb()` memoized promise per Pattern 1, with test-only reset).
+3. **Where the Save CTA gets the CalculateRequest** (Pattern 5 / A6) — RESOLVED
    - What we know: confirm screen builds it; result screen has envelope+identity only.
-   - Recommendation: thread `request` as one more result-screen param (smallest diff, no forked path). Planner verifies param size behavior on device.
+   - Recommendation: thread `request` as one more result-screen param (smallest diff, no forked path).
+   - **RESOLVED — adopted:** thread `request` as a third result-screen param (JSON of the built CalculateRequest + the draft's place-union branch). Implemented in 03-04 Task 2 (`src/app/birth/confirm.tsx` → `src/app/chart/result.tsx`); A6's ~300B size note still applies — confirm on device during end-of-phase UAT.
 
 ## Environment Availability
 
