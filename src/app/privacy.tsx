@@ -1,5 +1,6 @@
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 
+import { DataControls } from "@/components/privacy/data-controls";
 import providerRegistryData from "@/data/provider-registry.json";
 
 /**
@@ -79,6 +80,10 @@ export default function PrivacyScreen() {
           );
         })}
       </View>
+
+      {/* "Your data" user controls (D-15, 03-08) — user controls ONLY:
+          provider disclosure content above stays 100% registry-driven. */}
+      <DataControls />
     </ScrollView>
   );
 }

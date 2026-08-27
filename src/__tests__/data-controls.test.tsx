@@ -129,6 +129,8 @@ let fireEvent: typeof import("@testing-library/react-native/pure").fireEvent;
 let waitFor: typeof import("@testing-library/react-native/pure").waitFor;
 let DataControls: typeof import("@/components/privacy/data-controls").DataControls;
 let ALL_DATA_EXPORT_FILENAME: typeof import("@/lib/workspace/export").ALL_DATA_EXPORT_FILENAME;
+let PrivacyScreen: typeof import("@/app/privacy").default;
+let providerRegistry: typeof import("@/data/provider-registry.json");
 let copy: typeof import("@/components/privacy/copy");
 
 beforeAll(async () => {
@@ -137,6 +139,8 @@ beforeAll(async () => {
   ));
   ({ DataControls } = await import("@/components/privacy/data-controls"));
   ({ ALL_DATA_EXPORT_FILENAME } = await import("@/lib/workspace/export"));
+  ({ default: PrivacyScreen } = await import("@/app/privacy"));
+  providerRegistry = (await import("@/data/provider-registry.json")).default;
   copy = await import("@/components/privacy/copy");
 });
 
@@ -598,5 +602,88 @@ describe("DataControls — web degradation", () => {
     });
     expect(repository.exportAllData).not.toHaveBeenCalled();
     expect(repository.deleteAllData).not.toHaveBeenCalled();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// /privacy integration (03-08 Task 2) — one section, zero provider drift
+// ---------------------------------------------------------------------------
+
+/** Flatten the rendered JSON tree into document-order text nodes. */
+function collectTexts(node: unknown): string[] {
+  if (typeof node === "string") return [node];
+  if (Array.isArray(node)) return node.flatMap(collectTexts);
+  if (node && typeof node === "object" && "children" in node) {
+    return collectTexts((node as { children?: unknown }).children ?? []);
+  }
+  return [];
+}
+
+describe("DataControls on /privacy — registry screen extension", () => {
+  async function renderPrivacy() {
+    const { Wrapper } = makeWrapper();
+    const view = await render(
+      <Wrapper>
+        <PrivacyScreen />
+      </Wrapper>
+    );
+    await act(async () => {});
+    return view;
+  }
+
+  it("renders the section BELOW the provider list in document order — provider rows untouched", async () => {
+    const view = await renderPrivacy();
+
+    // The registry-driven provider list renders exactly one row per
+    // provider (the Phase-1 law) — unchanged by the section mount.
+    expect(view.queryAllByRole("listitem")).toHaveLength(providerRegistry.providers.length);
+
+    const texts = collectTexts(view.toJSON());
+    const firstProvider = providerRegistry.providers[0];
+    if (!firstProvider) throw new Error("registry must contain at least one provider");
+    const order = [
+      firstProvider.name,
+      copy.YOUR_DATA_HEADING,
+      copy.YOUR_DATA_INTRO,
+      copy.EXPORT_ALL_DATA,
+      copy.DELETE_ALL_DATA,
+    ];
+    let previous = -1;
+    for (const text of order) {
+      const index = texts.indexOf(text);
+      expect(index, `expected "${text}" to render`).toBeGreaterThan(-1);
+      expect(index, `expected "${text}" after the previous block`).toBeGreaterThan(previous);
+      previous = index;
+    }
+  });
+
+  it("renders the empty-storage completion variant INSIDE the section after a delete-all", async () => {
+    const view = await renderPrivacy();
+
+    await act(async () => {
+      fireEvent.press(view.getByTestId("data-controls-delete"));
+    });
+    await act(async () => {
+      fireEvent.press(view.getByTestId("delete-confirm-confirm"));
+    });
+    await waitFor(() => expect(view.getByText(copy.NO_PERSONAL_DATA)).toBeTruthy());
+
+    // The completion line lives INSIDE the section: the "Your data"
+    // heading stays above it, and the provider list remains intact
+    // (the registry surface is untouched by the wipe).
+    const texts = collectTexts(view.toJSON());
+    const headingIndex = texts.indexOf(copy.YOUR_DATA_HEADING);
+    const completionIndex = texts.indexOf(copy.NO_PERSONAL_DATA);
+    expect(headingIndex).toBeGreaterThan(-1);
+    expect(completionIndex).toBeGreaterThan(headingIndex);
+
+    const firstProvider = providerRegistry.providers[0];
+    if (!firstProvider) throw new Error("registry must contain at least one provider");
+    expect(view.getByText(firstProvider.name)).toBeTruthy();
+    expect(view.queryAllByRole("listitem")).toHaveLength(providerRegistry.providers.length);
+
+    // The action cards are gone — the completion state replaced them.
+    expect(view.queryByText(copy.EXPORT_ALL_DATA)).toBeNull();
+    expect(view.queryByText(copy.DELETE_ALL_DATA)).toBeNull();
   });
 });

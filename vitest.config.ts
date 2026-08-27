@@ -110,6 +110,16 @@ export default defineConfig({
       // exactly the drizzle expo-sqlite session call surface. See
       // scripts/vitest/expo-sqlite-facade/README.md.
       { find: /^expo-sqlite$/, replacement: path.join(dirname, "scripts/vitest/expo-sqlite-facade/index.ts") },
+      // expo device modules → test facades (03-08, same pattern): the
+      // crypto/file-system/sharing package entries pull expo-modules-core
+      // and crash under plain Node (__DEV__). Per-file vi.mocks take
+      // precedence over these aliases; the facades exist so unmocked
+      // graphs (the Phase-1 privacy-screen tests, unmodifiable, now
+      // rendering DataControls) load device-free. See
+      // scripts/vitest/expo-device-facades/README.md.
+      { find: /^expo-crypto$/, replacement: path.join(dirname, "scripts/vitest/expo-device-facades/crypto.ts") },
+      { find: /^expo-file-system$/, replacement: path.join(dirname, "scripts/vitest/expo-device-facades/file-system.ts") },
+      { find: /^expo-sharing$/, replacement: path.join(dirname, "scripts/vitest/expo-device-facades/sharing.ts") },
     ],
   },
   test: {
