@@ -181,6 +181,23 @@ async function renderControls() {
   return { view, invalidateSpy };
 }
 
+/**
+ * Act-flush for mutation-state renders: TanStack schedules observer
+ * commits AND mutation execution on notifyManager's macrotask scheduler
+ * (setTimeout turns), so a press's re-render chain settles over several
+ * timer ticks after the act'd press returns. Draining a few timer turns
+ * INSIDE act lets the whole chain commit before UI-state assertions
+ * (extends the 03-05 act-queue law; external-effect waits — mock calls,
+ * captured writes — need no flush).
+ */
+async function flushMutationRender() {
+  await act(async () => {
+    for (let turn = 0; turn < 5; turn++) {
+      await new Promise((resolve) => setTimeout(resolve, 10));
+    }
+  });
+}
+
 /** Style arrays on RN hosts may arrive nested — flatten to plain objects. */
 function styleEntries(node: { props: { style?: unknown } }): Record<string, unknown>[] {
   const flatten = (value: unknown): unknown[] =>
@@ -369,6 +386,7 @@ describe("DataControls — export all data", () => {
     await act(async () => {
       fireEvent.press(view.getByTestId("data-controls-export"));
     });
+    await flushMutationRender();
 
     expect(view.getByText(EXPORT_PENDING)).toBeTruthy();
     expect(view.queryByText(copy.EXPORT_ALL_DATA)).toBeNull();
@@ -400,7 +418,7 @@ describe("DataControls — export all data", () => {
 
     // Provenance travels with every revision (retention §5 evidence).
     const parsed = JSON.parse(write.content) as {
-      charts: { revisions: { envelope: { provenance: Record<string, string> } } }[];
+      charts: { revisions: { envelope: { provenance: Record<string, string> } }[] }[];
     };
     expect(parsed.charts).toHaveLength(2);
     expect(parsed.charts[0].revisions).toHaveLength(2);

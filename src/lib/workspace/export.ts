@@ -3,6 +3,7 @@ import * as Sharing from "expo-sharing";
 
 import type { CalculateResponse } from "@/lib/api-schemas";
 import { slugify } from "./label";
+import type { ExportedWorkspace } from "./repository";
 import type { StoredIdentity } from "./schema";
 
 /**
@@ -82,6 +83,44 @@ export async function exportChartRevision(
   if (!(await Sharing.isAvailableAsync())) {
     // Capability gate (Pitfall 7 / T-03-21): the caller renders the
     // capability state; nothing is reported as broken.
+    return { status: "unavailable" };
+  }
+
+  await Sharing.shareAsync(file.uri, { mimeType: "application/json" });
+  return { status: "shared", uri: file.uri };
+}
+
+// ---------------------------------------------------------------------------
+// All-data export (D-15 / PRIV-05, 03-08) — the complete personal corpus
+// as ONE file, beside the single-chart export above.
+// ---------------------------------------------------------------------------
+
+/**
+ * Fixed all-data filename: `lemastra-all-data.json`. No user input
+ * flows into the name (nothing to sanitize — T-03-18 trivially holds);
+ * re-exports overwrite the same file (Pitfall 6 semantics).
+ */
+export const ALL_DATA_EXPORT_FILENAME = "lemastra-all-data.json";
+
+/**
+ * Write the complete personal corpus (repository.exportAllData() output
+ * — every chart and every revision with full provenance, retention §5)
+ * as 2-space pretty JSON under Paths.cache, then hand it to the native
+ * share sheet as application/json, gated on Sharing.isAvailableAsync().
+ *
+ * Same write-then-gate-then-share mechanics as exportChartRevision
+ * (Pattern 6); `unavailable` is the capability state, not an error
+ * (D-03 vocabulary). The payload is the repository's exact corpus —
+ * nothing is added, filtered, or reworded here (T-03-25: the user
+ * believes they have everything, so they do).
+ */
+export async function exportAllDataFile(
+  payload: ExportedWorkspace
+): Promise<ExportChartResult> {
+  const file = new File(Paths.cache, ALL_DATA_EXPORT_FILENAME);
+  await file.write(JSON.stringify(payload, null, 2));
+
+  if (!(await Sharing.isAvailableAsync())) {
     return { status: "unavailable" };
   }
 
