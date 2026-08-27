@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 03
 current_phase_name: private-local-workspace
 status: executing
-stopped_at: Completed 03-05-PLAN.md
-last_updated: "2026-08-27T19:29:58.406Z"
+stopped_at: Completed 03-06-PLAN.md
+last_updated: "2026-08-27T19:46:39.322Z"
 last_activity: 2026-08-27
 last_activity_desc: Phase 03 execution started
 progress:
   total_phases: 10
   completed_phases: 2
   total_plans: 24
-  completed_plans: 21
+  completed_plans: 22
   percent: 20
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-08-26)
 ## Current Position
 
 Phase: 03 (private-local-workspace) — EXECUTING
-Plan: 6 of 8
+Plan: 7 of 8
 Status: Ready to execute
 Last activity: 2026-08-27 — Phase 03 execution started
 
@@ -74,6 +74,7 @@ Progress: [████████████████████] 16/16 p
 | Phase 03 P03 | 11 min | 3 tasks | 6 files |
 | Phase 03 P04 | 31 min | 2 tasks | 11 files |
 | Phase 03 P05 | 16 min | 3 tasks | 11 files |
+| Phase 03 P06 | 12 min | 3 tasks | 11 files |
 
 ## Accumulated Context
 
@@ -130,6 +131,9 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - [Phase 03]: 03-05: home list ordering is repository-owned (updated_at desc) — ChartList renders rows in the exact order received, never sorts (D-11); useWorkspaceCharts wraps platform availability (enabled false on web → WebUnsupported, no storage code path mounts, D-03)
 - [Phase 03]: 03-05: /chart/saved takes the id param ONLY — useWorkspaceChart(['charts', chartId]) reads getChartDetail, never a router-param envelope (T-03-16); zero-network reopen is test-enforced via stubbed global fetch (T-03-15); failures fail closed through the typed open-failed card, never partial, never a /birth redirect
 - [Phase 03]: 03-05: under the RN shim, presses on query-mounted screens go through fireEvent.press on the accessible host — userEvent's pressability sequence is torn down by live-query re-renders (extends the 03-04 act-queue law)
+- [Phase 03]: 03-06: DeleteConfirm is variant-driven (chart|all) from the copy deck — one dialog pattern serves D-14 now and D-15 in 03-08; confirm is the only error-filled element, pending swaps its label to 'Deleting…' — UI-SPEC A-3-UI-2 mandates one shared confirm-dialog pattern; variant strings from the deck keep 03-08 copy exact without a second component
+- [Phase 03]: 03-06: Export shares a typed result ({status: shared|unavailable}); unavailable renders the WebUnsupported capability card (the deck's only approved capability copy), never an error; EXPORT_PENDING reuses the deck's 'Creating file…' literal — Capability states never masquerade as errors (D-03/D-13); no copy is invented beyond the approved deck
+- [Phase 03]: 03-06: Rename failure surfaces through the invalidated detail query (editing closes, title follows the query) — no rename-error copy exists in the deck and none was invented; screen tests mock the export seam with an identity buildExportPayload (device-API modules stay out of the vitest graph) — Copy-deck law forbids invented strings; extends the D-03 repository-seam mocking convention to the export module
 
 ### Pending Todos
 
@@ -156,6 +160,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-27T19:29:58.399Z
-Stopped at: Completed 03-05-PLAN.md
+Last session: 2026-08-27T19:46:39.316Z
+Stopped at: Completed 03-06-PLAN.md
 Resume file: None

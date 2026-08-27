@@ -23,9 +23,9 @@
 - [x] **WORK-02**: User can save a chart locally with a chosen display label.
 - [x] **WORK-03**: User can browse and reopen locally saved charts after restarting the app.
 - [x] **WORK-04**: User can revise birth details by creating a new immutable chart revision without changing the basis of existing analyses or reports.
-- [ ] **WORK-05**: User can rename a locally saved chart.
-- [ ] **WORK-06**: User can delete a locally saved chart and its dependent local artifacts after confirming the action.
-- [ ] **WORK-07**: User can export the structured data and provenance for a saved chart.
+- [x] **WORK-05**: User can rename a locally saved chart.
+- [x] **WORK-06**: User can delete a locally saved chart and its dependent local artifacts after confirming the action.
+- [x] **WORK-07**: User can export the structured data and provenance for a saved chart.
 
 ### Chart Wheel and Evidence
 
@@ -172,9 +172,9 @@ Every v1 requirement maps to exactly one roadmap phase.
 | WORK-02 | Phase 3 | Complete |
 | WORK-03 | Phase 3 | Complete |
 | WORK-04 | Phase 3 | Complete |
-| WORK-05 | Phase 3 | Pending |
-| WORK-06 | Phase 3 | Pending |
-| WORK-07 | Phase 3 | Pending |
+| WORK-05 | Phase 3 | Complete |
+| WORK-06 | Phase 3 | Complete |
+| WORK-07 | Phase 3 | Complete |
 | WHEEL-01 | Phase 4 | Pending |
 | WHEEL-02 | Phase 4 | Pending |
 | WHEEL-03 | Phase 4 | Pending |
