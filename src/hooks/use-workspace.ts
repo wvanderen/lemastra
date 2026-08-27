@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import {
+  getChartDetail,
   isWorkspaceStorageAvailable,
   listCharts,
   saveChart,
@@ -57,4 +58,29 @@ export function useWorkspaceCharts() {
     enabled: available,
   });
   return { ...query, available };
+}
+
+/** Per-chart detail key — joins the list key (Pitfall 10 invalidation map). */
+export function chartDetailQueryKey(chartId: string) {
+  return [...CHARTS_QUERY_KEY, chartId] as const;
+}
+
+/**
+ * useWorkspaceChart — the /chart/saved detail query (WORK-03): reads
+ * the chart from the repository BY ID (the route passes nothing else —
+ * never an envelope in router params) and re-parses the stored envelope
+ * at the repository edge before anything renders (D-02). The stored
+ * envelope IS the evidence — this query makes no network call.
+ *
+ * `null` data means "unknown chart id" (callers redirect home); a read
+ * failure surfaces as a typed WorkspaceError (OPEN_FAILED). Local
+ * reads are deterministic — no auto-retry.
+ */
+export function useWorkspaceChart(chartId: string) {
+  return useQuery({
+    queryKey: chartDetailQueryKey(chartId),
+    queryFn: () => getChartDetail(chartId),
+    enabled: chartId.length > 0 && isWorkspaceStorageAvailable(),
+    retry: false,
+  });
 }

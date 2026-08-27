@@ -29,6 +29,7 @@ export default function RootLayout() {
           <Stack.Screen name="birth" />
           <Stack.Screen name="birth/confirm" />
           <Stack.Screen name="chart/result" />
+          <Stack.Screen name="chart/saved" />
         </Stack>
       </QueryProvider>
     </ThemeProvider>

@@ -102,6 +102,17 @@ export const WEB_UNSUPPORTED_BODY =
   "Charts are stored only on your device. Saving, reopening, and exporting work in the LemAstra app on iOS or Android.";
 
 // ---------------------------------------------------------------------------
+// Saved-chart detail (/chart/saved)
+// ---------------------------------------------------------------------------
+
+/**
+ * Loading state while the first detail query resolves — content renders
+ * only after the stored envelope has been re-parsed (parse-then-trust,
+ * T-03-17: never a first-render race, never a partial render).
+ */
+export const LOADING_CHART = "Loading chart…";
+
+// ---------------------------------------------------------------------------
 // Workspace error deck (03-UI-SPEC §"Error states")
 // ---------------------------------------------------------------------------
 
