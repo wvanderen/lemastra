@@ -1,3 +1,7 @@
+import { readFileSync, readdirSync } from "node:fs";
+import { join } from "node:path";
+import { fileURLToPath } from "node:url";
+
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 // Through the alias — the node:sqlite-backed facade (03-01). reset() is
@@ -13,10 +17,15 @@ vi.mock("expo-crypto", async () => {
 
 import { eq } from "drizzle-orm";
 
-import type { CalculateResponse } from "@/lib/api-schemas";
+import {
+  calculateResponseSchema,
+  type CalculateResponse,
+  type HouseSystem,
+} from "@/lib/api-schemas";
 import {
   getWorkspaceDb,
   resetWorkspaceDbForTests,
+  WORKSPACE_DB_NAME,
 } from "@/lib/workspace/db";
 import {
   deleteAllData,
@@ -105,12 +114,12 @@ function envelope(digest: string): CalculateResponse {
   };
 }
 
-function storedInputs() {
+function storedInputs(houseSystem: HouseSystem = "Whole Sign") {
   return {
     date: "1990-05-21",
     time: "14:32",
     confidence: "Timed" as const,
-    house_system: "Whole Sign" as const,
+    house_system: houseSystem,
     place: { label: "Lisbon, Portugal", lat: 38.7223, lon: -9.1393 },
     place_form: {
       source: "google" as const,
@@ -160,6 +169,27 @@ async function rawCounts(chartId?: string) {
         .all()
     : db.select({ id: chartRevisions.id }).from(chartRevisions).all();
   return { charts: chartRows.length, revisions: revisionRows.length };
+}
+
+/** Raw access through the facade — byte-exact reads/mutations of stored text. */
+function workspaceHandle(): ReturnType<typeof SQLite.openDatabaseSync> {
+  return SQLite.openDatabaseSync(WORKSPACE_DB_NAME);
+}
+
+/** The exact stored envelope TEXT for a revision (json-mode column bytes). */
+function rawEnvelopeText(revisionId: string): string {
+  const rows = workspaceHandle()
+    .prepareSync("SELECT envelope FROM chart_revisions WHERE id = ?")
+    .executeForRawResultSync([revisionId])
+    .getAllSync();
+  return String(rows[0]?.[0]);
+}
+
+/** Corrupt a stored envelope in place (valid JSON, schema-invalid). */
+function corruptEnvelope(revisionId: string): void {
+  workspaceHandle()
+    .prepareSync("UPDATE chart_revisions SET envelope = ? WHERE id = ?")
+    .executeSync(['{"chart_data": {}}', revisionId]);
 }
 
 afterEach(() => {
@@ -437,5 +467,258 @@ describe("isWorkspaceStorageAvailable", () => {
     // (Platform.OS === 'web' → false) is consumed by gate screens later
     // in the phase.
     expect(isWorkspaceStorageAvailable()).toBe(true);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Task 3 — integration matrix (restart, immutability, guards, frozen fixture)
+// ---------------------------------------------------------------------------
+
+describe("restart survival (WORK-03)", () => {
+  it("keeps saved revisions across close→reopen from the SAME file, listing most-recently-updated first", async () => {
+    const a = await seedChart("Chart A", "rst111222333");
+    await sleep(5);
+    const b = await seedChart("Chart B", "rst111222444");
+
+    // Simulate app restart: drop the memoized singleton, close the file
+    // handle (the facade memoizes by name, so this closes the gate's own
+    // handle WITHOUT deleting the temp dir — SQLite.reset() is the
+    // per-test world reset, not a restart).
+    resetWorkspaceDbForTests();
+    workspaceHandle().closeSync();
+
+    // Reopen from the same file: the gate re-runs, rows survive.
+    const list = await listCharts();
+    expect(list.map((row) => row.chartId)).toEqual([b.chartId, a.chartId]); // updated_at desc
+    expect(list[1]).toMatchObject({
+      label: "Chart A",
+      date: "1990-05-21",
+      placeLabel: "Lisbon, Portugal",
+      confidence: "Timed",
+      revisionCount: 1,
+    });
+
+    const detail = await getChartDetail(b.chartId);
+    expect(detail?.chart.label).toBe("Chart B");
+    expect(detail?.latest.envelope.provenance.input_revision).toBe("rst111222444");
+    expect(detail?.latest.envelope.chart_data.placements).toHaveLength(2);
+    expect(detail?.latest.inputs.place_form.source).toBe("google");
+  });
+});
+
+describe("revision immutability (WORK-04/D-06)", () => {
+  it("keeps the prior revision's stored bytes identical after a changed-digest append; identical digest appends nothing", async () => {
+    const first = await seedChart("Mia’s chart", "imm111222333");
+    const firstBytes = rawEnvelopeText(first.revisionId);
+
+    await sleep(5);
+    const second = await saveChart({
+      chartId: first.chartId,
+      label: "Mia’s chart",
+      envelope: envelope("imm111222444"),
+      inputs: storedInputs(),
+      identity: { ...IDENTITY },
+    });
+    expect(second.appended).toBe(true);
+    expect(rawEnvelopeText(first.revisionId)).toBe(firstBytes); // byte-identical
+
+    // Re-saving the latest basis: nothing written, count stays put.
+    const again = await saveChart({
+      chartId: first.chartId,
+      label: "Mia’s chart",
+      envelope: envelope("imm111222444"),
+      inputs: storedInputs(),
+      identity: { ...IDENTITY },
+    });
+    expect(again.appended).toBe(false);
+    expect((await rawCounts(first.chartId)).revisions).toBe(2);
+    expect(rawEnvelopeText(first.revisionId)).toBe(firstBytes);
+  });
+});
+
+describe("mutations leave revision bytes untouched / wipe cleanly (D-05/D-14)", () => {
+  it("renameChart keeps the stored envelope bytes identical", async () => {
+    const saved = await seedChart("Old name", "mut111222333");
+    const bytes = rawEnvelopeText(saved.revisionId);
+    await sleep(5);
+
+    await renameChart(saved.chartId, "New name");
+
+    expect(rawEnvelopeText(saved.revisionId)).toBe(bytes);
+    const list = await listCharts();
+    expect(list[0]?.label).toBe("New name");
+  });
+
+  it("deleteChart leaves zero rows in both tables for that chart; deleteAllData empties both", async () => {
+    const a = await seedChart("Chart A", "mut111222444");
+    await saveChart({
+      chartId: a.chartId,
+      label: "Chart A",
+      envelope: envelope("mut111222555"),
+      inputs: storedInputs(),
+      identity: { ...IDENTITY },
+    });
+    const b = await seedChart("Chart B", "mut111222666");
+
+    await deleteChart(a.chartId);
+    expect(await rawCounts(a.chartId)).toEqual({ charts: 0, revisions: 0 });
+    expect((await listCharts()).map((row) => row.chartId)).toEqual([b.chartId]);
+
+    await deleteAllData();
+    expect(await rawCounts()).toEqual({ charts: 0, revisions: 0 });
+  });
+});
+
+describe("export corpus (PRIV-05)", () => {
+  it("deep-equals the seeded multi-chart/multi-revision corpus", async () => {
+    const a = await seedChart("Chart A", "exp111222333");
+    const firstRevisionId = a.revisionId;
+    await sleep(5);
+    await saveChart({
+      chartId: a.chartId,
+      label: "Chart A",
+      envelope: envelope("exp111222444"),
+      inputs: storedInputs(),
+      identity: { ...IDENTITY },
+    });
+    await sleep(5);
+    const b = await seedChart("Chart B", "exp111222555");
+
+    const detailA = await getChartDetail(a.chartId);
+    const detailB = await getChartDetail(b.chartId);
+    const revisionA1 = await getRevisionContent(firstRevisionId);
+
+    const exported = await exportAllData();
+    expect(exported.exportedAt).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/);
+    expect(exported.charts).toEqual([
+      {
+        chartId: a.chartId,
+        label: "Chart A",
+        createdAt: detailA!.chart.createdAt,
+        updatedAt: detailA!.chart.updatedAt,
+        revisions: [revisionA1!.revision, detailA!.latest],
+      },
+      {
+        chartId: b.chartId,
+        label: "Chart B",
+        createdAt: detailB!.chart.createdAt,
+        updatedAt: detailB!.chart.updatedAt,
+        revisions: [detailB!.latest],
+      },
+    ]);
+  });
+});
+
+describe("typed reopen failures (Pitfall 1 — T-03-09)", () => {
+  it("surfaces a hand-corrupted stored envelope as WorkspaceError OPEN_FAILED — never a crash, never partial data", async () => {
+    const saved = await seedChart("Mia’s chart", "crp111222333");
+    corruptEnvelope(saved.revisionId);
+
+    await expect(getChartDetail(saved.chartId)).rejects.toMatchObject({
+      name: "WorkspaceError",
+      code: "OPEN_FAILED",
+    });
+    await expect(getRevisionContent(saved.revisionId)).rejects.toMatchObject({
+      code: "OPEN_FAILED",
+    });
+    await expect(exportAllData()).rejects.toMatchObject({ code: "OPEN_FAILED" });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Privacy source-scan (PRIV-01 — T-03-11) + frozen fixture (Pitfall 1)
+// ---------------------------------------------------------------------------
+
+const WORKSPACE_DIR = fileURLToPath(new URL("../lib/workspace/", import.meta.url));
+const FROZEN_FIXTURE = new URL("../test/fixtures/frozen-natal-envelope.json", import.meta.url);
+
+/**
+ * The API CLIENT module (exact specifier) — `@/lib/api` / `./api` /
+ * `../api`. Deliberately NOT api-schemas: the stored zod contracts ARE
+ * the parse-then-trust dependency the repository must import (D-02).
+ */
+const API_CLIENT_SPECIFIER = /^(\.{1,2}\/|@\/lib\/)api$/;
+
+/** Global network-call tokens — none may appear in the persistence layer. */
+const NETWORK_CALL_TOKENS: readonly RegExp[] = [
+  /\bfetch\s*\(/,
+  /\bXMLHttpRequest\b/,
+  /\bWebSocket\b/,
+  /\bsendBeacon\b/,
+  /\baxios\b/,
+];
+
+/** Module specifiers referenced by import syntax (telemetry-guard helper). */
+function importSpecifiers(content: string): string[] {
+  const specifiers: string[] = [];
+  const patterns = [
+    /\bfrom\s*["']([^"'\n]+)["']/g,
+    /\bimport\s*["']([^"'\n]+)["']/g,
+    /\bimport\s*\(\s*["']([^"'\n]+)["']/g,
+    /\brequire\s*\(\s*["']([^"'\n]+)["']/g,
+  ];
+  for (const pattern of patterns) {
+    for (const match of content.matchAll(pattern)) {
+      if (match[1]) specifiers.push(match[1]);
+    }
+  }
+  return specifiers;
+}
+
+describe("PRIV-01: the persistence layer never touches the network", () => {
+  it("workspace modules import no API client and contain no global-network call token", () => {
+    const violations: string[] = [];
+    const files = readdirSync(WORKSPACE_DIR).filter((file) => file.endsWith(".ts"));
+    expect(files.length).toBeGreaterThanOrEqual(4); // db, ids, label, repository, schema
+
+    for (const file of files) {
+      const content = readFileSync(join(WORKSPACE_DIR, file), "utf8");
+      for (const specifier of importSpecifiers(content)) {
+        if (API_CLIENT_SPECIFIER.test(specifier)) {
+          violations.push(`${file} imports the API client module "${specifier}"`);
+        }
+      }
+      for (const token of NETWORK_CALL_TOKENS) {
+        if (token.test(content)) {
+          violations.push(`${file} contains a network-call token (${token.source})`);
+        }
+      }
+    }
+    expect(
+      violations,
+      "The stored envelope IS the evidence (PRIV-01) — reopen never " +
+        "re-calls the API. Violations: " +
+        violations.join("; ")
+    ).toEqual([]);
+  });
+});
+
+describe("frozen envelope fixture regression (Pitfall 1 — schema drift)", () => {
+  it("still parses the frozen real CalculateResponse through calculateResponseSchema", () => {
+    // A missing file throws ENOENT — the fixture may not be silently
+    // deleted (fail-hard by design).
+    const frozen: unknown = JSON.parse(readFileSync(FROZEN_FIXTURE, "utf8"));
+    const parsed = calculateResponseSchema.parse(frozen);
+    expect(parsed.provenance.input_revision).toBe("f40e2a1b3c4d");
+    expect(parsed.chart_data.house_system).toBe("Placidus");
+    expect(parsed.chart_data.house_cusps).toHaveLength(12);
+    expect(parsed.chart_data.placements).toHaveLength(8);
+    expect(parsed.chart_data.placements?.map((p) => p.house)).toEqual([4, 8, 1, 3, 7, 5, 2, 11]);
+  });
+
+  it("round-trips the frozen envelope through saveChart → getChartDetail intact", async () => {
+    const frozen: unknown = JSON.parse(readFileSync(FROZEN_FIXTURE, "utf8"));
+    const saved = await saveChart({
+      label: "Frozen chart",
+      envelope: frozen,
+      inputs: storedInputs("Placidus"),
+      identity: { ...IDENTITY, date: "1990-04-17" },
+    });
+    expect(saved.appended).toBe(true);
+
+    const detail = await getChartDetail(saved.chartId);
+    expect(detail?.latest.envelope.chart_data.house_system).toBe("Placidus");
+    expect(detail?.latest.envelope.chart_data.ascendant?.sign).toBe("Sagittarius");
+    expect(detail?.latest.envelope.provenance.input_revision).toBe("f40e2a1b3c4d");
   });
 });

@@ -1,0 +1,169 @@
+{
+  "reading_type": "natal",
+  "chart_data": {
+    "house_system": "Placidus",
+    "ascendant": {
+      "sign": "Sagittarius",
+      "degree": 14.25,
+      "absolute_degree": 254.25
+    },
+    "midheaven": {
+      "sign": "Libra",
+      "degree": 0.5,
+      "absolute_degree": 180.5
+    },
+    "house_cusps": [
+      { "house": 1, "sign": "Sagittarius", "degree": 14.25, "absolute_degree": 254.25 },
+      { "house": 2, "sign": "Capricorn", "degree": 22.4, "absolute_degree": 292.4 },
+      { "house": 3, "sign": "Aquarius", "degree": 28.15, "absolute_degree": 328.15 },
+      { "house": 4, "sign": "Aries", "degree": 0.5, "absolute_degree": 0.5 },
+      { "house": 5, "sign": "Taurus", "degree": 6.3, "absolute_degree": 36.3 },
+      { "house": 6, "sign": "Gemini", "degree": 9.45, "absolute_degree": 69.45 },
+      { "house": 7, "sign": "Gemini", "degree": 14.25, "absolute_degree": 74.25 },
+      { "house": 8, "sign": "Cancer", "degree": 22.4, "absolute_degree": 112.4 },
+      { "house": 9, "sign": "Leo", "degree": 28.15, "absolute_degree": 148.15 },
+      { "house": 10, "sign": "Libra", "degree": 0.5, "absolute_degree": 180.5 },
+      { "house": 11, "sign": "Scorpio", "degree": 6.3, "absolute_degree": 216.3 },
+      { "house": 12, "sign": "Sagittarius", "degree": 9.45, "absolute_degree": 249.45 }
+    ],
+    "placements": [
+      {
+        "body": "Sun",
+        "sign": "Aries",
+        "degree": 26.65,
+        "absolute_degree": 26.65,
+        "motion": "direct",
+        "house": 4,
+        "dignity": ["Exaltation"]
+      },
+      {
+        "body": "Moon",
+        "sign": "Leo",
+        "degree": 12.5,
+        "absolute_degree": 142.5,
+        "motion": "direct",
+        "house": 8
+      },
+      {
+        "body": "Mercury",
+        "sign": "Sagittarius",
+        "degree": 29.0,
+        "absolute_degree": 269.0,
+        "motion": "retrograde",
+        "house": 1
+      },
+      {
+        "body": "Venus",
+        "sign": "Pisces",
+        "degree": 20.2,
+        "absolute_degree": 350.2,
+        "motion": "direct",
+        "house": 3,
+        "dignity": ["Exaltation"]
+      },
+      {
+        "body": "Mars",
+        "sign": "Cancer",
+        "degree": 8.4,
+        "absolute_degree": 98.4,
+        "motion": "direct",
+        "house": 7
+      },
+      {
+        "body": "Jupiter",
+        "sign": "Taurus",
+        "degree": 15.7,
+        "absolute_degree": 45.7,
+        "motion": "direct",
+        "house": 5
+      },
+      {
+        "body": "Saturn",
+        "sign": "Capricorn",
+        "degree": 24.6,
+        "absolute_degree": 294.6,
+        "motion": "direct",
+        "house": 2,
+        "dignity": ["Domicile"]
+      },
+      {
+        "body": "Uranus",
+        "sign": "Scorpio",
+        "degree": 22.8,
+        "absolute_degree": 232.8,
+        "motion": "retrograde",
+        "house": 11
+      }
+    ],
+    "aspects": [
+      {
+        "body_a": "Moon",
+        "aspect": "square",
+        "body_b": "Uranus",
+        "orb_degrees": 0.3,
+        "applying": true,
+        "exact": false
+      },
+      {
+        "body_a": "Sun",
+        "aspect": "square",
+        "body_b": "Saturn",
+        "orb_degrees": 2.05,
+        "separating": true,
+        "exact": false
+      },
+      {
+        "body_a": "Venus",
+        "aspect": "sextile",
+        "body_b": "Uranus",
+        "orb_degrees": 2.6,
+        "applying": true,
+        "exact": false
+      },
+      {
+        "body_a": "Mercury",
+        "aspect": "trine",
+        "body_b": "Moon",
+        "orb_degrees": 6.5,
+        "separating": true,
+        "exact": false
+      }
+    ],
+    "sect": {
+      "status": "day",
+      "luminary_of_sect": "Sun",
+      "sect_mate_planets": ["Saturn", "Jupiter"],
+      "notes": "Sun altitude +18° above the horizon at the birth instant — day chart."
+    },
+    "lots": [
+      {
+        "name": "Lot of Fortune",
+        "sign": "Aries",
+        "degree": 10.1,
+        "absolute_degree": 10.1,
+        "formula": "Ascendant + Moon − Sun (day chart)"
+      },
+      {
+        "name": "Lot of Spirit",
+        "sign": "Leo",
+        "degree": 18.4,
+        "absolute_degree": 138.4,
+        "formula": "Ascendant + Sun − Moon (day chart)"
+      }
+    ],
+    "source_notes": "Frozen fixture envelope (03-03): a full normal-classification Timed natal chart captured through calculateResponseSchema — regression guard against schema drift bricking saved charts (Pitfall 1).",
+    "birth_time_confidence": "Timed"
+  },
+  "provenance": {
+    "skill_revision": "660d992",
+    "swisseph_version": "2.10.03",
+    "tzdata_version": "2026.3",
+    "schema_version": "chart-input v1",
+    "ephemeris_mode": "Moshier (built-in)",
+    "house_system": "Placidus",
+    "zodiac_mode": "tropical",
+    "orb_policy": "birth_to_chart.py default orb table (luminaries 10°, personal 7°, Jupiter–Pluto 8°, Node 5°, angles 8°; sextile capped 6°)",
+    "input_revision": "f40e2a1b3c4d",
+    "calculator_cmd": "python tools/birth_to_chart.py --input <temp-json> --validate"
+  }
+}
