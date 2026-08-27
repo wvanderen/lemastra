@@ -8,19 +8,43 @@ import {
   PRIVACY_LINK,
 } from '@/components/birth/copy';
 import { ThemedText } from '@/components/themed-text';
+import { ChartList } from '@/components/workspace/chart-list';
+import { HOME_CTA_WITH_CHARTS, SAVED_CHARTS_HEADING } from '@/components/workspace/copy';
+import { WebUnsupported } from '@/components/workspace/web-unsupported';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
+import { useWorkspaceCharts } from '@/hooks/use-workspace';
 import { useTheme } from '@/hooks/use-theme';
 
 /**
- * Home (`/`) — the entry point of the first walkable user slice
- * (02-UI-SPEC §"Copy Deck", Home): heading, sub-line, the primary CTA
- * into the birth flow (/birth), and the privacy link.
+ * Home (`/`) — the private workspace (D-09, WORK-01/03).
  *
- * Replaces the Phase-1 redirect-to-/privacy landing (01-02): the
- * disclosure screen remains one tap away instead of being the front door.
+ * The Phase-2 hero stays on top: heading, sub-line, the primary CTA
+ * into the birth flow, and the privacy footer link. Phase 3 adds the
+ * saved-charts list BENEATH the CTA:
+ *
+ * - Zero charts: the hero alone IS the empty state — no "Saved charts"
+ *   heading renders, and the CTA keeps its "Calculate your first chart"
+ *   label (A-3-UI-5: "your first" only while the workspace is empty).
+ * - ≥1 chart: the CTA reads "Calculate a chart"; the "Saved charts"
+ *   heading + rows render between the CTA and the footer.
+ * - Web: workspace storage is native-only (D-03) — the capability card
+ *   replaces the list and the storage query never mounts; the CTA and
+ *   privacy link remain.
+ * - Loading: nothing extra renders while the first list query resolves
+ *   (local query, fast — no skeleton per 03-UI-SPEC).
+ *
+ * Rows navigate to /chart/saved?id= — the id-param law: a saved chart
+ * is ALWAYS read from the repository by id, never carried in router
+ * params (03-RESEARCH anti-pattern). Ordering belongs to the repository
+ * (updated_at desc); this screen renders rows in the order received.
+ *
+ * No sign-in/account surface exists anywhere on this screen (WORK-01).
  */
 export default function Home() {
   const theme = useTheme();
+  const charts = useWorkspaceCharts();
+  const items = charts.data ?? [];
+  const hasCharts = items.length > 0;
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
@@ -39,9 +63,25 @@ export default function Home() {
         style={[styles.cta, { backgroundColor: theme.accent }]}
       >
         <ThemedText type="default" style={[styles.ctaLabel, { color: theme.background }]}>
-          {HOME_CTA}
+          {hasCharts ? HOME_CTA_WITH_CHARTS : HOME_CTA}
         </ThemedText>
       </Pressable>
+
+      {!charts.available ? (
+        <WebUnsupported testID="home-web-unsupported" />
+      ) : hasCharts ? (
+        <View style={styles.listSection}>
+          <ThemedText type="default" accessibilityRole="header" style={styles.sectionHeading}>
+            {SAVED_CHARTS_HEADING}
+          </ThemedText>
+          <ChartList
+            items={items}
+            onOpen={(chartId) =>
+              router.push({ pathname: '/chart/saved', params: { id: chartId } })
+            }
+          />
+        </View>
+      ) : null}
 
       <Pressable
         accessibilityRole="link"
@@ -84,6 +124,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   ctaLabel: {
+    fontWeight: '600',
+  },
+  listSection: {
+    gap: Spacing.two,
+  },
+  // Section headings render at 24/600 (03-UI-SPEC typography table).
+  sectionHeading: {
+    fontSize: 24,
+    lineHeight: 30,
     fontWeight: '600',
   },
   footerLink: {
