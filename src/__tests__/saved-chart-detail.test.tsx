@@ -10,7 +10,15 @@ import {
   PLACEMENTS_HEADING,
   UNAVAILABLE_HEADING,
 } from "@/components/chart/copy";
-import { LOADING_CHART, OPEN_FAILED_ERROR_COPY } from "@/components/workspace/copy";
+import {
+  EXPORT_CHART_DATA,
+  EXPORT_CHART_HELPER,
+  EXPORT_ERROR_COPY,
+  EXPORT_PENDING,
+  LOADING_CHART,
+  OPEN_FAILED_ERROR_COPY,
+  WEB_UNSUPPORTED_HEADING,
+} from "@/components/workspace/copy";
 import type { ChartDetail, ChartListItem } from "@/lib/workspace/repository";
 import type { CalculateResponse } from "@/lib/api-schemas";
 
@@ -85,16 +93,34 @@ vi.mock("@/lib/workspace/repository", async (importOriginal) => {
   };
 });
 
+// The export module pulls expo-file-system/expo-sharing (device APIs —
+// no vitest alias); the screen imports it for the D-13 flow, so the
+// seam is mocked here. buildExportPayload stays the real pure builder
+// so the captured payload reflects the true export document.
+const exportModule = vi.hoisted(() => ({
+  exportChartRevision: vi.fn(),
+}));
+vi.mock("@/lib/workspace/export", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/workspace/export")>();
+  return {
+    ...actual,
+    exportChartRevision: exportModule.exportChartRevision,
+  };
+});
+
 let render: typeof rtlRender;
 let cleanup: () => Promise<void>;
 let act: <T>(callback: () => T | Promise<T>) => Promise<T>;
+let fireEvent: typeof import("@testing-library/react-native/pure").fireEvent;
 let waitFor: typeof import("@testing-library/react-native/pure").waitFor;
 let WorkspaceError: typeof import("@/lib/workspace/repository").WorkspaceError;
 let Home: typeof import("@/app/index").default;
 let SavedChartScreen: typeof import("@/app/chart/saved").default;
 
 beforeAll(async () => {
-  ({ render, cleanup, act, waitFor } = await import("@testing-library/react-native/pure"));
+  ({ render, cleanup, act, fireEvent, waitFor } = await import(
+    "@testing-library/react-native/pure"
+  ));
   ({ WorkspaceError } = await import("@/lib/workspace/repository"));
   ({ default: Home } = await import("@/app/index"));
   ({ default: SavedChartScreen } = await import("@/app/chart/saved"));
@@ -405,5 +431,86 @@ describe("back from detail returns home with the list intact (query cache)", () 
     await waitFor(() => expect(home2.getByText("My saved chart")).toBeTruthy());
 
     expect(repository.listCharts).toHaveBeenCalledTimes(1);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Data actions — export wiring (WORK-07, D-13)
+// ---------------------------------------------------------------------------
+
+describe("saved-chart detail — export chart data", () => {
+  beforeEach(() => {
+    repository.isWorkspaceStorageAvailable.mockReturnValue(true);
+    exportModule.exportChartRevision.mockReset().mockResolvedValue({ status: "shared" });
+  });
+
+  it("renders the data-actions card with the export row and its helper", async () => {
+    repository.getChartDetail.mockResolvedValue(chartDetail());
+    const view = await renderSaved("chart-1");
+    await waitFor(() => expect(view.getByText(UNAVAILABLE_HEADING)).toBeTruthy());
+
+    expect(view.getByText(EXPORT_CHART_DATA)).toBeTruthy();
+    expect(view.getByText(EXPORT_CHART_HELPER)).toBeTruthy();
+  });
+
+  it("exports the latest revision with a pending state on the trigger", async () => {
+    repository.getChartDetail.mockResolvedValue(chartDetail());
+    exportModule.exportChartRevision.mockReturnValue(new Promise(() => undefined));
+    const view = await renderSaved("chart-1");
+    await waitFor(() => expect(view.getByText(EXPORT_CHART_DATA)).toBeTruthy());
+
+    await act(async () => {
+      fireEvent.press(view.getByTestId("data-actions-export"));
+    });
+
+    // Pending label replaces the row label while the export is in flight.
+    expect(view.getByText(EXPORT_PENDING)).toBeTruthy();
+    expect(view.queryByText(EXPORT_CHART_DATA)).toBeNull();
+
+    // The export payload carries the LATEST revision with full provenance.
+    expect(exportModule.exportChartRevision).toHaveBeenCalledTimes(1);
+    const payload = exportModule.exportChartRevision.mock.calls[0][0] as Record<string, unknown>;
+    expect(payload.chartId).toBe("chart-1");
+    expect(payload.revisionId).toBe("rev-2");
+    expect(payload.label).toBe("My saved chart");
+    expect(payload.identity).toEqual(chartDetail().latest.identity);
+    expect(payload.envelope).toEqual(chartDetail().latest.envelope);
+  });
+
+  it("renders the capability state when the share sheet is unavailable", async () => {
+    repository.getChartDetail.mockResolvedValue(chartDetail());
+    exportModule.exportChartRevision.mockResolvedValue({ status: "unavailable" });
+    const view = await renderSaved("chart-1");
+    await waitFor(() => expect(view.getByText(EXPORT_CHART_DATA)).toBeTruthy());
+
+    await act(async () => {
+      fireEvent.press(view.getByTestId("data-actions-export"));
+    });
+
+    await waitFor(() => expect(view.getByText(WEB_UNSUPPORTED_HEADING)).toBeTruthy());
+  });
+
+  it("renders the exact export-failed error card with a working Try again", async () => {
+    repository.getChartDetail.mockResolvedValue(chartDetail());
+    exportModule.exportChartRevision
+      .mockRejectedValueOnce(new Error("write failed"))
+      .mockResolvedValueOnce({ status: "shared" });
+    const view = await renderSaved("chart-1");
+    await waitFor(() => expect(view.getByText(EXPORT_CHART_DATA)).toBeTruthy());
+
+    await act(async () => {
+      fireEvent.press(view.getByTestId("data-actions-export"));
+    });
+
+    await waitFor(() => expect(view.getByText(EXPORT_ERROR_COPY.heading)).toBeTruthy());
+    const body = EXPORT_ERROR_COPY.body;
+    if (!body) throw new Error("EXPORT_ERROR_COPY must define a body");
+    expect(view.getByText(body)).toBeTruthy();
+
+    // Try again re-invokes the export.
+    await act(async () => {
+      fireEvent.press(view.getByText("Try again"));
+    });
+    await waitFor(() => expect(exportModule.exportChartRevision).toHaveBeenCalledTimes(2));
   });
 });

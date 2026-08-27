@@ -1,7 +1,11 @@
 import type { render as rtlRender } from "@testing-library/react-native/pure";
-import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+import type { ReactNode } from "react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { LABEL_FIELD_ERROR, RENAME_ACTION, RENAME_CANCEL, RENAME_SAVE } from "@/components/workspace/copy";
+import type { ChartDetail } from "@/lib/workspace/repository";
+import type { CalculateResponse } from "@/lib/api-schemas";
 
 // RenameControl tests (03-06 Task 1) — the D-12 inline title rename:
 // the Display title swaps to a validated TextInput (birth.tsx
@@ -198,5 +202,190 @@ describe("RenameControl — commit/cancel", () => {
     expect(onCommit).not.toHaveBeenCalled();
     expect(view.getByText(CURRENT_LABEL)).toBeTruthy();
     expect(view.queryByTestId("rename-input")).toBeNull();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Wired flow on /chart/saved (03-06 Task 3) — rename through the seam
+// ---------------------------------------------------------------------------
+//
+// Repository faked at the D-03 seam (the 03-05 convention); the export
+// module is mocked so the screen's import graph stays off the device
+// APIs. Presses go through fireEvent on the accessible host — the
+// 03-05 act-queue law for query-mounted screens.
+
+const routerMock = vi.hoisted(() => ({
+  push: vi.fn(),
+  back: vi.fn(),
+  replace: vi.fn(),
+  navigate: vi.fn(),
+}));
+const paramsState = vi.hoisted(() => ({ value: {} as Record<string, string | string[]> }));
+const repository = vi.hoisted(() => ({
+  getChartDetail: vi.fn(),
+  renameChart: vi.fn(),
+  deleteChart: vi.fn(),
+  isWorkspaceStorageAvailable: vi.fn(),
+}));
+const exportModule = vi.hoisted(() => ({
+  exportChartRevision: vi.fn(),
+}));
+
+vi.mock("expo-router", () => ({
+  router: routerMock,
+  useLocalSearchParams: () => paramsState.value,
+}));
+
+// The ids module pulls expo-crypto (native entry) — node:crypto
+// stand-in, the result-screen.test.tsx convention.
+vi.mock("expo-crypto", async () => {
+  const nodeCrypto = await import("node:crypto");
+  return { randomUUID: () => nodeCrypto.randomUUID() };
+});
+
+vi.mock("@/lib/workspace/repository", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/workspace/repository")>();
+  return {
+    ...actual,
+    getChartDetail: repository.getChartDetail,
+    renameChart: repository.renameChart,
+    deleteChart: repository.deleteChart,
+    isWorkspaceStorageAvailable: repository.isWorkspaceStorageAvailable,
+  };
+});
+
+vi.mock("@/lib/workspace/export", () => ({
+  buildExportPayload: (input: unknown) => input,
+  exportChartRevision: exportModule.exportChartRevision,
+}));
+
+let waitFor: typeof import("@testing-library/react-native/pure").waitFor;
+let SavedChartScreen: typeof import("@/app/chart/saved").default;
+
+beforeAll(async () => {
+  ({ waitFor } = await import("@testing-library/react-native/pure"));
+  ({ default: SavedChartScreen } = await import("@/app/chart/saved"));
+});
+
+function wiredWrapper() {
+  const client = new QueryClient({
+    defaultOptions: {
+      queries: { retry: false, staleTime: 30_000 },
+      mutations: { retry: false },
+    },
+  });
+  const Wrapper = ({ children }: { children: ReactNode }) => (
+    <QueryClientProvider client={client}>{children}</QueryClientProvider>
+  );
+  return { Wrapper };
+}
+
+function wiredDetail(label = CURRENT_LABEL): ChartDetail {
+  const envelope: CalculateResponse = {
+    reading_type: "natal",
+    chart_data: {
+      placements: [
+        { body: "Mars", sign: "Leo", degree: 10.0, absolute_degree: 130.0, motion: "retrograde" },
+      ],
+      birth_time_confidence: "Unknown",
+    },
+    provenance: {
+      skill_revision: "660d992",
+      swisseph_version: "2.10.03",
+      tzdata_version: "2026.3",
+      schema_version: "chart-input v1",
+      ephemeris_mode: "Moshier (built-in)",
+      house_system: "Whole Sign",
+      zodiac_mode: "tropical",
+      orb_policy: "standard",
+      input_revision: "abc123def456",
+      calculator_cmd: "python tools/birth_to_chart.py --input <temp-json> --validate",
+    },
+    unavailable_factors: [{ factor: "houses", reason: "Requires a birth time" }],
+    provisional_factors: [],
+  };
+  const inputs = {
+    date: "1990-05-21",
+    time: "",
+    confidence: "Unknown",
+    house_system: "Whole Sign",
+    place: { label: "Lisbon, Portugal", lat: 38.7223, lon: -9.1393 },
+    place_form: {
+      source: "google",
+      label: "Lisbon, Portugal",
+      lat: 38.7223,
+      lon: -9.1393,
+      location_type: "ROOFTOP",
+      place_id: "p1",
+    },
+    iana_zone: "Europe/Lisbon",
+    zone_source: "google",
+  };
+  return {
+    chart: {
+      chartId: "chart-1",
+      label,
+      createdAt: new Date("2026-08-20T10:00:00Z"),
+      updatedAt: new Date("2026-08-27T10:00:00Z"),
+    },
+    latest: {
+      revisionId: "rev-2",
+      inputRevision: "abc123def456",
+      envelope,
+      inputs,
+      identity: { date: "1990-05-21", time: "", label: "Lisbon, Portugal", zone_source: "google" },
+      createdAt: new Date("2026-08-27T10:00:00Z"),
+    },
+    revisionCount: 2,
+    revisions: [
+      { revisionId: "rev-1", createdAt: new Date("2026-08-20T10:00:00Z"), inputRevision: "fff000111222", inputs },
+      { revisionId: "rev-2", createdAt: new Date("2026-08-27T10:00:00Z"), inputRevision: "abc123def456", inputs },
+    ],
+  };
+}
+
+describe("rename — wired on /chart/saved (WORK-05)", () => {
+  beforeEach(() => {
+    paramsState.value = { id: "chart-1" };
+    repository.isWorkspaceStorageAvailable.mockReturnValue(true);
+    repository.getChartDetail.mockReset().mockResolvedValue(wiredDetail());
+    repository.renameChart.mockReset().mockResolvedValue(undefined);
+    repository.deleteChart.mockReset().mockResolvedValue(undefined);
+  });
+
+  it("renders 'Rename' beside the title and commits through repository.renameChart, refreshing title + detail cache", async () => {
+    // First read: original label; post-invalidation read: renamed label.
+    repository.getChartDetail
+      .mockResolvedValueOnce(wiredDetail("My saved chart"))
+      .mockResolvedValueOnce(wiredDetail("Renamed chart"));
+
+    const { Wrapper } = wiredWrapper();
+    const view = await render(
+      <Wrapper>
+        <SavedChartScreen />
+      </Wrapper>
+    );
+    await waitFor(() => expect(view.getByText("My saved chart")).toBeTruthy());
+
+    // Rename → edit → commit (fireEvent law for query-mounted screens).
+    await act(async () => {
+      fireEvent.press(view.getByTestId("rename-trigger"));
+    });
+    await act(async () => {
+      fireEvent.changeText(view.getByTestId("rename-input"), "  Renamed chart  ");
+    });
+    await act(async () => {
+      fireEvent.press(view.getByTestId("rename-save"));
+    });
+
+    await waitFor(() =>
+      expect(repository.renameChart).toHaveBeenCalledWith("chart-1", "Renamed chart")
+    );
+    // Pitfall 10 invalidation: the detail query refetches under ['charts'].
+    await waitFor(() => expect(repository.getChartDetail).toHaveBeenCalledTimes(2));
+    await waitFor(() => expect(view.getByText("Renamed chart")).toBeTruthy());
+
+    // Rename never deletes or appends — revisions untouched.
+    expect(repository.deleteChart).not.toHaveBeenCalled();
   });
 });
