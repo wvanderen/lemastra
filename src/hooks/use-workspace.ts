@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   deleteChart,
   getChartDetail,
+  getRevisionContent,
   isWorkspaceStorageAvailable,
   listCharts,
   renameChart,
@@ -83,6 +84,24 @@ export function useWorkspaceChart(chartId: string) {
     queryKey: chartDetailQueryKey(chartId),
     queryFn: () => getChartDetail(chartId),
     enabled: chartId.length > 0 && isWorkspaceStorageAvailable(),
+    retry: false,
+  });
+}
+
+/**
+ * useRevisionContent — the /chart/revision read-only query (D-07): one
+ * revision by id from the repository, re-parsed at the repository edge
+ * before anything renders (D-02). Key joins the charts tree so the
+ * Pitfall-10 invalidation map sweeps it with every chart mutation.
+ * `null` data means "unknown revision id" (callers redirect home); a
+ * read failure surfaces as a typed WorkspaceError (OPEN_FAILED). Local
+ * reads are deterministic — no auto-retry.
+ */
+export function useRevisionContent(revisionId: string) {
+  return useQuery({
+    queryKey: [...CHARTS_QUERY_KEY, "revision", revisionId],
+    queryFn: () => getRevisionContent(revisionId),
+    enabled: revisionId.length > 0 && isWorkspaceStorageAvailable(),
     retry: false,
   });
 }

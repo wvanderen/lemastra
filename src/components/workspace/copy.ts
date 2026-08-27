@@ -225,3 +225,83 @@ export const EXPORT_PENDING = "Creating file…";
 export function deleteChartActionHelper(revisionCount: number): string {
   return `Removes this chart and its ${revisionCount} revision(s) from this device.`;
 }
+
+// ---------------------------------------------------------------------------
+// "What changed" vocabulary (D-07, A-3-UI-7) — the fixed 8-item phrase set
+// consumed by revision-diff.ts. Pure input diffs → these exact phrases;
+// never a raw JSON diff, never an invented interpretation (T-03-24).
+// ---------------------------------------------------------------------------
+
+/** The chart's chronologically first revision — no predecessor to diff. */
+export const WHAT_CHANGED_ORIGINAL_DETAILS = "Original details";
+
+/** Birth date field changed (single-field phrase). */
+export const WHAT_CHANGED_BIRTH_DATE = "Birth date changed";
+
+/** Birth time field changed (single-field phrase). */
+export const WHAT_CHANGED_BIRTH_TIME = "Birth time changed";
+
+/** Place selection changed (normalized summary or union branch). */
+export const WHAT_CHANGED_BIRTHPLACE = "Birthplace changed";
+
+/** Zone identity or zone-resolution source changed. */
+export const WHAT_CHANGED_TIME_ZONE = "Time zone changed";
+
+/** The D-08 tricky-time resolution choice changed. */
+export const WHAT_CHANGED_TIME_ZONE_RESOLUTION = "Time-zone resolution changed";
+
+/** Birth-time confidence changed. */
+export const WHAT_CHANGED_TIME_CONFIDENCE = "Time confidence changed";
+
+/** Requested house system changed. */
+export const WHAT_CHANGED_HOUSE_SYSTEM = "House system changed";
+
+/** Fallback when multiple fields differ — the closed vocabulary's last item. */
+export const WHAT_CHANGED_DETAILS = "Details changed";
+
+// ---------------------------------------------------------------------------
+// History section (/chart/saved, D-07)
+// ---------------------------------------------------------------------------
+
+/** History section heading — renders ONLY when >1 revision exists. */
+export const HISTORY_HEADING = "History";
+
+/** Chip on the newest History row alone; that row is non-navigational. */
+export const LATEST_CHIP = "Latest";
+
+/** History row text — "{date} · {what changed}" (the marker body reuses it). */
+export function historyLine(date: string, phrase: string): string {
+  return `${date} · ${phrase}`;
+}
+
+/** Row a11y label — "{date}, {what changed}{, Latest}. Opens a read-only version." */
+export function historyRowA11yLabel(date: string, phrase: string, latest: boolean): string {
+  return `${date}, ${phrase}${latest ? `, ${LATEST_CHIP}` : ""}. Opens a read-only version.`;
+}
+
+// ---------------------------------------------------------------------------
+// Read-only revision view (/chart/revision, D-07)
+// ---------------------------------------------------------------------------
+
+/** Marker-card heading on the read-only earlier-revision route. */
+export const READ_ONLY_MARKER_HEADING = "Earlier version — read-only";
+
+/** Back link at the end of the read-only revision view. */
+export const BACK_TO_HISTORY = "Back to History";
+
+// ---------------------------------------------------------------------------
+// Revise flow (D-08) — prefill path + Save new version
+// ---------------------------------------------------------------------------
+
+/** /birth screen title in revise mode (fields otherwise identical to Phase 2). */
+export const REVISE_TITLE = "Revise birth details";
+
+/** Assumptions action on the saved detail — launches the revise flow. */
+export const REVISE_ACTION = "Revise birth details";
+
+/** Revise helper — the WORK-04 trust language, visible not implied. */
+export const REVISE_HELPER =
+  "Creates a new version with your edits. The current one stays in History.";
+
+/** Result-screen Save CTA when launched from a saved chart (appends a revision). */
+export const SAVE_NEW_VERSION_CTA = "Save new version";

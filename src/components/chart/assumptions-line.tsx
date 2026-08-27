@@ -23,6 +23,10 @@ import {
  * Approximate confidence appends the provisional angles/houses caveat
  * (server `provisional_factors` marks the same fact; this is the
  * copy-deck phrasing keyed off the envelope's confidence).
+ *
+ * Since 03-07 the action is optional and label-overridable: the saved
+ * detail renders it as "Revise birth details" with a trust helper, and
+ * the read-only revision view renders the card with NO action at all.
  */
 
 /** Hairline carried forward from the Phase-1 card treatment. */
@@ -33,11 +37,31 @@ export type AssumptionsLineProps = {
   provenance: CalculateProvenance;
   /** Envelope confidence — drives the Approximate caveat. */
   confidence: Confidence;
-  /** Invoked by "Adjust & recalculate" (result screen wires the /birth deep-link). */
-  onAdjust: () => void;
+  /**
+   * Invoked by the action ("Adjust & recalculate" on the result screen).
+   * OPTIONAL since 03-07: read-only surfaces (the /chart/revision view)
+   * omit it and NO action renders at all.
+   */
+  onAdjust?: () => void;
+  /**
+   * Overrides the action label (the saved detail's action reads
+   * "Revise birth details"). Defaults to the Phase-2 adjust copy.
+   */
+  actionLabel?: string;
+  /**
+   * Optional helper rendered directly above the action (the saved
+   * detail's stays-in-History trust line, WORK-04).
+   */
+  actionHelper?: string;
 };
 
-export function AssumptionsLine({ provenance, confidence, onAdjust }: AssumptionsLineProps) {
+export function AssumptionsLine({
+  provenance,
+  confidence,
+  onAdjust,
+  actionLabel = ASSUMPTIONS_ADJUST_ACTION,
+  actionHelper,
+}: AssumptionsLineProps) {
   const theme = useTheme();
 
   return (
@@ -67,14 +91,22 @@ export function AssumptionsLine({ provenance, confidence, onAdjust }: Assumption
           {ASSUMPTIONS_APPROXIMATE_CAVEAT}
         </ThemedText>
       ) : null}
-      <Pressable
-        accessibilityRole="link"
-        hitSlop={Spacing.two}
-        onPress={onAdjust}
-        style={styles.adjustAction}
-      >
-        <ThemedText type="linkPrimary">{ASSUMPTIONS_ADJUST_ACTION}</ThemedText>
-      </Pressable>
+      {/* Read-only surfaces pass no action at all — nothing renders here. */}
+      {actionHelper !== undefined && onAdjust !== undefined ? (
+        <ThemedText type="small" themeColor="textSecondary">
+          {actionHelper}
+        </ThemedText>
+      ) : null}
+      {onAdjust !== undefined ? (
+        <Pressable
+          accessibilityRole="link"
+          hitSlop={Spacing.two}
+          onPress={onAdjust}
+          style={styles.adjustAction}
+        >
+          <ThemedText type="linkPrimary">{actionLabel}</ThemedText>
+        </Pressable>
+      ) : null}
     </View>
   );
 }

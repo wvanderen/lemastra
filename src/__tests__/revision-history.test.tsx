@@ -341,7 +341,9 @@ describe("/chart/revision — read-only earlier version", () => {
     repository.getChartDetail.mockResolvedValue(chartDetail());
     const view = await renderRevision("rev-1");
 
-    expect(view.getByText(READ_ONLY_MARKER_HEADING)).toBeTruthy();
+    // The detail query chains off the revision read (chartId) — wait for
+    // the composed content, then assert document facts.
+    await waitFor(() => expect(view.getByText(READ_ONLY_MARKER_HEADING)).toBeTruthy());
     // Marker body: "{date} · {what changed}" for the OPENED revision.
     expect(view.getByText("2026-08-20 · Original details")).toBeTruthy();
 
@@ -371,6 +373,7 @@ describe("/chart/revision — read-only earlier version", () => {
     repository.getChartDetail.mockResolvedValue(chartDetail());
     const view = await renderRevision("rev-1");
 
+    await waitFor(() => expect(view.getByText(BACK_TO_HISTORY)).toBeTruthy());
     await act(async () => {
       fireEvent.press(view.getByText(BACK_TO_HISTORY));
     });
