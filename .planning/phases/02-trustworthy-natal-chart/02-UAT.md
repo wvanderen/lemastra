@@ -3,7 +3,7 @@ status: complete
 phase: 02-trustworthy-natal-chart
 source: [02-VERIFICATION.md]
 started: 2026-08-26T10:10:00Z
-updated: 2026-08-26T19:05:00Z
+updated: 2026-08-27T02:35:00Z
 ---
 
 ## Current Test
@@ -34,6 +34,14 @@ Acknowledge the first-run calculation disclosure, kill and relaunch the app, cal
 
 expected: The disclosure does not reappear after restart (the @lemastra:disclosure.calculation.v1 flag persisted via AsyncStorage).
 result: pass
+
+### 4. Post-fix calculate verification (260826-tob)
+
+After quick task 260826-tob (aspect schema contract fix on the PR branch), re-ran the final Calculate step end-to-end with real Google place resolution (Lexington, KY).
+
+expected: Calculate succeeds and the result screen renders placements/assumptions/provenance — no network-error banner.
+result: pass
+note: Test 2's original "pass" predated discovery that every real calculate response failed the client aspectSchema zod parse (applying XOR separating presence flags); the calculate step itself was not genuinely exercised then. This entry records the corrected end-to-end evidence.
 
 ## Summary
 
