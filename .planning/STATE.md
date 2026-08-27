@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 03
 current_phase_name: private-local-workspace
 status: executing
-stopped_at: Completed 03-02-PLAN.md
-last_updated: "2026-08-27T18:25:07.047Z"
+stopped_at: Completed 03-03-PLAN.md
+last_updated: "2026-08-27T18:37:54.755Z"
 last_activity: 2026-08-27
 last_activity_desc: Phase 03 execution started
 progress:
   total_phases: 10
   completed_phases: 2
   total_plans: 24
-  completed_plans: 18
+  completed_plans: 19
   percent: 20
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-08-26)
 ## Current Position
 
 Phase: 03 (private-local-workspace) — EXECUTING
-Plan: 3 of 8
+Plan: 4 of 8
 Status: Ready to execute
 Last activity: 2026-08-27 — Phase 03 execution started
 
@@ -71,6 +71,7 @@ Progress: [████████████████████] 16/16 p
 | Phase 02 P09 | 9 min | 2 tasks | 13 files |
 | Phase 03 P01 | 18 min | 3 tasks | 15 files |
 | Phase 03 P02 | 7 min | 2 tasks | 3 files |
+| Phase 03 P03 | 11 min | 3 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -119,6 +120,9 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - [Phase 03]: 03-01: drizzle imported from deep drizzle-orm/expo-sqlite/driver subpath (never the barrel — useLiveQuery re-export's top-level expo-sqlite import drags the native package into non-device graphs); vitest serves the generated drizzle/migrations.js as a virtual ESM module assembled from committed journal+sql artifacts; facade row getters memoize per result (expo executes once, node:sqlite re-executes)
 - [Phase 03]: [Phase 03] 03-02: redact() is a default-deny ALLOWLIST whose allowlisted containers are shallow-filtered ONE level with the same allowlist (primitive-only leaves, arrays/deeper objects dropped wholesale) — satisfies the nested birth-data strip behavior without deep-merging untrusted structure — Plan behavior row requires birth-data keys stripped even when nested one level deep inside an allowlisted container object; one-level re-application of the allowlist keeps the output bounded and inspectable
 - [Phase 03]: [Phase 03] 03-02: D-16 telemetry posture is build-enforced, not promised: telemetry-guard.test.ts (dependency + import + console-token scans, no exemption file) runs in the mandatory CI vitest job; logger in src/lib/redact.ts is the only sanctioned console surface and the seam Phase-7+ Sentry beforeSend must inherit — PRIV-03/PRIV-04 mapped to fail-hard tests (T-03-04/05/06); positive control mutation-verified 2026-08-27 (stray console.log tripped exit 1, reverted)
+- [Phase 03-03]: Workspace dedupe matches the (chart, input_revision) PAIR, not just the latest row — re-saving any prior basis returns appended:false instead of tripping the unique index (Pitfall 4; plan's latest-row wording stays the primary path) — The unique (chart_id, input_revision) index is a backstop, not the UX path; a pair lookup keeps legitimate already-saved states typed and silent
+- [Phase 03-03]: WorkspaceError adds UNAVAILABLE to the four planned codes; every repository op short-circuits with a typed error on web before touching the database (D-03 gate) — Screens need a typed, catchable unavailability to render the saved-charts-require-the-app degradation state
+- [Phase 03-03]: listCharts = two summary queries (charts by updated_at desc + revision summary scan reduced per chart) — never parses envelope JSON, avoids SQLite groupwise-max bare-column quirks — Deterministic latest-per-chart at personal-workspace scale with summary-column-only reads (D-11)
 
 ### Pending Todos
 
@@ -145,6 +149,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-27T18:25:07.041Z
-Stopped at: Completed 03-02-PLAN.md
+Last session: 2026-08-27T18:37:54.749Z
+Stopped at: Completed 03-03-PLAN.md
 Resume file: None

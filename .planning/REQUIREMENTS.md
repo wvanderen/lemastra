@@ -21,8 +21,8 @@
 
 - [ ] **WORK-01**: User can calculate and inspect a first chart without creating an account.
 - [x] **WORK-02**: User can save a chart locally with a chosen display label.
-- [ ] **WORK-03**: User can browse and reopen locally saved charts after restarting the app.
-- [ ] **WORK-04**: User can revise birth details by creating a new immutable chart revision without changing the basis of existing analyses or reports.
+- [x] **WORK-03**: User can browse and reopen locally saved charts after restarting the app.
+- [x] **WORK-04**: User can revise birth details by creating a new immutable chart revision without changing the basis of existing analyses or reports.
 - [ ] **WORK-05**: User can rename a locally saved chart.
 - [ ] **WORK-06**: User can delete a locally saved chart and its dependent local artifacts after confirming the action.
 - [ ] **WORK-07**: User can export the structured data and provenance for a saved chart.
@@ -82,7 +82,7 @@
 
 ### Privacy, Accessibility, and Mobile Quality
 
-- [ ] **PRIV-01**: Charts, conversations, analyses, and reports are private and local by default.
+- [x] **PRIV-01**: Charts, conversations, analyses, and reports are private and local by default.
 - [ ] **PRIV-02**: The app sends only the user-approved bounded payload to the selected calculation, place/time, or model provider.
 - [x] **PRIV-03**: Birth data, chart content, questions, conversations, and report prose are excluded from product analytics.
 - [x] **PRIV-04**: Logs and crash telemetry redact provider credentials and sensitive astrology payloads.
@@ -170,8 +170,8 @@ Every v1 requirement maps to exactly one roadmap phase.
 | CALC-04 | Phase 2 | Complete |
 | WORK-01 | Phase 3 | Pending |
 | WORK-02 | Phase 3 | Complete |
-| WORK-03 | Phase 3 | Pending |
-| WORK-04 | Phase 3 | Pending |
+| WORK-03 | Phase 3 | Complete |
+| WORK-04 | Phase 3 | Complete |
 | WORK-05 | Phase 3 | Pending |
 | WORK-06 | Phase 3 | Pending |
 | WORK-07 | Phase 3 | Pending |
@@ -213,7 +213,7 @@ Every v1 requirement maps to exactly one roadmap phase.
 | REPT-04 | Phase 9 | Pending |
 | REPT-05 | Phase 9 | Pending |
 | REPT-06 | Phase 9 | Pending |
-| PRIV-01 | Phase 3 | Pending |
+| PRIV-01 | Phase 3 | Complete |
 | PRIV-02 | Phase 7 | Pending |
 | PRIV-03 | Phase 3 | Complete |
 | PRIV-04 | Phase 3 | Complete |
