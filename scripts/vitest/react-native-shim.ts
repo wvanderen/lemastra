@@ -57,7 +57,7 @@ export async function installReactNativeTestShim(): Promise<void> {
     fsSync.mkdirSync(cacheDir, { recursive: true });
     await buildRnBundle(path.join(rnRoot, "index.js"), rnRoot, bundlePath);
   }
-  fsSync.writeFileSync(facadePath(), lazyFacadeSource(rnId), "utf8");
+  writeAtomic(facadePath(), lazyFacadeSource(rnId));
 
   // Globals shaped after @react-native/jest-preset jest/setup.js.
   const g = globalThis as Record<string, unknown>;
@@ -121,6 +121,23 @@ export function lazyFacadeSource(rnId: string): string {
 
 function facadePath(): string {
   return path.join(cacheDir, "rn-require-facade.cjs");
+}
+
+/**
+ * Cross-worker-safe file write: every vitest worker runs the setupFile
+ * concurrently on a cold cache, and a plain writeToFile lets one worker
+ * `require()` a bundle another worker is still writing (observed in CI as
+ * `SyntaxError: Missing initializer in const declaration`). Temp file +
+ * rename is atomic within a filesystem, so a concurrent reader always sees
+ * either the old complete file or the new complete file — never a partial
+ * one. The pid suffix keeps concurrent builders from clobbering each
+ * other's temp files; duplicate builds write identical deterministic
+ * content, so last-rename-wins is harmless.
+ */
+function writeAtomic(file: string, contents: string): void {
+  const tmp = `${file}.${process.pid}.tmp`;
+  fsSync.writeFileSync(tmp, contents, "utf8");
+  fsSync.renameSync(tmp, file);
 }
 
 // ---------------------------------------------------------------------------
@@ -598,12 +615,17 @@ async function buildRnBundle(entry: string, rnRoot: string, outfile: string): Pr
     },
   });
   try {
+    // Write to a pid-suffixed temp file, then rename into place — see
+    // writeAtomic: concurrent cold-cache workers must never read a
+    // partially-written bundle.
+    const tmp = `${outfile}.${process.pid}.tmp`;
     await bundle.write({
-      file: outfile,
+      file: tmp,
       format: "cjs",
       sourcemap: "inline",
       banner: "var __DEV__ = true;", // jest-equivalent default for tests
     });
+    fsSync.renameSync(tmp, outfile);
   } finally {
     await bundle.close();
   }
