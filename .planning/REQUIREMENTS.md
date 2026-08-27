@@ -19,7 +19,7 @@
 
 ### Personal Workspace
 
-- [ ] **WORK-01**: User can calculate and inspect a first chart without creating an account.
+- [x] **WORK-01**: User can calculate and inspect a first chart without creating an account.
 - [x] **WORK-02**: User can save a chart locally with a chosen display label.
 - [x] **WORK-03**: User can browse and reopen locally saved charts after restarting the app.
 - [x] **WORK-04**: User can revise birth details by creating a new immutable chart revision without changing the basis of existing analyses or reports.
@@ -168,7 +168,7 @@ Every v1 requirement maps to exactly one roadmap phase.
 | CALC-02 | Phase 2 | Complete |
 | CALC-03 | Phase 2 | Complete |
 | CALC-04 | Phase 2 | Complete |
-| WORK-01 | Phase 3 | Pending |
+| WORK-01 | Phase 3 | Complete |
 | WORK-02 | Phase 3 | Complete |
 | WORK-03 | Phase 3 | Complete |
 | WORK-04 | Phase 3 | Complete |

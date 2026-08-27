@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 03
 current_phase_name: private-local-workspace
 status: executing
-stopped_at: Completed 03-04-PLAN.md
-last_updated: "2026-08-27T19:11:42.620Z"
+stopped_at: Completed 03-05-PLAN.md
+last_updated: "2026-08-27T19:29:58.406Z"
 last_activity: 2026-08-27
 last_activity_desc: Phase 03 execution started
 progress:
   total_phases: 10
   completed_phases: 2
   total_plans: 24
-  completed_plans: 20
+  completed_plans: 21
   percent: 20
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-08-26)
 ## Current Position
 
 Phase: 03 (private-local-workspace) — EXECUTING
-Plan: 5 of 8
+Plan: 6 of 8
 Status: Ready to execute
 Last activity: 2026-08-27 — Phase 03 execution started
 
@@ -73,6 +73,7 @@ Progress: [████████████████████] 16/16 p
 | Phase 03 P02 | 7 min | 2 tasks | 3 files |
 | Phase 03 P03 | 11 min | 3 tasks | 6 files |
 | Phase 03 P04 | 31 min | 2 tasks | 11 files |
+| Phase 03 P05 | 16 min | 3 tasks | 11 files |
 
 ## Accumulated Context
 
@@ -126,6 +127,9 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - [Phase 03-03]: listCharts = two summary queries (charts by updated_at desc + revision summary scan reduced per chart) — never parses envelope JSON, avoids SQLite groupwise-max bare-column quirks — Deterministic latest-per-chart at personal-workspace scale with summary-column-only reads (D-11)
 - [Phase ?]: [Phase 03-04]: The request param contract = storedCalculationInputsSchema exactly — time_resolution carries the chosen resolve OPTION ({mode, label, utc}) and time is the display form ("" for Unknown) so 03-07 revise prefill maps stored inputs directly; the param guards SEPARATELY from the redirect (malformed/absent disables save, never redirects — T-03-12)
 - [Phase ?]: [Phase 03-04]: vitest shim v4 mocks RN Modal (real Modal's DEV AppContainer path silently corrupts later test renders after in-modal change events) + I18nManager turbo constants + ScrollView.Context — components use the real RN Modal API; changeText-inside-act + re-query laws documented in test files
+- [Phase 03]: 03-05: home list ordering is repository-owned (updated_at desc) — ChartList renders rows in the exact order received, never sorts (D-11); useWorkspaceCharts wraps platform availability (enabled false on web → WebUnsupported, no storage code path mounts, D-03)
+- [Phase 03]: 03-05: /chart/saved takes the id param ONLY — useWorkspaceChart(['charts', chartId]) reads getChartDetail, never a router-param envelope (T-03-16); zero-network reopen is test-enforced via stubbed global fetch (T-03-15); failures fail closed through the typed open-failed card, never partial, never a /birth redirect
+- [Phase 03]: 03-05: under the RN shim, presses on query-mounted screens go through fireEvent.press on the accessible host — userEvent's pressability sequence is torn down by live-query re-renders (extends the 03-04 act-queue law)
 
 ### Pending Todos
 
@@ -152,6 +156,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-27T19:11:22.266Z
-Stopped at: Completed 03-04-PLAN.md
+Last session: 2026-08-27T19:29:58.399Z
+Stopped at: Completed 03-05-PLAN.md
 Resume file: None
