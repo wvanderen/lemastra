@@ -55,7 +55,7 @@ export function RenameControl({ label, onCommit }: RenameControlProps) {
             setEditing(true);
           }}
           hitSlop={Spacing.two}
-          style={styles.trigger}
+          style={styles.action}
           testID="rename-trigger"
         >
           <ThemedText type="small" style={styles.actionLabel}>

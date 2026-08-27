@@ -1,5 +1,5 @@
 import { router, useLocalSearchParams } from "expo-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 
 import { resultIdentityLine, resultValidationStatus } from "@/components/birth/copy";
@@ -8,10 +8,20 @@ import { PlacementList } from "@/components/chart/placement-list";
 import { ProvenanceDetails } from "@/components/chart/provenance-details";
 import { UnavailableFactors } from "@/components/chart/unavailable-factors";
 import { ThemedText } from "@/components/themed-text";
-import { LOADING_CHART, OPEN_FAILED_ERROR_COPY } from "@/components/workspace/copy";
+import {
+  DELETE_ERROR_COPY,
+  EXPORT_ERROR_COPY,
+  LOADING_CHART,
+  OPEN_FAILED_ERROR_COPY,
+} from "@/components/workspace/copy";
+import { DataActions } from "@/components/workspace/data-actions";
+import { DeleteConfirm } from "@/components/workspace/delete-confirm";
 import { ErrorCard } from "@/components/workspace/error-card";
+import { RenameControl } from "@/components/workspace/rename-control";
+import { WebUnsupported } from "@/components/workspace/web-unsupported";
 import { MaxContentWidth, Spacing } from "@/constants/theme";
-import { useWorkspaceChart } from "@/hooks/use-workspace";
+import { useDeleteChart, useRenameChart, useWorkspaceChart } from "@/hooks/use-workspace";
+import { buildExportPayload, exportChartRevision } from "@/lib/workspace/export";
 
 /**
  * /chart/saved — the saved-chart detail screen (WORK-03, D-02 reopen
@@ -32,21 +42,43 @@ import { useWorkspaceChart } from "@/hooks/use-workspace";
  * flow for a saved chart. An unknown id (repository null) or a missing
  * param redirects home.
  *
- * Layout (03-UI-SPEC §"/chart/saved"): Display title (the chart label)
- * → identity line (stored identity + confidence) → PlacementList →
- * AssumptionsLine (adjust action unchanged this plan) →
- * ProvenanceDetails → validation status → UnavailableFactors. History,
- * rename, export, and delete arrive in later plans.
+ * Chart controls (03-06): inline rename at the title (D-12), and the
+ * end-of-screen data-actions card — export (D-13: latest revision as
+ * pretty JSON through the capability-gated share sheet) and delete
+ * (D-14: modal-confirm-gated transactional cascade; success dismisses
+ * the detail home, failure renders the exact error deck with Try
+ * again and removes nothing). History arrives in a later plan.
  */
+
+/** Export flow state — every outcome is a real rendered surface, never a toast. */
+type ExportState = "idle" | "pending" | "unavailable" | "failed";
+
 export default function SavedChartScreen() {
   const params = useLocalSearchParams<{ id?: string }>();
   const chartId = typeof params.id === "string" ? params.id : "";
   const detailQuery = useWorkspaceChart(chartId);
+  const renameMutation = useRenameChart(chartId);
+  const deleteMutation = useDeleteChart(chartId);
+
+  const [confirmVisible, setConfirmVisible] = useState(false);
+  const [exportState, setExportState] = useState<ExportState>("idle");
 
   // Unknown chart (repository null) or missing id → home, never /birth.
   useEffect(() => {
     if (chartId.length === 0 || detailQuery.data === null) router.replace("/");
   }, [chartId, detailQuery.data]);
+
+  // Delete success → the detail is dismissed home; the list refreshes
+  // via the mutation's ['charts'] invalidation (Pitfall 10).
+  useEffect(() => {
+    if (deleteMutation.isSuccess) router.replace("/");
+  }, [deleteMutation.isSuccess]);
+
+  // Delete failure → the modal closes; the error card owns recovery
+  // ("Nothing was removed. Try again." — nothing is silently retried).
+  useEffect(() => {
+    if (deleteMutation.isError) setConfirmVisible(false);
+  }, [deleteMutation.isError]);
 
   if (chartId.length === 0 || detailQuery.data === null) return null;
 
@@ -77,11 +109,32 @@ export default function SavedChartScreen() {
   const { envelope, identity } = detail.latest;
   const confidence = envelope.chart_data.birth_time_confidence;
 
+  const runExport = async () => {
+    if (exportState === "pending") return;
+    setExportState("pending");
+    try {
+      const result = await exportChartRevision(
+        buildExportPayload({
+          chartId: detail.chart.chartId,
+          revisionId: detail.latest.revisionId,
+          label: detail.chart.label,
+          identity: detail.latest.identity,
+          envelope: detail.latest.envelope,
+        })
+      );
+      setExportState(result.status === "shared" ? "idle" : "unavailable");
+    } catch {
+      // Honest failure: the file could not be created — nothing lost.
+      setExportState("failed");
+    }
+  };
+
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
-      <ThemedText type="subtitle" accessibilityRole="header">
-        {detail.chart.label}
-      </ThemedText>
+      <RenameControl
+        label={detail.chart.label}
+        onCommit={(label) => renameMutation.mutate(label)}
+      />
       <ThemedText type="small" themeColor="textSecondary">
         {resultIdentityLine(identity, confidence)}
       </ThemedText>
@@ -108,6 +161,49 @@ export default function SavedChartScreen() {
       <UnavailableFactors
         unavailable={envelope.unavailable_factors}
         provisional={envelope.provisional_factors}
+      />
+
+      <DataActions
+        revisionCount={detail.revisionCount}
+        onExport={() => void runExport()}
+        exportPending={exportState === "pending"}
+        onDelete={() => setConfirmVisible(true)}
+        testID="saved-chart-data-actions"
+      />
+
+      {/* Share sheet unavailable — the capability state, not an error (D-03 vocabulary). */}
+      {exportState === "unavailable" ? <WebUnsupported /> : null}
+
+      {/* Export failure — the exact error deck with a working retry. */}
+      {exportState === "failed" ? (
+        <ErrorCard
+          heading={EXPORT_ERROR_COPY.heading}
+          body={EXPORT_ERROR_COPY.body}
+          actionLabel={EXPORT_ERROR_COPY.action}
+          onAction={() => void runExport()}
+          testID="saved-chart-export-error"
+        />
+      ) : null}
+
+      {/* Delete failure — nothing was removed; retry re-runs the confirmed cascade. */}
+      {deleteMutation.isError ? (
+        <ErrorCard
+          heading={DELETE_ERROR_COPY.heading}
+          body={DELETE_ERROR_COPY.body}
+          actionLabel={DELETE_ERROR_COPY.action}
+          onAction={() => deleteMutation.mutate()}
+          testID="saved-chart-delete-error"
+        />
+      ) : null}
+
+      <DeleteConfirm
+        visible={confirmVisible}
+        variant="chart"
+        label={detail.chart.label}
+        revisionCount={detail.revisionCount}
+        pending={deleteMutation.isPending}
+        onConfirm={() => deleteMutation.mutate()}
+        onCancel={() => setConfirmVisible(false)}
       />
     </ScrollView>
   );

@@ -320,7 +320,7 @@ function wiredDetail(label = CURRENT_LABEL): ChartDetail {
     },
     iana_zone: "Europe/Lisbon",
     zone_source: "google",
-  };
+  } as const;
   return {
     chart: {
       chartId: "chart-1",

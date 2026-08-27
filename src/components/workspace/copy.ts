@@ -206,3 +206,22 @@ export const DELETE_ALL_BODY =
 
 /** Delete-all confirm — full action label (a11y contract). */
 export const DELETE_ALL_CONFIRM = "Delete everything";
+
+// ---------------------------------------------------------------------------
+// Data actions card (/chart/saved end-of-screen card, D-13/D-14)
+// ---------------------------------------------------------------------------
+
+/** Export action row label (Body/600, default text). */
+export const EXPORT_CHART_DATA = "Export chart data";
+
+/** Export helper — what the file contains (Label, textSecondary). */
+export const EXPORT_CHART_HELPER =
+  "Creates a JSON file with this chart's full data and provenance.";
+
+/** Export pending state on the trigger (the deck's export-pending literal). */
+export const EXPORT_PENDING = "Creating file…";
+
+/** Delete helper — the cascade scope with the revision count (Label, textSecondary). */
+export function deleteChartActionHelper(revisionCount: number): string {
+  return `Removes this chart and its ${revisionCount} revision(s) from this device.`;
+}

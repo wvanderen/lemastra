@@ -1,9 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import {
+  deleteChart,
   getChartDetail,
   isWorkspaceStorageAvailable,
   listCharts,
+  renameChart,
   saveChart,
   type SaveChartInput,
   type SaveChartResult,
@@ -82,5 +84,42 @@ export function useWorkspaceChart(chartId: string) {
     queryFn: () => getChartDetail(chartId),
     enabled: chartId.length > 0 && isWorkspaceStorageAvailable(),
     retry: false,
+  });
+}
+
+/**
+ * useRenameChart — D-12: mutates chart METADATA only (the repository
+ * revalidates the label bounds on write; revisions are never
+ * touched). Invalidating the list key sweeps the detail key joined
+ * under it (Pitfall 10), so the title and home list refresh together.
+ * POST-once: no auto-retry.
+ */
+export function useRenameChart(chartId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (label: string) => renameChart(chartId, label),
+    retry: false,
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: CHARTS_QUERY_KEY });
+    },
+  });
+}
+
+/**
+ * useDeleteChart — D-14: the explicit transactional cascade (chart +
+ * all revisions) behind the shared DeleteConfirm modal. Same Pitfall-10
+ * invalidation map as rename; POST-once — a failed delete surfaces to
+ * the error card, never silently retried.
+ */
+export function useDeleteChart(chartId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: () => deleteChart(chartId),
+    retry: false,
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: CHARTS_QUERY_KEY });
+    },
   });
 }

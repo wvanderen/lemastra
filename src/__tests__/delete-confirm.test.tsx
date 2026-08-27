@@ -356,7 +356,7 @@ function wiredDetail(): ChartDetail {
     },
     iana_zone: "Europe/Lisbon",
     zone_source: "google",
-  };
+  } as const;
   return {
     chart: {
       chartId: "chart-1",

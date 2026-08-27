@@ -94,19 +94,17 @@ vi.mock("@/lib/workspace/repository", async (importOriginal) => {
 });
 
 // The export module pulls expo-file-system/expo-sharing (device APIs —
-// no vitest alias); the screen imports it for the D-13 flow, so the
-// seam is mocked here. buildExportPayload stays the real pure builder
-// so the captured payload reflects the true export document.
+// no vitest alias), so importing the real module for the pure builder
+// would drag expo-modules-core into the node graph. The factory keeps
+// a pure identity buildExportPayload (same document, same fields) and
+// captures exportChartRevision calls.
 const exportModule = vi.hoisted(() => ({
   exportChartRevision: vi.fn(),
 }));
-vi.mock("@/lib/workspace/export", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/lib/workspace/export")>();
-  return {
-    ...actual,
-    exportChartRevision: exportModule.exportChartRevision,
-  };
-});
+vi.mock("@/lib/workspace/export", () => ({
+  buildExportPayload: (input: unknown) => input,
+  exportChartRevision: exportModule.exportChartRevision,
+}));
 
 let render: typeof rtlRender;
 let cleanup: () => Promise<void>;
