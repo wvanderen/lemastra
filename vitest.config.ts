@@ -43,6 +43,12 @@ export default defineConfig({
       { find: /^@\/assets\/(.*)$/, replacement: path.resolve(dirname, "assets/$1") },
       { find: /^@\/(.*)$/, replacement: path.resolve(dirname, "src/$1") },
       { find: /^react-native$/, replacement: path.join(facadeDir, "rn-require-facade.cjs") },
+      // expo-sqlite → node:sqlite-backed test facade (03-01). Unlike the
+      // react-native facade this is a committed TypeScript module (no
+      // prebundling needed — it only uses node builtins); it implements
+      // exactly the drizzle expo-sqlite session call surface. See
+      // scripts/vitest/expo-sqlite-facade/README.md.
+      { find: /^expo-sqlite$/, replacement: path.join(dirname, "scripts/vitest/expo-sqlite-facade/index.ts") },
     ],
   },
   test: {

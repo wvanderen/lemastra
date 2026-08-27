@@ -1,6 +1,12 @@
 import { afterEach, describe, expect, it } from "vitest";
 
-import { drizzle } from "drizzle-orm/expo-sqlite";
+// Deep driver subpath, not the barrel: drizzle-orm/expo-sqlite's index
+// re-exports query.js (the useLiveQuery React hook), whose top-level
+// `import { addDatabaseChangeListener } from "expo-sqlite"` drags the
+// REAL native package into the graph at module load. The driver subpath
+// is a first-class export of drizzle-orm's exports map and contains
+// everything the data layer uses.
+import { drizzle } from "drizzle-orm/expo-sqlite/driver";
 import { eq } from "drizzle-orm";
 import { int, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
@@ -55,19 +61,24 @@ describe("expo-sqlite facade return shapes", () => {
     const db = SQLite.openDatabaseSync(DB_NAME);
     db.execSync("CREATE TABLE t (id INTEGER PRIMARY KEY, body TEXT NOT NULL)");
 
-    const result = db.prepareSync("INSERT INTO t (body) VALUES (?)").executeSync(["alpha"]);
+    const run = db.prepareSync("INSERT INTO t (body) VALUES (?)").executeSync(["alpha"]);
 
     // drizzle session.js destructures { changes, lastInsertRowId } from
     // executeSync — both numeric (node:sqlite names it lastInsertRowid
-    // with a lowercase d; the facade must map it).
-    expect(result.changes).toBe(1);
-    expect(typeof result.changes).toBe("number");
-    expect(result.lastInsertRowId).toBe(1);
-    expect(typeof result.lastInsertRowId).toBe("number");
+    // with a lowercase d; the facade must map it). drizzle's run() path
+    // reads only these two fields — getters are never called on
+    // mutation statements, so the contract pins them on SELECTs only.
+    expect(run.changes).toBe(1);
+    expect(typeof run.changes).toBe("number");
+    expect(run.lastInsertRowId).toBe(1);
+    expect(typeof run.lastInsertRowId).toBe("number");
+
+    // Row getters on a SELECT statement return column-named row objects,
+    // stable across repeated calls (expo-sqlite caches the result set).
+    const result = db.prepareSync("SELECT id, body FROM t").executeSync([]);
     expect(typeof result.getAllSync).toBe("function");
     expect(typeof result.getFirstSync).toBe("function");
-
-    // Row getters return column-named row objects (expo-sqlite semantics).
+    expect(result.getAllSync()).toEqual([{ id: 1, body: "alpha" }]);
     expect(result.getAllSync()).toEqual([{ id: 1, body: "alpha" }]);
     expect(result.getFirstSync()).toEqual({ id: 1, body: "alpha" });
 
@@ -136,7 +147,13 @@ describe("drizzle driver over the facade (T-03-02 compatibility proof)", () => {
   });
 
   it("runs insert/select/delete-with-where and transaction blocks", () => {
-    const db = drizzle(SQLite.openDatabaseSync("drizzle-roundtrip.db"));
+    // drizzle is not a DDL tool — create the table on the same handle the
+    // driver will use (the facade memoizes handles by name).
+    const client = SQLite.openDatabaseSync("drizzle-roundtrip.db");
+    client.execSync(
+      "CREATE TABLE facade_notes (id INTEGER PRIMARY KEY AUTOINCREMENT, body TEXT NOT NULL)"
+    );
+    const db = drizzle(client);
 
     // insert (executeSync path)
     const inserted = db.insert(notes).values({ body: "alpha" }).run();
