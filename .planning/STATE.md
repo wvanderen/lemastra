@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 03
 current_phase_name: private-local-workspace
 status: executing
-stopped_at: Completed 03-03-PLAN.md
-last_updated: "2026-08-27T18:37:54.755Z"
+stopped_at: Completed 03-04-PLAN.md
+last_updated: "2026-08-27T19:11:42.620Z"
 last_activity: 2026-08-27
 last_activity_desc: Phase 03 execution started
 progress:
   total_phases: 10
   completed_phases: 2
   total_plans: 24
-  completed_plans: 19
+  completed_plans: 20
   percent: 20
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-08-26)
 ## Current Position
 
 Phase: 03 (private-local-workspace) — EXECUTING
-Plan: 4 of 8
+Plan: 5 of 8
 Status: Ready to execute
 Last activity: 2026-08-27 — Phase 03 execution started
 
@@ -72,6 +72,7 @@ Progress: [████████████████████] 16/16 p
 | Phase 03 P01 | 18 min | 3 tasks | 15 files |
 | Phase 03 P02 | 7 min | 2 tasks | 3 files |
 | Phase 03 P03 | 11 min | 3 tasks | 6 files |
+| Phase 03 P04 | 31 min | 2 tasks | 11 files |
 
 ## Accumulated Context
 
@@ -123,6 +124,8 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - [Phase 03-03]: Workspace dedupe matches the (chart, input_revision) PAIR, not just the latest row — re-saving any prior basis returns appended:false instead of tripping the unique index (Pitfall 4; plan's latest-row wording stays the primary path) — The unique (chart_id, input_revision) index is a backstop, not the UX path; a pair lookup keeps legitimate already-saved states typed and silent
 - [Phase 03-03]: WorkspaceError adds UNAVAILABLE to the four planned codes; every repository op short-circuits with a typed error on web before touching the database (D-03 gate) — Screens need a typed, catchable unavailability to render the saved-charts-require-the-app degradation state
 - [Phase 03-03]: listCharts = two summary queries (charts by updated_at desc + revision summary scan reduced per chart) — never parses envelope JSON, avoids SQLite groupwise-max bare-column quirks — Deterministic latest-per-chart at personal-workspace scale with summary-column-only reads (D-11)
+- [Phase ?]: [Phase 03-04]: The request param contract = storedCalculationInputsSchema exactly — time_resolution carries the chosen resolve OPTION ({mode, label, utc}) and time is the display form ("" for Unknown) so 03-07 revise prefill maps stored inputs directly; the param guards SEPARATELY from the redirect (malformed/absent disables save, never redirects — T-03-12)
+- [Phase ?]: [Phase 03-04]: vitest shim v4 mocks RN Modal (real Modal's DEV AppContainer path silently corrupts later test renders after in-modal change events) + I18nManager turbo constants + ScrollView.Context — components use the real RN Modal API; changeText-inside-act + re-query laws documented in test files
 
 ### Pending Todos
 
@@ -149,6 +152,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-27T18:37:54.749Z
-Stopped at: Completed 03-03-PLAN.md
+Last session: 2026-08-27T19:11:22.266Z
+Stopped at: Completed 03-04-PLAN.md
 Resume file: None
