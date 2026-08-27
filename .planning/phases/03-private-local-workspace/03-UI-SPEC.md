@@ -1,10 +1,11 @@
 ---
 phase: 3
 slug: private-local-workspace
-status: draft
+status: approved
 shadcn_initialized: false
 preset: none
 created: 2026-08-27
+reviewed_at: 2026-08-27
 ---
 
 # Phase 3 — UI Design Contract
