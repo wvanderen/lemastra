@@ -84,8 +84,8 @@
 
 - [ ] **PRIV-01**: Charts, conversations, analyses, and reports are private and local by default.
 - [ ] **PRIV-02**: The app sends only the user-approved bounded payload to the selected calculation, place/time, or model provider.
-- [ ] **PRIV-03**: Birth data, chart content, questions, conversations, and report prose are excluded from product analytics.
-- [ ] **PRIV-04**: Logs and crash telemetry redact provider credentials and sensitive astrology payloads.
+- [x] **PRIV-03**: Birth data, chart content, questions, conversations, and report prose are excluded from product analytics.
+- [x] **PRIV-04**: Logs and crash telemetry redact provider credentials and sensitive astrology payloads.
 - [ ] **PRIV-05**: User can export all personal data stored locally by the app.
 - [ ] **PRIV-06**: User can delete all personal data stored locally by the app.
 - [x] **PRIV-07**: User can review current provider, retention, and data-transmission disclosures before enabling remote calculation or model features.
@@ -215,8 +215,8 @@ Every v1 requirement maps to exactly one roadmap phase.
 | REPT-06 | Phase 9 | Pending |
 | PRIV-01 | Phase 3 | Pending |
 | PRIV-02 | Phase 7 | Pending |
-| PRIV-03 | Phase 3 | Pending |
-| PRIV-04 | Phase 3 | Pending |
+| PRIV-03 | Phase 3 | Complete |
+| PRIV-04 | Phase 3 | Complete |
 | PRIV-05 | Phase 3 | Pending |
 | PRIV-06 | Phase 3 | Pending |
 | PRIV-07 | Phase 1 | Complete |

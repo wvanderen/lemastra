@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 03
 current_phase_name: private-local-workspace
 status: executing
-stopped_at: Phase 3 UI-SPEC approved
-last_updated: "2026-08-27T18:16:22.162Z"
+stopped_at: Completed 03-02-PLAN.md
+last_updated: "2026-08-27T18:25:07.047Z"
 last_activity: 2026-08-27
 last_activity_desc: Phase 03 execution started
 progress:
   total_phases: 10
   completed_phases: 2
   total_plans: 24
-  completed_plans: 17
+  completed_plans: 18
   percent: 20
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-08-26)
 ## Current Position
 
 Phase: 03 (private-local-workspace) — EXECUTING
-Plan: 2 of 8
+Plan: 3 of 8
 Status: Ready to execute
 Last activity: 2026-08-27 — Phase 03 execution started
 
@@ -70,6 +70,7 @@ Progress: [████████████████████] 16/16 p
 | Phase 02 P08 | 16 min | 3 tasks | 17 files |
 | Phase 02 P09 | 9 min | 2 tasks | 13 files |
 | Phase 03 P01 | 18 min | 3 tasks | 15 files |
+| Phase 03 P02 | 7 min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -116,6 +117,8 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - [Phase ?]: 02-09: zone_source travels in the identity param (confirm→result) for the CALC-03 place-resolution row — server provenance has no zone fields by design and the API is frozen this phase; identity without it redirects
 - [Phase ?]: 02-09: one degree split (floor + rounded minutes, 60′ carry) feeds BOTH the D°MM′ visual and the spoken a11y sentence (A-UI-4/T-02-36); per-placement notes stay unrendered — the provisional_factors card is the D-10 Moon-caveat surface
 - [Phase 03]: 03-01: drizzle imported from deep drizzle-orm/expo-sqlite/driver subpath (never the barrel — useLiveQuery re-export's top-level expo-sqlite import drags the native package into non-device graphs); vitest serves the generated drizzle/migrations.js as a virtual ESM module assembled from committed journal+sql artifacts; facade row getters memoize per result (expo executes once, node:sqlite re-executes)
+- [Phase 03]: [Phase 03] 03-02: redact() is a default-deny ALLOWLIST whose allowlisted containers are shallow-filtered ONE level with the same allowlist (primitive-only leaves, arrays/deeper objects dropped wholesale) — satisfies the nested birth-data strip behavior without deep-merging untrusted structure — Plan behavior row requires birth-data keys stripped even when nested one level deep inside an allowlisted container object; one-level re-application of the allowlist keeps the output bounded and inspectable
+- [Phase 03]: [Phase 03] 03-02: D-16 telemetry posture is build-enforced, not promised: telemetry-guard.test.ts (dependency + import + console-token scans, no exemption file) runs in the mandatory CI vitest job; logger in src/lib/redact.ts is the only sanctioned console surface and the seam Phase-7+ Sentry beforeSend must inherit — PRIV-03/PRIV-04 mapped to fail-hard tests (T-03-04/05/06); positive control mutation-verified 2026-08-27 (stray console.log tripped exit 1, reverted)
 
 ### Pending Todos
 
@@ -142,6 +145,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-27T18:16:15.139Z
-Stopped at: Phase 3 UI-SPEC approved
-Resume file: .planning/phases/03-private-local-workspace/03-UI-SPEC.md
+Last session: 2026-08-27T18:25:07.041Z
+Stopped at: Completed 03-02-PLAN.md
+Resume file: None
