@@ -1,6 +1,8 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import {
+  isWorkspaceStorageAvailable,
+  listCharts,
   saveChart,
   type SaveChartInput,
   type SaveChartResult,
@@ -17,8 +19,8 @@ import {
  *
  * Query-key convention (03-RESEARCH Pitfall 10): `['charts']` is the
  * list key; every mutation that changes saved-chart state invalidates
- * it so the home list refreshes. Detail keys join per-chart in later
- * plans on top of this same constant.
+ * it so the home list refreshes. Detail keys join per-chart on top of
+ * the same constant.
  */
 
 /** The saved-charts list query key (Pitfall 10 invalidation map). */
@@ -36,4 +38,23 @@ export function useSaveChart() {
       void queryClient.invalidateQueries({ queryKey: CHARTS_QUERY_KEY });
     },
   });
+}
+
+/**
+ * useWorkspaceCharts — the home list query (D-09/D-11) over the
+ * repository seam. Ordering is the repository's (updated_at desc); the
+ * component renders rows in the order received.
+ *
+ * On web the query never mounts (`enabled: false` — no storage code
+ * path, D-03): `data` stays undefined and `available` is false, so
+ * callers render the WebUnsupported card instead of the list.
+ */
+export function useWorkspaceCharts() {
+  const available = isWorkspaceStorageAvailable();
+  const query = useQuery({
+    queryKey: CHARTS_QUERY_KEY,
+    queryFn: () => listCharts(),
+    enabled: available,
+  });
+  return { ...query, available };
 }

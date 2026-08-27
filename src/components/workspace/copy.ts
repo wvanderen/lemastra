@@ -1,13 +1,16 @@
+import type { Confidence } from "@/lib/api-schemas";
+
 /**
- * Workspace copy deck (03-UI-SPEC §"Copy Deck" save-flow block +
- * §"Error states" workspace rows).
+ * Workspace copy deck (03-UI-SPEC §"Copy Deck" home-workspace +
+ * save-flow blocks + §"Error states" workspace rows).
  *
- * Exact approved strings for the D-10 save flow (CTA, prompt modal,
- * saved/dedupe states) and the workspace error classes consumed by
- * ErrorCard. Components never paraphrase these; tests assert them
- * exactly (chart/copy.ts law). `{…}` values interpolated from
- * repository data arrive at call sites and render verbatim — never
- * reworded, never invented (trust-boundary display rules).
+ * Exact approved strings for the D-09/D-11 home list, the D-03 web
+ * degradation card, the D-10 save flow (CTA, prompt modal, saved/dedupe
+ * states), and the workspace error classes consumed by ErrorCard.
+ * Components never paraphrase these; tests assert them exactly
+ * (chart/copy.ts law). `{…}` values interpolated from repository data
+ * arrive at call sites and render verbatim — never reworded, never
+ * invented (trust-boundary display rules).
  *
  * Interpretation prose is FORBIDDEN here by construction (T-02-34
  * discipline): every exported string is a label, a template over
@@ -45,6 +48,58 @@ export const SAVED_STATE = "Saved ✓";
 
 /** Dedupe helper — the (chart, input_revision) pair already exists (D-06). */
 export const DEDUPE_HELPER = "Already saved with these exact details.";
+
+// ---------------------------------------------------------------------------
+// Home workspace (03-UI-SPEC §"Copy Deck", Home workspace additions)
+// ---------------------------------------------------------------------------
+
+/** Home CTA once ≥1 chart is saved — "your first" only while empty (A-3-UI-5). */
+export const HOME_CTA_WITH_CHARTS = "Calculate a chart";
+
+/** Home section heading — renders ONLY when ≥1 saved chart exists (D-09). */
+export const SAVED_CHARTS_HEADING = "Saved charts";
+
+/** List-row identity line — "{date} · {place}" (result identity vocabulary, D-11). */
+export function chartRowIdentity(date: string, placeLabel: string): string {
+  return `${date} · ${placeLabel}`;
+}
+
+/**
+ * Confidence chip marker — rendered ONLY when confidence ≠ "Timed"
+ * (D-11 present-only slot; "Unknown" spells out "Unknown time").
+ */
+export function confidenceMarker(confidence: Confidence): string | null {
+  if (confidence === "Timed") return null;
+  if (confidence === "Unknown") return "Unknown time";
+  return confidence; // "Approximate" | "Rectified" — marker equals the label
+}
+
+/** Revision-count chip — "{n} revisions", rendered ONLY when n > 1 (D-11). */
+export function revisionsLabel(count: number): string {
+  return `${count} revisions`;
+}
+
+/** Row a11y label — "{label}, {date}, {place}{, confidence}{, n revisions}. Opens the chart." */
+export function chartRowA11yLabel(row: {
+  label: string;
+  date: string;
+  placeLabel: string;
+  confidence: Confidence;
+  revisionCount: number;
+}): string {
+  const segments = [row.label, row.date, row.placeLabel];
+  const marker = confidenceMarker(row.confidence);
+  if (marker !== null) segments.push(marker);
+  if (row.revisionCount > 1) segments.push(revisionsLabel(row.revisionCount));
+  return `${segments.join(", ")}. Opens the chart.`;
+}
+
+/** Web degradation card heading (D-03 — capability state, not an error). */
+export const WEB_UNSUPPORTED_HEADING = "Saved charts are available in the app";
+
+/** Web degradation card body (A-3-UI-9 — states the privacy reason). */
+export const WEB_UNSUPPORTED_BODY =
+  "Charts are stored only on your device. Saving, reopening, and exporting work in the LemAstra app on iOS or Android.";
 
 // ---------------------------------------------------------------------------
 // Workspace error deck (03-UI-SPEC §"Error states")
