@@ -129,6 +129,7 @@ None yet.
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
 | 260826-tob | Fix aspect schema contract mismatch (applying/separating optional presence flags) — real calculate responses failed zod parse, rendering the network-error banner | 2026-08-27 | 9036b6b | [260826-tob-fix-aspect-schema-contract-mismatch-calc](./quick/260826-tob-fix-aspect-schema-contract-mismatch-calc/) |
+| 2 | Fix PR #1 CI failures: gitleaks false-positive disposition (vendored tz_smoke_test IANA constant) + atomic RN prebundle writes for cold-cache vitest workers | 2026-08-27 | 2a24bba | — |
 
 ## Deferred Items
 
