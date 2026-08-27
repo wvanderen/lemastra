@@ -251,7 +251,11 @@ describe("saveChart", () => {
       saveChart({
         label: "Valid label",
         envelope: envelope("ddd111222333"),
-        inputs: { ...storedInputs(), confidence: "guessed" },
+        // Constructed through a JSON boundary so the deliberately-invalid
+        // confidence reaches zod at runtime instead of failing tsc.
+        inputs: JSON.parse(
+          JSON.stringify({ ...storedInputs(), confidence: "guessed" })
+        ),
         identity: { ...IDENTITY },
       })
     ).rejects.toMatchObject({ code: "VALIDATION" });

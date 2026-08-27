@@ -1,5 +1,22 @@
-import type { CalculateResponse, Confidence } from "@/lib/api-schemas";
-import type { StoredCalculationInputs, StoredIdentity } from "./schema";
+import { and, desc, eq } from "drizzle-orm";
+import { Platform } from "react-native";
+
+import {
+  calculateResponseSchema,
+  type CalculateResponse,
+  type Confidence,
+} from "@/lib/api-schemas";
+import { getWorkspaceDb } from "./db";
+import { newChartId, newRevisionId } from "./ids";
+import { labelSchema } from "./label";
+import {
+  chartRevisions,
+  charts,
+  storedCalculationInputsSchema,
+  storedIdentitySchema,
+  type StoredCalculationInputs,
+  type StoredIdentity,
+} from "./schema";
 
 /**
  * Workspace repository (D-03 adapter seam) — the ONLY persistence module.
@@ -168,4 +185,335 @@ export interface WorkspaceRepository {
   deleteAllData(): Promise<void>;
   /** Native true, web false — the D-03 gate screens consume this. */
   isWorkspaceStorageAvailable(): boolean;
+}
+
+// ---------------------------------------------------------------------------
+// SQLite implementation (function-per-operation over getWorkspaceDb())
+// ---------------------------------------------------------------------------
+
+/**
+ * D-03 native gate: persistence targets iOS/Android. On web every
+ * operation short-circuits with a typed UNAVAILABLE error so screens can
+ * render the "saved charts require the app" degradation state — no web
+ * storage code path exists this phase.
+ */
+export function isWorkspaceStorageAvailable(): boolean {
+  return Platform.OS !== "web";
+}
+
+function requireStorageAvailable(): void {
+  if (!isWorkspaceStorageAvailable()) {
+    throw new WorkspaceError({
+      code: "UNAVAILABLE",
+      message: "Saved charts require the app — workspace storage is native-only.",
+    });
+  }
+}
+
+/** D-02 pre-write gate: a schema failure is a typed VALIDATION error. */
+function parseOrThrow<T>(parse: () => T): T {
+  try {
+    return parse();
+  } catch {
+    throw new WorkspaceError({
+      code: "VALIDATION",
+      message: "The chart payload failed its contract and was not saved (D-02).",
+    });
+  }
+}
+
+/** Pitfall 1 typed reopen: stored data that no longer parses fails loudly. */
+function parseRevisionAtRead(row: {
+  id: string;
+  input_revision: string;
+  envelope: unknown;
+  inputs: unknown;
+  identity: unknown;
+  created_at: Date;
+}): RevisionContent {
+  try {
+    return {
+      revisionId: row.id,
+      inputRevision: row.input_revision,
+      envelope: calculateResponseSchema.parse(row.envelope),
+      inputs: storedCalculationInputsSchema.parse(row.inputs),
+      identity: storedIdentitySchema.parse(row.identity),
+      createdAt: row.created_at,
+    };
+  } catch {
+    throw new WorkspaceError({
+      code: "OPEN_FAILED",
+      message:
+        "A saved revision failed its stored contract on read — it will not render partially.",
+    });
+  }
+}
+
+/** Re-throw typed errors untouched; wrap engine failures as the given code. */
+function toWorkspaceError(error: unknown, code: WorkspaceErrorCode): WorkspaceError {
+  if (error instanceof WorkspaceError) return error;
+  return new WorkspaceError({
+    code,
+    message: error instanceof Error ? error.message : "Workspace database error.",
+  });
+}
+
+type RevisionRow = typeof chartRevisions.$inferSelect;
+
+export async function saveChart(input: SaveChartInput): Promise<SaveChartResult> {
+  requireStorageAvailable();
+
+  // Parse-then-trust BEFORE any transaction (D-02): the envelope goes
+  // through the API contract, the label/inputs/identity through the
+  // stored contracts. The digest is READ from the parsed envelope's
+  // provenance — never re-derived on the client (D-06).
+  const label = parseOrThrow(() => labelSchema.parse(input.label));
+  const envelope = parseOrThrow(() => calculateResponseSchema.parse(input.envelope));
+  const inputs = parseOrThrow(() => storedCalculationInputsSchema.parse(input.inputs));
+  const identity = parseOrThrow(() => storedIdentitySchema.parse(input.identity));
+  const digest = envelope.provenance.input_revision;
+
+  const db = await getWorkspaceDb();
+  try {
+    return db.transaction((tx) => {
+      const now = new Date();
+      let chartId = input.chartId;
+
+      if (chartId === undefined) {
+        // New identity: chart row + first revision commit together or not
+        // at all (Pattern 4).
+        chartId = newChartId();
+        tx.insert(charts)
+          .values({ id: chartId, label, created_at: now, updated_at: now })
+          .run();
+      } else {
+        const chart = tx.select({ id: charts.id }).from(charts).where(eq(charts.id, chartId)).get();
+        if (!chart) {
+          throw new WorkspaceError({
+            code: "NOT_FOUND",
+            message: "No saved chart with that id — nothing was appended.",
+          });
+        }
+      }
+
+      // D-06 dedupe — key is (chart, input_revision) (Pitfall 4): an
+      // existing revision with the same server digest means the basis is
+      // unchanged, so nothing is written. (Checking the pair, not just
+      // the latest row, keeps the unique index a true backstop: a
+      // re-save of ANY prior basis is the same "already saved" state.)
+      const existing = tx
+        .select({ id: chartRevisions.id })
+        .from(chartRevisions)
+        .where(and(eq(chartRevisions.chart_id, chartId), eq(chartRevisions.input_revision, digest)))
+        .get();
+      if (existing) {
+        return { chartId, revisionId: existing.id, appended: false as const };
+      }
+
+      const revisionId = newRevisionId();
+      tx.insert(chartRevisions)
+        .values({
+          id: revisionId,
+          chart_id: chartId,
+          input_revision: digest,
+          confidence: envelope.chart_data.birth_time_confidence,
+          identity_date: identity.date,
+          identity_place_label: identity.label,
+          envelope,
+          inputs,
+          identity,
+          created_at: now,
+        })
+        .run();
+      tx.update(charts).set({ updated_at: now }).where(eq(charts.id, chartId)).run();
+      return { chartId, revisionId, appended: true as const };
+    });
+  } catch (error) {
+    throw toWorkspaceError(error, "SAVE_FAILED");
+  }
+}
+
+export async function listCharts(): Promise<ChartListItem[]> {
+  requireStorageAvailable();
+  const db = await getWorkspaceDb();
+
+  // Summary-only reads (D-11): the chart table for ordering, then the
+  // revision SUMMARY columns (never envelope JSON) reduced per chart.
+  // Ascending iteration leaves the LAST row per chart = latest revision.
+  const chartRows = db
+    .select({ chartId: charts.id, label: charts.label, updatedAt: charts.updated_at })
+    .from(charts)
+    .orderBy(desc(charts.updated_at))
+    .all();
+  if (chartRows.length === 0) return [];
+
+  const revisionRows = db
+    .select({
+      chartId: chartRevisions.chart_id,
+      date: chartRevisions.identity_date,
+      placeLabel: chartRevisions.identity_place_label,
+      confidence: chartRevisions.confidence,
+    })
+    .from(chartRevisions)
+    .orderBy(chartRevisions.created_at)
+    .all();
+
+  const latest = new Map<string, (typeof revisionRows)[number]>();
+  const counts = new Map<string, number>();
+  for (const row of revisionRows) {
+    counts.set(row.chartId, (counts.get(row.chartId) ?? 0) + 1);
+    latest.set(row.chartId, row);
+  }
+
+  return chartRows.flatMap((chart) => {
+    const summary = latest.get(chart.chartId);
+    if (!summary) return []; // unreachable: chart+revision commit together
+    return [
+      {
+        chartId: chart.chartId,
+        label: chart.label,
+        date: summary.date,
+        placeLabel: summary.placeLabel,
+        confidence: summary.confidence,
+        revisionCount: counts.get(chart.chartId) ?? 0,
+        updatedAt: chart.updatedAt,
+      },
+    ];
+  });
+}
+
+export async function getChartDetail(chartId: string): Promise<ChartDetail | null> {
+  requireStorageAvailable();
+  const db = await getWorkspaceDb();
+
+  const chart = db.select().from(charts).where(eq(charts.id, chartId)).get();
+  if (!chart) return null;
+
+  const revisionRows = db
+    .select()
+    .from(chartRevisions)
+    .where(eq(chartRevisions.chart_id, chartId))
+    .orderBy(desc(chartRevisions.created_at))
+    .all();
+  if (revisionRows.length === 0) return null; // unreachable: append always pairs
+
+  // Parse-then-trust at read (D-02): latest envelope first — a corrupted
+  // row throws OPEN_FAILED before anything partial escapes (Pitfall 1).
+  const latest = parseRevisionAtRead(revisionRows[0] as RevisionRow);
+  const revisions = revisionRows.map((row) => ({
+    revisionId: row.id,
+    createdAt: row.created_at,
+    inputRevision: row.input_revision,
+    inputs: storedCalculationInputsSchema.parse(row.inputs),
+  }));
+
+  return {
+    chart: {
+      chartId: chart.id,
+      label: chart.label,
+      createdAt: chart.created_at,
+      updatedAt: chart.updated_at,
+    },
+    latest,
+    revisionCount: revisionRows.length,
+    revisions,
+  };
+}
+
+export async function getRevisionContent(revisionId: string): Promise<RevisionRead | null> {
+  requireStorageAvailable();
+  const db = await getWorkspaceDb();
+
+  const row = db
+    .select({ revision: chartRevisions, chartLabel: charts.label })
+    .from(chartRevisions)
+    .innerJoin(charts, eq(chartRevisions.chart_id, charts.id))
+    .where(eq(chartRevisions.id, revisionId))
+    .get();
+  if (!row) return null;
+
+  return {
+    chartId: row.revision.chart_id,
+    label: row.chartLabel,
+    revision: parseRevisionAtRead(row.revision as RevisionRow),
+    createdAt: row.revision.created_at,
+  };
+}
+
+export async function renameChart(chartId: string, label: string): Promise<void> {
+  requireStorageAvailable();
+  const parsed = parseOrThrow(() => labelSchema.parse(label));
+  const db = await getWorkspaceDb();
+
+  // D-05: chart metadata ONLY — this update never touches a revision row.
+  const result = db
+    .update(charts)
+    .set({ label: parsed, updated_at: new Date() })
+    .where(eq(charts.id, chartId))
+    .run();
+  if (result.changes === 0) {
+    throw new WorkspaceError({ code: "NOT_FOUND", message: "No saved chart with that id." });
+  }
+}
+
+export async function deleteChart(chartId: string): Promise<void> {
+  requireStorageAvailable();
+  const db = await getWorkspaceDb();
+
+  try {
+    // Explicit cascade (Pitfall 2): revisions then chart, one transaction.
+    // The SQLite foreign_keys pragma is never trusted to do this.
+    db.transaction((tx) => {
+      const chart = tx.select({ id: charts.id }).from(charts).where(eq(charts.id, chartId)).get();
+      if (!chart) {
+        throw new WorkspaceError({ code: "NOT_FOUND", message: "No saved chart with that id." });
+      }
+      tx.delete(chartRevisions).where(eq(chartRevisions.chart_id, chartId)).run();
+      tx.delete(charts).where(eq(charts.id, chartId)).run();
+    });
+  } catch (error) {
+    throw toWorkspaceError(error, "SAVE_FAILED");
+  }
+}
+
+export async function exportAllData(): Promise<ExportedWorkspace> {
+  requireStorageAvailable();
+  const db = await getWorkspaceDb();
+
+  const chartRows = db.select().from(charts).orderBy(charts.created_at).all();
+  const revisionRows = db
+    .select()
+    .from(chartRevisions)
+    .orderBy(chartRevisions.created_at)
+    .all();
+
+  const byChart = new Map<string, RevisionContent[]>();
+  for (const row of revisionRows) {
+    const list = byChart.get(row.chart_id) ?? [];
+    list.push(parseRevisionAtRead(row as RevisionRow)); // parse-then-trust at read
+    byChart.set(row.chart_id, list);
+  }
+
+  return {
+    exportedAt: new Date().toISOString(),
+    charts: chartRows.map((chart) => ({
+      chartId: chart.id,
+      label: chart.label,
+      createdAt: chart.created_at,
+      updatedAt: chart.updated_at,
+      revisions: byChart.get(chart.id) ?? [],
+    })),
+  };
+}
+
+export async function deleteAllData(): Promise<void> {
+  requireStorageAvailable();
+  const db = await getWorkspaceDb();
+
+  // Pitfall 9: personal tables ONLY — the migration journal is engine
+  // bookkeeping and disclosure flags live in AsyncStorage, both spared.
+  db.transaction((tx) => {
+    tx.delete(chartRevisions).run();
+    tx.delete(charts).run();
+  });
 }
