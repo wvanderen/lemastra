@@ -115,12 +115,12 @@ Plans:
   4. User can export one chart's structured data and provenance or export/delete all locally stored personal data.
   5. Charts and later personal artifacts are local and private by default, while analytics, logs, and crash telemetry exclude or redact sensitive content and credentials.
 
-**Plans:** 8 plans
+**Plans:** 1/8 plans executed
 
 Plans:
 **Wave 1**
 
-- [ ] 03-01-PLAN.md — Storage engine: deps (legitimacy-audited), node:sqlite test facade, Drizzle schema + migrations + migration gate (WORK-02 foundation)
+- [x] 03-01-PLAN.md — Storage engine: deps (legitimacy-audited), node:sqlite test facade, Drizzle schema + migrations + migration gate (WORK-02 foundation)
 - [ ] 03-02-PLAN.md — Telemetry guardrails: redact() + sanctioned logger + dependency/import/call-site guard tests (PRIV-03, PRIV-04)
 
 **Wave 2** *(blocked on Wave 1 completion)*
@@ -269,7 +269,7 @@ Plans:
 |-------|----------------|--------|-----------|
 | 1. Trust and Release Boundary | 7/7 | Complete    | 2026-08-23 |
 | 2. Trustworthy Natal Chart | 9/9 | Complete    | 2026-08-26 |
-| 3. Private Local Workspace | 0/8 | Not started | - |
+| 3. Private Local Workspace | 1/8 | In Progress|  |
 | 4. Semantic Chart Exploration | 0/TBD | Not started | - |
 | 5. Natal Transit Workspace | 0/TBD | Not started | - |
 | 6. Repeatable Reading Method | 0/TBD | Not started | - |
