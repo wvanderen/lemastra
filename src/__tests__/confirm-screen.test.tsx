@@ -81,6 +81,14 @@ vi.mock("@/lib/api", async (importOriginal) => {
   };
 });
 
+// The result screen (imported below for the guard tests) consumes the
+// save hook → repository → ids → expo-crypto, whose JS entry reaches
+// native modules — node:crypto UUIDv4 stand-in (03-03 convention).
+vi.mock("expo-crypto", async () => {
+  const nodeCrypto = await import("node:crypto");
+  return { randomUUID: () => nodeCrypto.randomUUID() };
+});
+
 // Acquired in beforeAll (not static imports): RNTL and every module that
 // (transitively) requires react-native must load after the RN test shim
 // has seeded require.cache — see src/test/setup.ts.
@@ -589,10 +597,23 @@ describe("Confirm screen — calculating state and navigation", () => {
 // ---------------------------------------------------------------------------
 
 describe("Result screen (/chart/result) — minimal contract", () => {
+  /** The screen consumes useSaveChart (03-04) — wrap in a fresh client. */
+  async function renderResultScreen() {
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+    });
+    const view = await render(
+      <QueryClientProvider client={client}>
+        <ResultScreen />
+      </QueryClientProvider>
+    );
+    await act(async () => {});
+    return view;
+  }
+
   it("redirects to /birth without a payload", async () => {
     paramsState.value = {};
-    const view = await render(<ResultScreen />);
-    await act(async () => {});
+    const view = await renderResultScreen();
     expect(routerMock.replace).toHaveBeenCalledWith("/birth");
     expect(view.queryByText(RESULT_TITLE)).toBeNull();
   });
@@ -607,8 +628,7 @@ describe("Result screen (/chart/result) — minimal contract", () => {
         zone_source: "google",
       }),
     };
-    await render(<ResultScreen />);
-    await act(async () => {});
+    await renderResultScreen();
     expect(routerMock.replace).toHaveBeenCalledWith("/birth");
   });
 
@@ -623,8 +643,7 @@ describe("Result screen (/chart/result) — minimal contract", () => {
         zone_source: "google",
       }),
     };
-    const view = await render(<ResultScreen />);
-    await act(async () => {});
+    const view = await renderResultScreen();
 
     expect(view.getByText(RESULT_TITLE)).toBeTruthy();
     expect(
@@ -646,8 +665,7 @@ describe("Result screen (/chart/result) — minimal contract", () => {
         zone_source: "google",
       }),
     };
-    const view = await render(<ResultScreen />);
-    await act(async () => {});
+    const view = await renderResultScreen();
 
     expect(
       view.getByText(resultIdentityLine({ date: "1990-05-21", time: "", label: "Lisbon, Portugal" }, "Unknown"))

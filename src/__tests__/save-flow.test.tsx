@@ -255,6 +255,24 @@ function expectInOrder(view: Awaited<ReturnType<typeof render>>, texts: string[]
   }
 }
 
+/** A react-test-renderer JSON node. */
+interface JsonTree {
+  type?: string;
+  props?: Record<string, unknown> & { children?: unknown };
+  children?: JsonTree[];
+}
+
+/** Find a node by testID anywhere in the JSON tree. */
+function findJsonNodeByTestId(root: JsonTree | null, testID: string): JsonTree | null {
+  if (!root) return null;
+  if (root.props && root.props.testID === testID) return root;
+  for (const child of root.children ?? []) {
+    const found = findJsonNodeByTestId(child, testID);
+    if (found) return found;
+  }
+  return null;
+}
+
 // ---------------------------------------------------------------------------
 // Confirm screen — request param threading (Pattern 5 / A6)
 // ---------------------------------------------------------------------------
@@ -418,12 +436,15 @@ describe("result screen — save flow", () => {
     expect(view.queryByTestId("result-save-cta")).toBeNull();
     const chip = view.getByText(SAVED_STATE);
     expect(chip).toBeTruthy();
-    const styles = [].concat(
-      (chip.parent as { props: { style?: unknown } } | null)?.props.style ?? []
-    ) as ReadonlyArray<Record<string, unknown> | number | undefined | null>;
+    const chipParent = chip.parent as { props: { style?: unknown } } | null;
+    const styleValue: unknown = chipParent?.props.style;
+    const styles = (Array.isArray(styleValue) ? styleValue : [styleValue]) as ReadonlyArray<
+      Record<string, unknown> | number | undefined | null
+    >;
     expect(
       styles.some(
-        (style) => typeof style === "object" && style !== null && style.backgroundColor === "#E0E1E6"
+        (style) =>
+          typeof style === "object" && style !== null && style.backgroundColor === "#E0E1E6"
       )
     ).toBe(true);
   });
@@ -478,10 +499,19 @@ describe("result screen — save flow", () => {
 
     await userEvent.press(view.getByTestId("result-save-cta"));
     await userEvent.press(view.getByTestId("save-prompt-confirm"));
-    await act(async () => {});
 
-    expect(view.getByTestId("result-save-cta").props.accessibilityState.disabled).toBe(true);
-    expect(view.getByTestId("save-prompt-confirm").props.accessibilityState.disabled).toBe(true);
+    // While the save hangs, assert the disabled state via the JSON tree:
+    // during a pending mutation RNTL's query traversal misses re-rendered
+    // hosts even though toJSON() shows them (observed under the RN shim).
+    await waitFor(() => {
+      const cta = findJsonNodeByTestId(view.toJSON() as unknown as JsonTree | null, "result-save-cta");
+      expect(cta?.props?.accessibilityState).toEqual({ disabled: true });
+      const confirm = findJsonNodeByTestId(
+        view.toJSON() as unknown as JsonTree | null,
+        "save-prompt-confirm"
+      );
+      expect(confirm?.props?.accessibilityState).toEqual({ disabled: true });
+    });
 
     resolveSave({ chartId: "chart-1", revisionId: "rev-1", appended: true });
     await waitFor(() => expect(view.getByText(SAVED_STATE)).toBeTruthy());

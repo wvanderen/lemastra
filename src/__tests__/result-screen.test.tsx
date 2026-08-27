@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { render as rtlRender } from "@testing-library/react-native/pure";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 
@@ -34,7 +35,21 @@ import type { CalculateResponse } from "@/lib/api-schemas";
 //
 // Test mechanics: RNTL v14 /pure under the RN vitest shim; expo-router
 // mocked (router spies + configurable useLocalSearchParams) — same
-// conventions as confirm-screen.test.tsx.
+// conventions as confirm-screen.test.tsx. Since 03-04 the screen
+// consumes useSaveChart, so renders wrap in a fresh retry-off
+// QueryClient (the repository stays unmocked — no save is triggered).
+
+/** Render the result screen inside a fresh retry-off QueryClient. */
+async function renderScreen(ui: React.ReactElement) {
+  const client = new QueryClient({
+    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+  });
+  const view = await render(
+    <QueryClientProvider client={client}>{ui}</QueryClientProvider>
+  );
+  await act(async () => {});
+  return view;
+}
 
 const routerMock = vi.hoisted(() => ({
   push: vi.fn(),
@@ -48,6 +63,14 @@ vi.mock("expo-router", () => ({
   router: routerMock,
   useLocalSearchParams: () => paramsState.value,
 }));
+
+// The save hook wraps the repository, whose ids module pulls expo-crypto
+// (native entry) — node:crypto UUIDv4 stand-in, the
+// workspace-repository.test.ts convention. No save runs in this file.
+vi.mock("expo-crypto", async () => {
+  const nodeCrypto = await import("node:crypto");
+  return { randomUUID: () => nodeCrypto.randomUUID() };
+});
 
 let render: typeof rtlRender;
 let userEvent: typeof import("@testing-library/react-native/pure").userEvent;
@@ -167,9 +190,7 @@ async function renderResult(
     envelope: JSON.stringify(envelope),
     identity: JSON.stringify(identity),
   };
-  const view = await render(<ResultScreen />);
-  await act(async () => {});
-  return view;
+  return renderScreen(<ResultScreen />);
 }
 
 /** Flatten the rendered JSON tree into document-order text nodes. */
@@ -204,8 +225,7 @@ describe("Result screen — guard", () => {
       envelope: '{"chart_data": {}}',
       identity: JSON.stringify(TIMED_IDENTITY),
     };
-    const view = await render(<ResultScreen />);
-    await act(async () => {});
+    const view = await renderScreen(<ResultScreen />);
     expect(routerMock.replace).toHaveBeenCalledWith("/birth");
     expect(view.queryByText(RESULT_TITLE)).toBeNull();
   });
@@ -216,8 +236,7 @@ describe("Result screen — guard", () => {
       envelope: JSON.stringify(timedEnvelope()),
       identity: JSON.stringify(identityWithoutZone),
     };
-    await render(<ResultScreen />);
-    await act(async () => {});
+    await renderScreen(<ResultScreen />);
     expect(routerMock.replace).toHaveBeenCalledWith("/birth");
   });
 });

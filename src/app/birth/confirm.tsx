@@ -155,8 +155,10 @@ export default function ConfirmScreen() {
   // contract).
   const calculate = useMutation({
     mutationFn: (request: CalculateRequest) => postCalculate(request),
-    onSuccess: (envelope) => {
+    onSuccess: (envelope, request) => {
       if (!draft) return;
+      const placeForm = draft.place;
+      if (placeForm === null) return; // unreachable: buildRequest requires a place
       router.push({
         pathname: "/chart/result",
         params: {
@@ -169,6 +171,26 @@ export default function ConfirmScreen() {
             // screen can render the CALC-03 place-resolution row
             // (zone source + provider — 02-09).
             zone_source: draft.resolve.zone_source,
+          }),
+          // Pattern 5 / A6: the built CalculateRequest plus the draft's
+          // place-union branch — exactly the storedCalculationInputs
+          // contract the Save path persists so the D-08 revise flow can
+          // prefill later. time_resolution carries the CHOSEN resolve
+          // option ({mode, label, utc}); time is the display form
+          // ("" for Unknown). Parse-then-trust happens on the result
+          // screen (T-03-12).
+          request: JSON.stringify({
+            date: request.date,
+            time: displayTime,
+            time_resolution: resolution
+              ? draft.resolve.resolved.options.find((option) => option.mode === resolution)
+              : undefined,
+            confidence: request.confidence,
+            house_system: request.house_system,
+            place: request.place,
+            place_form: placeForm,
+            iana_zone: request.iana_zone,
+            zone_source: request.zone_source,
           }),
         },
       });
