@@ -13,7 +13,16 @@
 #   3. An unannotated fingerprint is a gate violation, not a style issue:
 #      silent ignores destroy the scanner's signal.
 #
-# There are currently ZERO fingerprint entries — no publishable identifier is
-# in the client yet (Supabase/Sentry arrive in later phases). When the first
-# real identifier is added, append its fingerprint below the required
+# The first entry below is a scanner false positive on a non-secret upstream
+# fixture (introduced by the 02-01 vendor snapshot), not a client identifier.
+# Future Supabase/Sentry publishable identifiers append below the same
 # class + rationale comment pair.
+
+# class: publishable-identifier
+# rationale: "America/Kentucky/Lexington" — IANA-zone-shaped test constant in the
+#   pinned public vendored skill (vendor/astrology-skill/tools/tz_smoke_test.py L142;
+#   upstream fixture exercising invalid-zone error copy). Public by construction in
+#   the upstream repo, carries no authorization, safe to ship; tripped the
+#   generic-api-key entropy heuristic. A vendor promotion that moves this line
+#   re-flags it — re-verify the class before re-allowlisting.
+1d9772af027f3e49cb09b71f4b46e452b789f484:vendor/astrology-skill/tools/tz_smoke_test.py:generic-api-key:142
