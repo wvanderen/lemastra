@@ -39,13 +39,14 @@ const DEFAULT_LABEL = "1990-05-21 · Lisbon, Portugal";
 
 let render: typeof rtlRender;
 let userEvent: typeof import("@testing-library/react-native/pure").userEvent;
+let fireEvent: typeof import("@testing-library/react-native/pure").fireEvent;
 let cleanup: () => Promise<void>;
 let act: <T>(callback: () => T | Promise<T>) => Promise<T>;
 let SavePrompt: typeof import("@/components/workspace/save-prompt").SavePrompt;
 let ErrorCard: typeof import("@/components/workspace/error-card").ErrorCard;
 
 beforeAll(async () => {
-  ({ render, userEvent, cleanup, act } = await import(
+  ({ render, userEvent, fireEvent, cleanup, act } = await import(
     "@testing-library/react-native/pure"
   ));
   ({ SavePrompt } = await import("@/components/workspace/save-prompt"));
@@ -61,8 +62,8 @@ type PromptOverrides = Partial<{
   visible: boolean;
   defaultLabel: string;
   pending: boolean;
-  onSave: ReturnType<typeof vi.fn>;
-  onCancel: ReturnType<typeof vi.fn>;
+  onSave: (label: string) => void;
+  onCancel: () => void;
 }>;
 
 async function renderPrompt(overrides: PromptOverrides = {}) {
@@ -70,8 +71,8 @@ async function renderPrompt(overrides: PromptOverrides = {}) {
     visible: true,
     defaultLabel: DEFAULT_LABEL,
     pending: false,
-    onSave: vi.fn(),
-    onCancel: vi.fn(),
+    onSave: vi.fn<(label: string) => void>(),
+    onCancel: vi.fn<() => void>(),
     ...overrides,
   };
   const view = await render(<SavePrompt {...props} />);
@@ -136,8 +137,11 @@ describe("SavePrompt — render", () => {
     expect(view.getByText(SAVE_PROMPT_HEADING)).toBeTruthy();
     expect(view.getByText(CHART_NAME_LABEL)).toBeTruthy();
     expect(view.getByText(SAVE_PROMPT_HELPER)).toBeTruthy();
-    // Prefilled with the provided smart default (D-10).
-    expect(view.getByDisplayValue(DEFAULT_LABEL)).toBeTruthy();
+    // Prefilled with the provided smart default (D-10). displayValue
+    // queries target the "TextInput" host type; this shim renders
+    // RCTSinglelineTextInputView, so the value is asserted on the host
+    // element itself.
+    expect(view.getByTestId("save-prompt-input").props.value).toBe(DEFAULT_LABEL);
   });
 
   it("renders nothing while not visible", async () => {
@@ -155,8 +159,12 @@ describe("SavePrompt — validation", () => {
     const { view } = await renderPrompt();
     const input = view.getByTestId("save-prompt-input");
 
-    await userEvent.clear(input);
-    await act(async () => {});
+    // changeText runs INSIDE the act callback (birth-form.test.tsx law
+    // under the RN shim — a bare fireEvent act scope followed by a
+    // separate act leaves the next render's act queue silently empty).
+    await act(async () => {
+      fireEvent.changeText(input, "");
+    });
 
     const error = view.getByText(LABEL_FIELD_ERROR);
     expect(error.props.accessibilityLiveRegion).toBe("polite");
@@ -169,9 +177,9 @@ describe("SavePrompt — validation", () => {
     const { view } = await renderPrompt();
     const input = view.getByTestId("save-prompt-input");
 
-    await userEvent.clear(input);
-    await userEvent.type(input, "   ");
-    await act(async () => {});
+    await act(async () => {
+      fireEvent.changeText(input, "   ");
+    });
 
     expect(view.getByText(LABEL_FIELD_ERROR)).toBeTruthy();
     expect(view.getByTestId("save-prompt-confirm").props.accessibilityState.disabled).toBe(
@@ -181,20 +189,21 @@ describe("SavePrompt — validation", () => {
 
   it("disables confirm and shows the error for a 61-character label, but accepts 60", async () => {
     const { view } = await renderPrompt();
-    const input = view.getByTestId("save-prompt-input");
 
-    await userEvent.clear(input);
-    await userEvent.type(input, "a".repeat(61));
-    await act(async () => {});
+    await act(async () => {
+      fireEvent.changeText(view.getByTestId("save-prompt-input"), "a".repeat(61));
+    });
 
     expect(view.getByText(LABEL_FIELD_ERROR)).toBeTruthy();
     expect(view.getByTestId("save-prompt-confirm").props.accessibilityState.disabled).toBe(
       true
     );
 
-    await userEvent.clear(input);
-    await userEvent.type(input, "a".repeat(60));
-    await act(async () => {});
+    // Re-query after every interaction: TestInstance props are snapshots
+    // of the render they were found in (birth-form.test.tsx notes).
+    await act(async () => {
+      fireEvent.changeText(view.getByTestId("save-prompt-input"), "a".repeat(60));
+    });
 
     expect(view.queryByText(LABEL_FIELD_ERROR)).toBeNull();
     expect(view.getByTestId("save-prompt-confirm").props.accessibilityState.disabled).toBe(
@@ -222,9 +231,9 @@ describe("SavePrompt — confirm/cancel/pending", () => {
     const { view } = await renderPrompt({ onSave });
     const input = view.getByTestId("save-prompt-input");
 
-    await userEvent.clear(input);
-    await userEvent.type(input, "  Sunset chart  ");
-    await act(async () => {});
+    await act(async () => {
+      fireEvent.changeText(input, "  Sunset chart  ");
+    });
 
     await userEvent.press(view.getByTestId("save-prompt-confirm"));
 
@@ -275,18 +284,26 @@ describe("ErrorCard", () => {
     expect(card.props.accessibilityLiveRegion).toBe("polite");
 
     // Error-bordered card (1px error border — the token, resolved light).
-    const styles = [].concat(card.props.style ?? []);
+    const styles = [].concat(card.props.style ?? []) as ReadonlyArray<
+      Record<string, unknown> | number | undefined | null
+    >;
     expect(
       styles.some(
         (style) =>
-          style && typeof style === "object" && style.borderColor === "#B3261E"
+          typeof style === "object" &&
+          style !== null &&
+          style.borderColor === "#B3261E"
       )
     ).toBe(true);
 
     expect(view.getByText(SAVE_ERROR_COPY.heading)).toBeTruthy();
-    expect(view.getByText(SAVE_ERROR_COPY.body)).toBeTruthy();
+    const saveBody = SAVE_ERROR_COPY.body;
+    if (!saveBody) throw new Error("SAVE_ERROR_COPY must define a body");
+    expect(view.getByText(saveBody)).toBeTruthy();
 
-    await userEvent.press(view.getByText(SAVE_ERROR_COPY.action!));
+    const actionLabel = SAVE_ERROR_COPY.action;
+    if (!actionLabel) throw new Error("SAVE_ERROR_COPY must define an action");
+    await userEvent.press(view.getByText(actionLabel));
     expect(onAction).toHaveBeenCalled();
   });
 
@@ -300,7 +317,9 @@ describe("ErrorCard", () => {
     await act(async () => {});
 
     expect(view.getByText(OPEN_FAILED_ERROR_COPY.heading)).toBeTruthy();
-    expect(view.getByText(OPEN_FAILED_ERROR_COPY.body)).toBeTruthy();
+    const openBody = OPEN_FAILED_ERROR_COPY.body;
+    if (!openBody) throw new Error("OPEN_FAILED_ERROR_COPY must define a body");
+    expect(view.getByText(openBody)).toBeTruthy();
     expect(view.queryByText("Try again")).toBeNull();
   });
 });

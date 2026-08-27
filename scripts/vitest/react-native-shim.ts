@@ -34,7 +34,7 @@ import type { Plugin as RolldownPlugin } from "rolldown";
  * shim implementation version.
  */
 
-const SHIM_VERSION = "2";
+const SHIM_VERSION = "4";
 const RN_PLATFORM = "ios"; // matches the react-native jest preset default
 
 const nodeRequire = createRequire(import.meta.url);
@@ -277,6 +277,10 @@ export default class ScrollView extends React.Component {
   }
 }
 ScrollView.displayName = "ScrollView";
+// The real ScrollView module exposes a context Modal resets inside
+// modals (<ScrollView.Context.Provider value={null}>) — the mock class
+// must carry the same shape or Modal rendering crashes on .Provider.
+ScrollView.Context = React.createContext(undefined);
 `;
 
 const MOCK_VIEW_NATIVE_COMPONENT = `
@@ -291,6 +295,28 @@ export default class View extends React.Component {
   }
 }
 View.displayName = "View";
+`;
+
+/**
+ * Modal renders into a separate native presentation layer and its DEV
+ * path drags AppContainer/LogBox/Inspector machinery. Under the test
+ * renderer a change event inside a real Modal corrupts subsequent
+ * renders (empty trees with no error). The mock keeps the component
+ * contract tests rely on — visible=false renders nothing, otherwise
+ * children render beneath a "Modal" host element with all props
+ * (accessibilityViewIsModal, onRequestClose, …) passed through.
+ */
+const MOCK_MODAL = `
+import * as React from "react";
+export default class Modal extends React.Component {
+  render() {
+    if (this.props.visible === false) {
+      return null;
+    }
+    return React.createElement("Modal", this.props, this.props.children);
+  }
+}
+Modal.displayName = "Modal";
 `;
 
 const MOCK_NATIVE_MODULES = `
@@ -370,6 +396,10 @@ const RN_MODULE_MOCKS: ReadonlyArray<{ readonly suffix: string; readonly source:
   { suffix: "Libraries/ReactNative/requireNativeComponent.js", source: MOCK_REQUIRE_NATIVE_COMPONENT },
   { suffix: "Libraries/ReactNative/UIManager.js", source: MOCK_UI_MANAGER },
   { suffix: "Libraries/Components/ScrollView/ScrollView.js", source: MOCK_SCROLL_VIEW },
+  {
+    suffix: "Libraries/Modal/Modal.js",
+    source: MOCK_MODAL,
+  },
   { suffix: "Libraries/Text/Text.js", source: makeMockComponentSource("Text") },
   { suffix: "Libraries/Components/View/View.js", source: makeMockComponentSource("View") },
   { suffix: "Libraries/Components/View/ViewNativeComponent.js", source: MOCK_VIEW_NATIVE_COMPONENT },
@@ -414,6 +444,21 @@ function turboModuleMock(name: string): unknown {
           callback({ app_state: "active" }),
         addListener: () => undefined,
         removeListeners: () => undefined,
+      };
+    case "I18nManager":
+      // RN's I18nManager getters destructure getConstants() eagerly (the
+      // Modal component reads isRTL at render time) — the no-op fallback
+      // returns undefined and crashes the destructure. Mirrors the
+      // I18nManager entry in MOCK_NATIVE_MODULES above.
+      return {
+        getConstants: () => ({
+          isRTL: false,
+          doLeftAndRightSwapInRTL: true,
+          localeIdentifier: "en_US",
+        }),
+        allowRTL: () => undefined,
+        forceRTL: () => undefined,
+        swapLeftAndRightInRTL: () => undefined,
       };
     case "DeviceInfo":
       return {
