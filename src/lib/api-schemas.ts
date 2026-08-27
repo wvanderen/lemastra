@@ -255,7 +255,16 @@ export const aspectSchema = z.looseObject({
   aspect: z.string().describe("Aspect name (conjunction, sextile, square, trine, opposition)."),
   body_b: z.string().describe("Second aspecting body."),
   orb_degrees: z.number().describe("Orb between exact aspect, in degrees."),
-  separating: z.boolean().describe("True when the aspect is separating."),
+  applying: z.literal(true).optional().describe(
+    "Presence flag, always true when present — the aspect is applying; " +
+      "mutually exclusive with separating. The calculator (vendor " +
+      "birth_to_chart.py compute_aspects) omits both flags when relative " +
+      "motion is zero (stationary bodies and Asc/MC contacts)."
+  ),
+  separating: z.literal(true).optional().describe(
+    "Presence flag, always true when present — the aspect is separating; " +
+      "mutually exclusive with applying."
+  ),
   exact: z.boolean().describe("True when the orb is under 0.05°."),
 });
 
