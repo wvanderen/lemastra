@@ -5,16 +5,16 @@ milestone_name: milestone
 current_phase: 03
 current_phase_name: private-local-workspace
 status: executing
-stopped_at: Completed 03-09-PLAN.md (gap closure — phase 03 complete, 9/9)
-last_updated: "2026-08-29T21:41:06.982Z"
+stopped_at: Completed 03-11-PLAN.md (gap closure — UAT Test 1 items 4+5 closed, phase 03 gap-closure wave complete)
+last_updated: "2026-08-29T21:57:36.815Z"
 last_activity: 2026-08-29
 last_activity_desc: Phase 03 execution started
 progress:
   total_phases: 10
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 27
-  completed_plans: 26
-  percent: 20
+  completed_plans: 27
+  percent: 30
 ---
 
 # Project State
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-08-26)
 ## Current Position
 
 Phase: 03 (private-local-workspace) — EXECUTING
-Plan: 2 of 11
+Plan: 3 of 11
 Status: Ready to execute
 Last activity: 2026-08-29 — Phase 03 execution started
 
@@ -79,6 +79,7 @@ Progress: [████████████████████] 25/25 p
 | Phase 03 P08 | 24 min | 2 tasks | 10 files |
 | Phase 03 P09 | 15 min | 3 tasks | 6 files |
 | Phase 03 P10 | 6 min | 3 tasks | 7 files |
+| Phase 03 P11 | 2 min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -148,6 +149,8 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - [Phase Phase 03]: [Phase 03]: 03-10: WorkspaceError lives in a dependency-free workspace/errors.ts (db.ts throws the typed OPEN_FAILED without a repository→db cycle); repository re-exports keep every existing import path working — db.ts must throw the typed error; repository imports db, so db must not import repository
 - [Phase Phase 03]: [Phase 03]: 03-10: redact allowlist gains error_message (storage-engine failure text only — zod/parse failures keep fixed copy and structurally never reach the wrap boundary); engine text rides only in redact()-filtered metadata, never in log message arguments — T-03-10-01: the frozen allowlist extension is the deliberate review-visible act the D-16 law requires
 - [Phase Phase 03]: [Phase 03]: 03-10: DB-gate hardening lives in the gate, not migration SQL: post-migrate PRAGMA shape check vs drizzle getTableColumns (zero-maintenance) + dev-only one-shot self-heal (FK-ordered drops + re-migrate); production builds never wipe — typed+logged OPEN_FAILED — ranked root cause 1 (stale device-resident lemastra.db with journal row at the committed when); T-03-10-02 dev-flag-only bounded wipe
+- [Phase ?]: 03-11: result.tsx imports the WorkspaceError class from dependency-free errors.ts (singleton identity in every test mock graph; component graph stays free of repository/db) while copy.ts takes the type from the repository re-export per plan — Partial repository mock factories in tests would need class pass-throughs otherwise; errors.ts imports nothing so instanceof identity is guaranteed; the type-only import is runtime-erased
+- [Phase ?]: 03-11: home isError takes precedence over hasCharts — a failed listCharts never half-renders (no heading over zero rows); hero + calculate CTA remain; empty/web/error states mutually distinct and test-pinned — A background-refetch failure with cached rows would otherwise half-render; a dead DB must never read as 'no charts'
 
 ### Pending Todos
 
@@ -174,6 +177,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-29T21:40:41.661Z
-Stopped at: Completed 03-09-PLAN.md (gap closure — phase 03 complete, 9/9)
+Last session: 2026-08-29T21:57:36.808Z
+Stopped at: Completed 03-11-PLAN.md (gap closure — UAT Test 1 items 4+5 closed, phase 03 gap-closure wave complete)
 Resume file: None
