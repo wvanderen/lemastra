@@ -27,9 +27,24 @@
  * allowlist — extending it is a deliberate, review-visible act (never a
  * quiet fix to make a log line pass): new entries must carry no birth
  * data, chart payload, question, or prose.
+ *
+ * `error_message` (added 03-10, threat T-03-10-01) may carry ONLY
+ * storage-engine failure text — SQLite/driver/DB-gate messages routed
+ * through the workspace error boundary (toWorkspaceError and the DB
+ * gate in workspace/db.ts) and the underlying engine message of a
+ * failed id generation. It must NEVER receive user input, chart
+ * payloads, or zod diagnostics. That is structurally guaranteed, not
+ * merely promised: parseOrThrow and parseRevisionAtRead catch zod
+ * failures and emit fixed developer copy (zod's value-echoing messages
+ * can never reach the wrap boundary), and every producer of this key
+ * passes the underlying engine Error's message verbatim — never
+ * interpolated into the developer-authored message argument. The
+ * default-deny primitive rules below still apply: object/array values
+ * are dropped.
  */
 const ALLOWED_KEY_LIST = [
   "error_code",
+  "error_message",
   "duration_ms",
   "count",
   "attempt",

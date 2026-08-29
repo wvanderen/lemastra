@@ -6,7 +6,12 @@ import {
   type CalculateResponse,
   type Confidence,
 } from "@/lib/api-schemas";
+// Sanctioned logging seam (D-16 — 03-10 Task 1): the ONLY output path
+// storage failures may take. Engine text rides exclusively in the
+// redact()-filtered metadata of this logger, never in a raw call site.
+import { logger } from "@/lib/redact";
 import { getWorkspaceDb } from "./db";
+import { WorkspaceError, type WorkspaceErrorCode } from "./errors";
 import { newChartId, newRevisionId } from "./ids";
 import { labelSchema } from "./label";
 import {
@@ -43,34 +48,16 @@ import {
 
 // ---------------------------------------------------------------------------
 // Typed errors (ApiError pattern — typed failures, never crashes)
+//
+// The vocabulary and class live in ./errors (db.ts must throw them too,
+// and db.ts must not import this module — repository imports db).
+// Re-exported here so every existing import path (tests, screens, hooks
+// import WorkspaceError from @/lib/workspace/repository) keeps working
+// unchanged.
 // ---------------------------------------------------------------------------
 
-/**
- * Failure vocabulary for every workspace operation:
- * - OPEN_FAILED — the database could not be opened/migrated, or stored
- *   data failed its zod contract on read (Pitfall 1 typed reopen).
- * - SAVE_FAILED — a write transaction failed.
- * - NOT_FOUND — the requested chart/revision id does not exist.
- * - VALIDATION — envelope/label/inputs failed validation at save (D-02).
- * - UNAVAILABLE — the D-03 web gate: storage requires the native app.
- */
-export type WorkspaceErrorCode =
-  | "OPEN_FAILED"
-  | "SAVE_FAILED"
-  | "NOT_FOUND"
-  | "VALIDATION"
-  | "UNAVAILABLE";
-
-/** Typed error for every workspace failure — mirrors ApiError's shape. */
-export class WorkspaceError extends Error {
-  readonly code: WorkspaceErrorCode;
-
-  constructor(body: { code: WorkspaceErrorCode; message: string }) {
-    super(body.message);
-    this.name = "WorkspaceError";
-    this.code = body.code;
-  }
-}
+export { WorkspaceError } from "./errors";
+export type { WorkspaceErrorCode } from "./errors";
 
 // ---------------------------------------------------------------------------
 // Repository vocabulary (the D-03 seam every Phase-3 screen consumes)
@@ -249,13 +236,27 @@ function parseRevisionAtRead(row: {
   }
 }
 
-/** Re-throw typed errors untouched; wrap engine failures as the given code. */
+/**
+ * Re-throw typed errors untouched; wrap engine failures as the given code.
+ *
+ * Observability law (03-10, UAT Test 1 gap): a NEWLY-wrapped engine
+ * failure is logged through the sanctioned logger BEFORE re-throwing —
+ * the underlying storage-engine message was previously captured into
+ * typed errors that nothing ever printed, making device failures
+ * undiagnosable. Already-typed WorkspaceErrors pass through unlogged
+ * (NOT_FOUND dedupe-adjacent rethrows stay quiet — no log noise for
+ * expected vocabulary). The engine text rides ONLY in the metadata
+ * (`error_code` + `error_message`, both redact()-filtered); the message
+ * argument is a fixed developer-authored compile-time string.
+ */
 function toWorkspaceError(error: unknown, code: WorkspaceErrorCode): WorkspaceError {
   if (error instanceof WorkspaceError) return error;
-  return new WorkspaceError({
-    code,
-    message: error instanceof Error ? error.message : "Workspace database error.",
+  const message = error instanceof Error ? error.message : "Workspace database error.";
+  logger.error("workspace operation failed — underlying storage error", {
+    error_code: code,
+    error_message: message,
   });
+  return new WorkspaceError({ code, message });
 }
 
 type RevisionRow = typeof chartRevisions.$inferSelect;

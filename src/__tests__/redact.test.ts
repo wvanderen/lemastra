@@ -26,6 +26,7 @@ describe("redact() keeps coarse allowlisted fields verbatim", () => {
   it("keeps every key in ALLOWED_LOG_KEYS when its value is a primitive", () => {
     const metadata: Record<string, unknown> = {
       error_code: "CALC_ENGINE_ERROR",
+      error_message: "SqliteError: UNIQUE constraint failed: chart_revisions.id",
       duration_ms: 1200,
       count: 3,
       attempt: 2,
@@ -34,6 +35,25 @@ describe("redact() keeps coarse allowlisted fields verbatim", () => {
     };
     const output = redact(metadata);
     expect(output).toEqual(metadata);
+  });
+
+  it("keeps error_message as a primitive exactly like error_code (03-10)", () => {
+    expect(redact({ error_code: "OPEN_FAILED", error_message: "table chart_revisions has no column named envelope" })).toEqual({
+      error_code: "OPEN_FAILED",
+      error_message: "table chart_revisions has no column named envelope",
+    });
+  });
+
+  it("drops error_message content when its value is not a primitive (engine text only — unsanctioned values never ride the key)", () => {
+    // Objects under an allowlisted key are shallow-filtered containers
+    // (the documented one-level law): the non-allowlisted `zod` key —
+    // and its value-echoing diagnostic text — never survives. Arrays
+    // are dropped wholesale.
+    expect(redact({ error_message: { zod: "Expected string, received object at envelope" } })).toEqual({
+      error_message: {},
+    });
+    expect("zod" in (redact({ error_message: { zod: "diagnostic" } }).error_message as object)).toBe(false);
+    expect(redact({ error_message: ["not", "a", "primitive"] })).toEqual({});
   });
 
   it("keeps JSON-safe primitives only (null survives; bigint is dropped)", () => {
@@ -121,9 +141,10 @@ describe("redact() is an allowlist (default-deny, not a blocklist)", () => {
     expect(redact({ count: () => 1 })).toEqual({});
   });
 
-  it("never emits a key outside ALLOWED_LOG_KEYS at either level", () => {
+  it("never emits a key outside ALLOWED_LOG_KEYS at either level (incl. the 03-10 error_message key)", () => {
     const output = redact({
       error_code: "X",
+      error_message: "engine failure text",
       secret_payload: { nested: { deeply: true } },
       chart_id: { date: "1990-01-01", count: 1 },
     });
