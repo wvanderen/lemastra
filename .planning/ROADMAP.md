@@ -8,7 +8,7 @@ LemAstra advances through ten vertical slices: establish a lawful and private re
 
 - [x] **Phase 1: Trust and Release Boundary** - Users can understand the supported product, providers, and privacy posture before sensitive data leaves their device. (completed 2026-08-23)
 - [x] **Phase 2: Trustworthy Natal Chart** - Users can resolve birth details and calculate a validated, provenance-rich natal chart. (completed 2026-08-26)
-- [x] **Phase 3: Private Local Workspace** - Users can save, revise, reopen, export, and delete charts without an account. (completed 2026-08-27)
+- [ ] **Phase 3: Private Local Workspace** - Users can save, revise, reopen, export, and delete charts without an account. (UAT blocker gap closure in progress)
 - [ ] **Phase 4: Semantic Chart Exploration** - Users can explore the natal wheel and the same evidence through accessible beginner and technical views.
 - [ ] **Phase 5: Natal Transit Workspace** - Users can calculate, inspect, save, and reopen a transit comparison tied to an exact natal revision.
 - [ ] **Phase 6: Repeatable Reading Method** - Users can select a focus and inspect a reproducible `astrology-skill` reading plan before generation.
@@ -115,7 +115,7 @@ Plans:
   4. User can export one chart's structured data and provenance or export/delete all locally stored personal data.
   5. Charts and later personal artifacts are local and private by default, while analytics, logs, and crash telemetry exclude or redact sensitive content and credentials.
 
-**Plans:** 9/9 plans complete
+**Plans:** 11 plans (9 complete, 2 gap closure pending)
 
 Plans:
 **Wave 1**
@@ -149,6 +149,11 @@ Plans:
 **Wave 7** *(gap closure — UAT Test 1 boot-crash blocker, diagnosed in .planning/debug/app-boot-crash-drizzle-migration.md)*
 
 - [x] 03-09-PLAN.md — Metro + babel bundler wiring for drizzle .sql migrations (package-legitimacy checkpoint, expo export web/ios exit 0) + bundler-config guard test (WORK-01, WORK-02; remediates 03-01's skipped drizzle Expo guide Steps 6–7)
+
+**Wave 8** *(gap closure — UAT Test 1 silent save-failure blocker, diagnosed in .planning/debug/chart-save-fails.md)*
+
+- [ ] 03-10-PLAN.md — Storage-layer observability + DB-gate robustness: sanctioned-logger error boundary, typed OPEN_FAILED gate with dev-build self-heal for stale device DBs, sync-path test coverage (WORK-02, PRIV-03, PRIV-04)
+- [ ] 03-11-PLAN.md — Error surfacing UI: WorkspaceError code on the save-error card + distinct home list error state (WORK-01, WORK-03)
 
 **UI hint:** yes
 
