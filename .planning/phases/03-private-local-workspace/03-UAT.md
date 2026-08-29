@@ -1,5 +1,5 @@
 ---
-status: partial
+status: diagnosed
 phase: 03-private-local-workspace
 source: [03-VERIFICATION.md]
 started: 2026-08-29T17:30:00Z
@@ -50,10 +50,25 @@ blocked: 0
   reason: "User reported: chart unable to save; tapping save shows 'Couldn't save the chart. Your chart is still open on this screen — nothing was lost. Try saving again.' and no related output appears in either console"
   severity: blocker
   test: 1
-  root_cause: ""
-  artifacts: []
-  missing: []
-  debug_session: ""
+  root_cause: "CONFIRMED (observability layer): save failures are structurally silent — toWorkspaceError (src/lib/workspace/repository.ts:253) preserves the underlying message but nothing logs it; useSaveChart (src/hooks/use-workspace.ts:34) runs TanStack retry:false so the rejection is captured into isError (no unhandled rejection → no Metro/redbox output); UI renders static SAVE_ERROR_COPY (src/components/workspace/copy.ts:128). The exact underlying save exception is therefore unobservable in the current build. Ranked remaining causes: (1) device-resident lemastra.db from earlier Phase-03 dev builds conflicting with current migration — fresh-sandbox experiment opened+migrated correctly, and drizzle/0000_nebulous_meggan.sql CREATE UNIQUE INDEX lacks IF NOT EXISTS; (2) dev-client sync-path failure never exercised by tests (expo-crypto randomUUID has no dev fallback; expo-sqlite executeSync insert path); (3) other device-specific write failure. Eliminated with direct evidence: zod validation/serialization (result screen pre-parses with same schemas), babel inline-import migration loading (transformed output byte-correct through readMigrationFiles), repository/SQL/driver logic (415-test suite), missing native modules (requireNativeModule at module load; app boots), runtime DB open/migrate on fresh sandbox (live dev-build experiment created lemastra.db with all tables + journal). Also found: home chart list renders a failed boot-time listCharts identically to an empty workspace (charts.data ?? [], no error state) — hides DB failures."
+  artifacts:
+    - path: "src/lib/workspace/repository.ts"
+      issue: "toWorkspaceError wraps but never logs; SAVE_FAILED thrown at 332/475 with underlying error invisible"
+    - path: "src/hooks/use-workspace.ts"
+      issue: "useSaveChart retry:false swallows rejection into isError; no logging of the failure"
+    - path: "src/components/workspace/copy.ts"
+      issue: "SAVE_ERROR_COPY is static — no failure class surfaced to user or UAT"
+    - path: "drizzle/0000_nebulous_meggan.sql"
+      issue: "CREATE UNIQUE INDEX without IF NOT EXISTS — fails against pre-existing device DBs from earlier dev builds"
+    - path: "src/app/chart/result.tsx"
+      issue: "save error card renders static copy only"
+  missing:
+    - "Log WorkspaceError code+message through the sanctioned logger seam (src/lib/redact.ts logger, per 03-02 telemetry law) at toWorkspaceError / saveChart catch — one device save attempt then names the exact exception"
+    - "Migration/schema robustness for device-resident DBs from earlier dev builds (IF NOT EXISTS, versioned handling, or dev-time wipe/migration guard)"
+    - "Dev fallback or test coverage for sync-path primitives (expo-crypto randomUUID, expo-sqlite executeSync insert path)"
+    - "Surface WorkspaceError code in the save-error card so UAT reports carry the failure class"
+    - "Distinct error state for home chart list instead of rendering identical to empty workspace"
+  debug_session: .planning/debug/chart-save-fails.md
 
 - truth: "App boots on web and the saved chart reopens from the home list after force-quit/relaunch"
   status: resolved
