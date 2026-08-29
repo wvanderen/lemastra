@@ -64,12 +64,34 @@ describe("bundler guard: metro.config.js registers sql for drizzle migrations", 
     ).toBe(true);
   });
 
-  it("semantically loads with sql present in resolver.sourceExts", () => {
+  it("registers wasm on resolver.assetExts (expo-sqlite web implementation)", () => {
+    // Discovered during 03-09 verification: once the .sql wiring
+    // unblocked the graph, web bundling failed on expo-sqlite's
+    // web/worker.ts import of ./wa-sqlite/wa-sqlite.wasm. LemAstra
+    // never opens the database on web (D-03 runtime gating) — but the
+    // static import still drags the web implementation into the WEB
+    // bundle, so the wasm asset must resolve at bundle time.
+    const source = readFileSync(METRO_CONFIG, "utf8");
+    expect(
+      /assetExts[^\n]*["']wasm["']/.test(source),
+      "metro.config.js must append 'wasm' to config.resolver.assetExts — expo-sqlite's web worker " +
+        "imports wa-sqlite.wasm; without this the WEB bundle cannot build even though the app " +
+        "never opens the database on web"
+    ).toBe(true);
+  });
+
+  it("semantically loads with sql in sourceExts and wasm in assetExts", () => {
     const require = createRequire(import.meta.url);
-    const config = require(METRO_CONFIG) as { resolver: { sourceExts: readonly string[] } };
+    const config = require(METRO_CONFIG) as {
+      resolver: { sourceExts: readonly string[]; assetExts: readonly string[] };
+    };
     expect(
       config.resolver.sourceExts.includes("sql"),
       "metro.config.js loads but resolver.sourceExts lacks 'sql' — the wiring is broken, not just misformatted"
+    ).toBe(true);
+    expect(
+      config.resolver.assetExts.includes("wasm"),
+      "metro.config.js loads but resolver.assetExts lacks 'wasm' — web bundling of expo-sqlite is broken"
     ).toBe(true);
   });
 });

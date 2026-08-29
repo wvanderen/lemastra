@@ -19,4 +19,20 @@ if (!config.resolver.sourceExts.includes('sql')) {
   config.resolver.sourceExts.push('sql');
 }
 
+// expo-sqlite's WEB implementation (web/worker.ts) imports
+// ./wa-sqlite/wa-sqlite.wasm as an asset module, and Metro's default
+// assetExts have no wasm — web bundling dies with "Unable to resolve
+// module ./wa-sqlite/wa-sqlite.wasm" (discovered during 03-09
+// verification, after the .sql wiring unblocked the graph; per
+// expo-sqlite's documented web setup: "configure Metro bundler to
+// support wasm files"). LemAstra never OPENS the database on web
+// (D-03 — repository ops short-circuit to typed UNAVAILABLE before
+// any sqlite call), so the wasm asset only needs to RESOLVE at bundle
+// time; the documented COOP/COEP SharedArrayBuffer headers are
+// deliberately NOT added because the wa-sqlite worker never executes
+// on web in this app.
+if (!config.resolver.assetExts.includes('wasm')) {
+  config.resolver.assetExts.push('wasm');
+}
+
 module.exports = config;
