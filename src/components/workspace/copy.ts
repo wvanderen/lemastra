@@ -1,4 +1,5 @@
 import type { Confidence } from "@/lib/api-schemas";
+import type { WorkspaceErrorCode } from "@/lib/workspace/repository";
 
 /**
  * Workspace copy deck (03-UI-SPEC §"Copy Deck" home-workspace +
@@ -130,6 +131,19 @@ export const SAVE_ERROR_COPY: WorkspaceErrorCopy = {
   body: "Your chart is still open on this screen — nothing was lost. Try saving again.",
   action: "Try again",
 };
+
+/**
+ * Save-error code caption — a fixed structural prefix joined with the
+ * closed WorkspaceErrorCode machine enum (template-over-fact, same law
+ * as the deck's other interpolated entries). The failure CLASS reaches
+ * the screen so a report quoting it identifies the failure without
+ * console access; the code token ONLY — never the engine message
+ * (message bodies may carry SQL fragments and stay in redact()-filtered
+ * logs per 03-10).
+ */
+export function saveErrorCodeLine(code: WorkspaceErrorCode): string {
+  return `Error code: ${code}`;
+}
 
 /** Saved chart open failed — stored envelope failed its parse (typed, never a crash). */
 export const OPEN_FAILED_ERROR_COPY: WorkspaceErrorCopy = {

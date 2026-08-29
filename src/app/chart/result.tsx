@@ -15,6 +15,7 @@ import {
   SAVE_ERROR_COPY,
   SAVE_NEW_VERSION_CTA,
   SAVED_STATE,
+  saveErrorCodeLine,
 } from "@/components/workspace/copy";
 import { ErrorCard } from "@/components/workspace/error-card";
 import { SavePrompt } from "@/components/workspace/save-prompt";
@@ -22,6 +23,7 @@ import { MaxContentWidth, Spacing } from "@/constants/theme";
 import { useSaveChart } from "@/hooks/use-workspace";
 import { useTheme } from "@/hooks/use-theme";
 import { calculateResponseSchema } from "@/lib/api-schemas";
+import { WorkspaceError } from "@/lib/workspace/errors";
 import { smartDefaultLabel } from "@/lib/workspace/label";
 import { storedCalculationInputsSchema } from "@/lib/workspace/schema";
 
@@ -180,15 +182,26 @@ export default function ResultScreen() {
       )}
 
       {save.isError ? (
-        <ErrorCard
-          heading={SAVE_ERROR_COPY.heading}
-          body={SAVE_ERROR_COPY.body}
-          actionLabel={SAVE_ERROR_COPY.action}
-          onAction={() => {
-            if (save.variables) save.mutate(save.variables);
-          }}
-          testID="result-save-error"
-        />
+        <View style={styles.saveErrorBlock}>
+          <ErrorCard
+            heading={SAVE_ERROR_COPY.heading}
+            body={SAVE_ERROR_COPY.body}
+            actionLabel={SAVE_ERROR_COPY.action}
+            onAction={() => {
+              if (save.variables) save.mutate(save.variables);
+            }}
+            testID="result-save-error"
+          />
+          {save.error instanceof WorkspaceError ? (
+            <ThemedText
+              type="small"
+              themeColor="textSecondary"
+              testID="result-save-error-code"
+            >
+              {saveErrorCodeLine(save.error.code)}
+            </ThemedText>
+          ) : null}
+        </View>
       ) : null}
 
       <PlacementList placements={envelope.chart_data.placements} />
@@ -252,6 +265,11 @@ const styles = StyleSheet.create({
   },
   savedBlock: {
     gap: Spacing.two,
+  },
+  // Card + code caption group tightly (the caption belongs to the card,
+  // not to the page-level content rhythm).
+  saveErrorBlock: {
+    gap: Spacing.one,
   },
   // Neutral post-save chip (03-UI-SPEC): backgroundSelected fill, no
   // accent, no success hue — the text carries the meaning.

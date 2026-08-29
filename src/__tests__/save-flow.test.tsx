@@ -11,9 +11,14 @@ import {
   SAVE_ERROR_COPY,
   SAVE_PROMPT_HEADING,
   SAVED_STATE,
+  saveErrorCodeLine,
 } from "@/components/workspace/copy";
 import { CALCULATION_DISCLOSURE_KEY } from "@/hooks/use-disclosure";
 import type { CalculateResponse, ResolveTimeResponse } from "@/lib/api-schemas";
+// Real class from its dependency-free home (03-10): rejections use REAL
+// instances so the screen's instanceof-based code extraction is
+// exercised, not assumed — identical module identity in every graph.
+import { WorkspaceError } from "@/lib/workspace/errors";
 
 // Save-flow tests (03-04 Task 2) — the D-10 vertical slice: request-param
 // threading (Pattern 5 / A6), the result-screen Save CTA, and the
@@ -478,6 +483,9 @@ describe("result screen — save flow", () => {
     const saveBody = SAVE_ERROR_COPY.body;
     if (!saveBody) throw new Error("SAVE_ERROR_COPY must define a body");
     expect(view.getByText(saveBody)).toBeTruthy();
+    // A plain (non-WorkspaceError) rejection carries no code — the
+    // caption stays absent (only the typed class renders it).
+    expect(view.queryByTestId("result-save-error-code")).toBeNull();
 
     await userEvent.press(view.getByText("Try again"));
 
@@ -485,6 +493,41 @@ describe("result screen — save flow", () => {
     const retryCall = repository.saveChart.mock.calls[1]![0] as Record<string, unknown>;
     expect(retryCall.label).toBe(DEFAULT_LABEL);
     await waitFor(() => expect(view.getByText(SAVED_STATE)).toBeTruthy());
+  });
+
+  it("renders the WorkspaceError code caption beneath the error card (SAVE_FAILED) — engine message never reaches the screen", async () => {
+    repository.saveChart.mockRejectedValueOnce(
+      new WorkspaceError({
+        code: "SAVE_FAILED",
+        message: "sqlite: database disk image is malformed",
+      })
+    );
+    const view = await renderResult({ request: JSON.stringify({ ...STORED_INPUTS }) });
+
+    await saveThroughPrompt(view);
+
+    await waitFor(() =>
+      expect(view.getByText(SAVE_ERROR_COPY.heading)).toBeTruthy()
+    );
+    expect(view.getByTestId("result-save-error-code")).toBeTruthy();
+    expect(view.getByText(saveErrorCodeLine("SAVE_FAILED"))).toBeTruthy();
+    // T-03-11-01: the caption is the closed enum token ONLY — the engine
+    // message body stays in logs, never on screen.
+    expect(view.queryByText("sqlite: database disk image is malformed")).toBeNull();
+  });
+
+  it("the code caption reflects the actual failure class, not a constant (OPEN_FAILED)", async () => {
+    repository.saveChart.mockRejectedValueOnce(
+      new WorkspaceError({ code: "OPEN_FAILED", message: "workspace db gate failed — migrate" })
+    );
+    const view = await renderResult({ request: JSON.stringify({ ...STORED_INPUTS }) });
+
+    await saveThroughPrompt(view);
+
+    await waitFor(() =>
+      expect(view.getByText(saveErrorCodeLine("OPEN_FAILED"))).toBeTruthy()
+    );
+    expect(view.queryByText(saveErrorCodeLine("SAVE_FAILED"))).toBeNull();
   });
 
   it("double-tap protection: the CTA and modal confirm disable while the save is pending", async () => {
