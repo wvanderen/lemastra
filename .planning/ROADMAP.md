@@ -115,7 +115,7 @@ Plans:
   4. User can export one chart's structured data and provenance or export/delete all locally stored personal data.
   5. Charts and later personal artifacts are local and private by default, while analytics, logs, and crash telemetry exclude or redact sensitive content and credentials.
 
-**Plans:** 11 plans (9 complete, 2 gap closure pending)
+**Plans:** 10/11 plans executed
 
 Plans:
 **Wave 1**
@@ -152,7 +152,7 @@ Plans:
 
 **Wave 8** *(gap closure — UAT Test 1 silent save-failure blocker, diagnosed in .planning/debug/chart-save-fails.md)*
 
-- [ ] 03-10-PLAN.md — Storage-layer observability + DB-gate robustness: sanctioned-logger error boundary, typed OPEN_FAILED gate with dev-build self-heal for stale device DBs, sync-path test coverage (WORK-02, PRIV-03, PRIV-04)
+- [x] 03-10-PLAN.md — Storage-layer observability + DB-gate robustness: sanctioned-logger error boundary, typed OPEN_FAILED gate with dev-build self-heal for stale device DBs, sync-path test coverage (WORK-02, PRIV-03, PRIV-04)
 - [ ] 03-11-PLAN.md — Error surfacing UI: WorkspaceError code on the save-error card + distinct home list error state (WORK-01, WORK-03)
 
 **UI hint:** yes
@@ -278,7 +278,7 @@ Plans:
 |-------|----------------|--------|-----------|
 | 1. Trust and Release Boundary | 7/7 | Complete    | 2026-08-23 |
 | 2. Trustworthy Natal Chart | 9/9 | Complete    | 2026-08-26 |
-| 3. Private Local Workspace | 9/9 | Complete   | 2026-08-27 |
+| 3. Private Local Workspace | 10/11 | In Progress|  |
 | 4. Semantic Chart Exploration | 0/TBD | Not started | - |
 | 5. Natal Transit Workspace | 0/TBD | Not started | - |
 | 6. Repeatable Reading Method | 0/TBD | Not started | - |
