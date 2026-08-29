@@ -115,7 +115,7 @@ Plans:
   4. User can export one chart's structured data and provenance or export/delete all locally stored personal data.
   5. Charts and later personal artifacts are local and private by default, while analytics, logs, and crash telemetry exclude or redact sensitive content and credentials.
 
-**Plans:** 8/8 plans complete
+**Plans:** 9 plans (8 complete, 1 gap closure)
 
 Plans:
 **Wave 1**
@@ -145,6 +145,10 @@ Plans:
 - [x] 03-08-PLAN.md — /privacy "Your data": export-all file + confirm-gated delete-all sparing disclosure flags (PRIV-05, PRIV-06)
 
 > **Wave-shape note (intentional deviation):** Waves 1–2 are data-layer-heavy by design: the D-03 adapter seam, the node:sqlite test facade, and the revision model must exist (and be proven against real SQL) before any screen mounts on them — the repo's first persistence code has no UI to mount on otherwise. The first user-visible slice lands in Wave 3 (Save CTA) and the walkable loop runs unbroken through Wave 6 (save → browse → reopen → revise → history → data controls).
+
+**Wave 7** *(gap closure — UAT Test 1 boot-crash blocker, diagnosed in .planning/debug/app-boot-crash-drizzle-migration.md)*
+
+- [ ] 03-09-PLAN.md — Metro + babel bundler wiring for drizzle .sql migrations (package-legitimacy checkpoint, expo export web/ios exit 0) + bundler-config guard test (WORK-01, WORK-02; remediates 03-01's skipped drizzle Expo guide Steps 6–7)
 
 **UI hint:** yes
 
