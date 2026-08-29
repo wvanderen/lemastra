@@ -4,7 +4,11 @@ import type { ReactNode } from "react";
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { HOME_CTA, HOME_HEADING, HOME_SUBLINE, PRIVACY_LINK } from "@/components/birth/copy";
-import { HOME_CTA_WITH_CHARTS, SAVED_CHARTS_HEADING } from "@/components/workspace/copy";
+import {
+  HOME_CTA_WITH_CHARTS,
+  HOME_LIST_ERROR_COPY,
+  SAVED_CHARTS_HEADING,
+} from "@/components/workspace/copy";
 import type { ChartListItem } from "@/lib/workspace/repository";
 
 // Home workspace tests (03-05 Task 2) — home becomes the D-09 workspace:
@@ -223,6 +227,65 @@ describe("home workspace — saved charts (D-09/D-11)", () => {
       pathname: "/chart/saved",
       params: { id: "chart-1" },
     });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Failed list query — a dead DB never reads as "no charts"
+// ---------------------------------------------------------------------------
+
+describe("home workspace — failed list query (distinct error state)", () => {
+  it("renders the couldn't-load card with exact deck copy — no saved-charts heading, hero and CTA remain", async () => {
+    repository.listCharts.mockRejectedValue(new Error("sqlite: no such table"));
+    const view = await renderHome();
+
+    await waitFor(() => expect(view.getByTestId("home-list-error")).toBeTruthy());
+    expect(view.getByText(HOME_LIST_ERROR_COPY.heading)).toBeTruthy();
+    const body = HOME_LIST_ERROR_COPY.body;
+    if (!body) throw new Error("HOME_LIST_ERROR_COPY must define a body");
+    expect(view.getByText(body)).toBeTruthy();
+    const action = HOME_LIST_ERROR_COPY.action;
+    if (!action) throw new Error("HOME_LIST_ERROR_COPY must define an action");
+    expect(view.getByText(action)).toBeTruthy();
+
+    // No half-rendered list while errored — the card is what carries the
+    // state, never a heading over zero rows.
+    expect(view.queryByText(SAVED_CHARTS_HEADING)).toBeNull();
+    expect(view.queryAllByRole("listitem")).toHaveLength(0);
+
+    // Calculation needs no DB: the hero and the CTA stay.
+    expect(view.getByText(HOME_HEADING)).toBeTruthy();
+    expect(view.getByText(HOME_CTA)).toBeTruthy();
+  });
+
+  it("Try again refetches the query — recovery dismisses the card and renders the rows", async () => {
+    repository.listCharts
+      .mockRejectedValueOnce(new Error("sqlite: no such table"))
+      .mockResolvedValueOnce([ROW_ONE]);
+    const view = await renderHome();
+
+    await waitFor(() => expect(view.getByTestId("home-list-error")).toBeTruthy());
+
+    // 03-05 law: fireEvent.press on the accessible host (query-mounted
+    // screen — userEvent's pressability is torn down by re-renders).
+    const { fireEvent } = await import("@testing-library/react-native/pure");
+    await act(async () => {
+      fireEvent.press(view.getByText("Try again"));
+    });
+
+    await waitFor(() => expect(repository.listCharts).toHaveBeenCalledTimes(2));
+    await waitFor(() => expect(view.getByText("Chart One")).toBeTruthy());
+    expect(view.queryByTestId("home-list-error")).toBeNull();
+    expect(view.getByText(SAVED_CHARTS_HEADING)).toBeTruthy();
+  });
+
+  it("an empty workspace renders NO error card — empty and error states stay mutually distinct", async () => {
+    repository.listCharts.mockResolvedValue([]);
+    const view = await renderHome();
+
+    await waitFor(() => expect(repository.listCharts).toHaveBeenCalledTimes(1));
+    expect(view.queryByTestId("home-list-error")).toBeNull();
+    expect(view.getByText("Calculate your first chart")).toBeTruthy();
   });
 });
 

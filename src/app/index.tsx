@@ -9,7 +9,12 @@ import {
 } from '@/components/birth/copy';
 import { ThemedText } from '@/components/themed-text';
 import { ChartList } from '@/components/workspace/chart-list';
-import { HOME_CTA_WITH_CHARTS, SAVED_CHARTS_HEADING } from '@/components/workspace/copy';
+import {
+  HOME_CTA_WITH_CHARTS,
+  HOME_LIST_ERROR_COPY,
+  SAVED_CHARTS_HEADING,
+} from '@/components/workspace/copy';
+import { ErrorCard } from '@/components/workspace/error-card';
 import { WebUnsupported } from '@/components/workspace/web-unsupported';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useWorkspaceCharts } from '@/hooks/use-workspace';
@@ -27,6 +32,13 @@ import { useTheme } from '@/hooks/use-theme';
  *   label (A-3-UI-5: "your first" only while the workspace is empty).
  * - ≥1 chart: the CTA reads "Calculate a chart"; the "Saved charts"
  *   heading + rows render between the CTA and the footer.
+ * - Failed list query (native only — the query never mounts on web):
+ *   the couldn't-load error card replaces the list section with a
+ *   Try-again refetch. A dead DB must NEVER read as "no charts", so
+ *   isError takes precedence over the hasCharts branch and the
+ *   heading/rows do not render while errored (never a half-rendered
+ *   list); the hero and the calculate CTA remain — calculation needs
+ *   no DB.
  * - Web: workspace storage is native-only (D-03) — the capability card
  *   replaces the list and the storage query never mounts; the CTA and
  *   privacy link remain.
@@ -69,6 +81,16 @@ export default function Home() {
 
       {!charts.available ? (
         <WebUnsupported testID="home-web-unsupported" />
+      ) : charts.isError ? (
+        <ErrorCard
+          heading={HOME_LIST_ERROR_COPY.heading}
+          body={HOME_LIST_ERROR_COPY.body}
+          actionLabel={HOME_LIST_ERROR_COPY.action}
+          onAction={() => {
+            void charts.refetch();
+          }}
+          testID="home-list-error"
+        />
       ) : hasCharts ? (
         <View style={styles.listSection}>
           <ThemedText type="default" accessibilityRole="header" style={styles.sectionHeading}>

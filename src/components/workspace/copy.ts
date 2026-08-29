@@ -133,6 +133,19 @@ export const SAVE_ERROR_COPY: WorkspaceErrorCopy = {
 };
 
 /**
+ * Home saved-charts list failed to load (e.g. the boot-time listCharts
+ * rejected). Distinct from the empty workspace BY DESIGN: a failed list
+ * must never read as "no charts" — the card is what distinguishes the
+ * state. Data reassurance + Try-again in the deck's established voice;
+ * the action refetches the query (user-initiated, no retry spam).
+ */
+export const HOME_LIST_ERROR_COPY: WorkspaceErrorCopy = {
+  heading: "Couldn't load your saved charts.",
+  body: "Your charts are still saved on this device. Nothing was lost. Try again.",
+  action: "Try again",
+};
+
+/**
  * Save-error code caption — a fixed structural prefix joined with the
  * closed WorkspaceErrorCode machine enum (template-over-fact, same law
  * as the deck's other interpolated entries). The failure CLASS reaches
