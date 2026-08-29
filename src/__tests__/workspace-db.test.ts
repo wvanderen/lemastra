@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { eq } from "drizzle-orm";
 
@@ -6,16 +6,23 @@ import { eq } from "drizzle-orm";
 import * as SQLite from "expo-sqlite";
 
 import type { CalculateResponse } from "@/lib/api-schemas";
-import { chartRevisions, charts } from "@/lib/workspace/schema";
+import { logger } from "@/lib/redact";
 import {
   getWorkspaceDb,
   resetWorkspaceDbForTests,
   WORKSPACE_DB_NAME,
 } from "@/lib/workspace/db";
+import { getChartDetail, saveChart, WorkspaceError } from "@/lib/workspace/repository";
 import {
   storedCalculationInputsSchema,
   storedIdentitySchema,
 } from "@/lib/workspace/schema";
+import { chartRevisions, charts } from "@/lib/workspace/schema";
+
+// The committed migration index (served by the vitest virtual module —
+// same artifacts the device bundle inlines). The journal's `when` is
+// what makes drizzle's migrator SKIP re-applying over a stale shape.
+import migrations from "../../drizzle/migrations.js";
 
 /**
  * Migration-gate test (03-01 Task 3, Pattern 1 / Pitfall 3 / T-03-01/03).
@@ -114,9 +121,12 @@ const CREATED_AT = new Date("2026-08-27T12:00:00.000Z");
 
 afterEach(() => {
   // Drop the memoized singleton FIRST (no handle held after), then close
-  // facade handles + clear the per-run temp dir.
+  // facade handles + clear the per-run temp dir. Unstub the dev flag and
+  // logger spies so later suites see the production-like default.
   resetWorkspaceDbForTests();
   SQLite.reset();
+  vi.unstubAllGlobals();
+  vi.restoreAllMocks();
 });
 
 describe("stored zod contracts (D-01/D-02 storage shapes)", () => {
@@ -261,5 +271,172 @@ describe("workspace db migration gate (Pattern 1, Pitfall 3)", () => {
       .getAllSync();
     expect(rows.length).toBeGreaterThan(0);
     expect(db).toBeDefined();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Gate self-heal scenarios (03-10 Task 3) — stale device databases from
+// earlier Phase-03 dev builds, proven against the file-backed facade.
+//
+// The UAT device state (.planning/debug/chart-save-fails.md, ranked root
+// cause 1): a resident lemastra.db whose __drizzle_migrations row sits at
+// the committed journal's `when`, so drizzle's migrator skips re-applying
+// m0000 over a stale table shape — the shape check, not migrate(), is what
+// catches it. Dev flag via vi.stubGlobal (the runtime-safe __DEV__ probe
+// in db.ts defaults to production-like under plain-Node vitest).
+// ---------------------------------------------------------------------------
+
+/** The committed journal's `when` — drizzle skips folders at or below it. */
+const JOURNAL_WHEN = migrations.journal.entries[0].when;
+
+/**
+ * Seed the UAT-device state: an OLD-shaped chart_revisions (pre-03-03:
+ * no identity_date / identity_place_label summary columns), a charts
+ * table, and a journal row whose created_at equals the committed `when`.
+ */
+function seedStaleShapeWithJournalDb(): void {
+  const handle = SQLite.openDatabaseSync(WORKSPACE_DB_NAME);
+  handle.execSync(`CREATE TABLE chart_revisions (
+	\`id\` text PRIMARY KEY NOT NULL,
+	\`chart_id\` text NOT NULL,
+	\`input_revision\` text NOT NULL,
+	\`confidence\` text NOT NULL,
+	\`envelope\` text NOT NULL,
+	\`inputs\` text NOT NULL,
+	\`identity\` text NOT NULL,
+	\`created_at\` integer NOT NULL
+)`);
+  handle.execSync(`CREATE TABLE charts (
+	\`id\` text PRIMARY KEY NOT NULL,
+	\`label\` text NOT NULL,
+	\`created_at\` integer NOT NULL,
+	\`updated_at\` integer NOT NULL
+)`);
+  // Drizzle's own journal-table shape (sqlite-core dialect migrate()).
+  handle.execSync(
+    "CREATE TABLE __drizzle_migrations (id SERIAL PRIMARY KEY, hash text NOT NULL, created_at numeric)"
+  );
+  handle
+    .prepareSync("INSERT INTO __drizzle_migrations (id, hash, created_at) VALUES (1, '', ?)")
+    .executeSync([JOURNAL_WHEN]);
+  handle.closeSync();
+}
+
+describe("db gate self-heal — stale device DBs from earlier dev builds (03-10)", () => {
+  it("dev build self-heals a stale shape with a journal row at the committed when — saveChart then succeeds (UAT Test 1 scenario)", async () => {
+    seedStaleShapeWithJournalDb();
+    vi.stubGlobal("__DEV__", true);
+    const warnSpy = vi.spyOn(logger, "warn").mockImplementation(() => {});
+    const errorSpy = vi.spyOn(logger, "error").mockImplementation(() => {});
+
+    // The gate: migrate skips (journal row) → shape check detects the
+    // missing summary columns → dev heal drops + re-migrates + re-verifies.
+    const db = await getWorkspaceDb();
+    expect(db).toBeDefined();
+    expect(warnSpy).toHaveBeenCalledTimes(1);
+    expect(warnSpy).toHaveBeenCalledWith(
+      "workspace db self-heal — stale dev database dropped and re-migrated",
+      { count: 1 }
+    );
+    expect(errorSpy).not.toHaveBeenCalled(); // the heal is warn-visible, not an error
+
+    // The exact failure the user's device hit — a save against the
+    // previously-conflicting DB — now succeeds and reads back.
+    const saved = await saveChart({
+      label: "Healed chart",
+      envelope: envelope(),
+      inputs: storedCalculationInputsSchema.parse(STORED_INPUTS),
+      identity: storedIdentitySchema.parse(STORED_IDENTITY),
+    });
+    expect(saved.appended).toBe(true);
+
+    const detail = await getChartDetail(saved.chartId);
+    expect(detail?.chart.label).toBe("Healed chart");
+    expect(detail?.revisionCount).toBe(1);
+    expect(detail?.latest.envelope.provenance.input_revision).toBe(PROVENANCE.input_revision);
+  });
+
+  it("production build (dev flag off) fails typed OPEN_FAILED on the same stale DB — the mismatch is observable via the sanctioned logger", async () => {
+    seedStaleShapeWithJournalDb();
+    vi.stubGlobal("__DEV__", false);
+    const errorSpy = vi.spyOn(logger, "error").mockImplementation(() => {});
+    const warnSpy = vi.spyOn(logger, "warn").mockImplementation(() => {});
+
+    await expect(getWorkspaceDb()).rejects.toMatchObject({
+      name: "WorkspaceError",
+      code: "OPEN_FAILED",
+      message: expect.stringContaining("shape verification"),
+    } satisfies Partial<WorkspaceError>);
+    expect(errorSpy).toHaveBeenCalledTimes(1);
+    expect(errorSpy).toHaveBeenCalledWith(
+      "workspace db gate failed — storage engine error",
+      {
+        error_code: "OPEN_FAILED",
+        error_message: expect.stringContaining("identity_date"), // the missing column is named
+      }
+    );
+    expect(warnSpy).not.toHaveBeenCalled(); // production NEVER wipes (T-03-10-02)
+  });
+
+  it("dev build recovers a partial migration (tables present, journal absent) via the self-heal", async () => {
+    // Migration died mid-way on device: fully-migrated table shapes but
+    // no journal row. Seed it through the REAL migrator, then drop only
+    // the journal table.
+    await getWorkspaceDb();
+    resetWorkspaceDbForTests();
+    const handle = SQLite.openDatabaseSync(WORKSPACE_DB_NAME);
+    handle.execSync("DROP TABLE __drizzle_migrations");
+    handle.closeSync();
+
+    vi.stubGlobal("__DEV__", true);
+    const warnSpy = vi.spyOn(logger, "warn").mockImplementation(() => {});
+
+    // Re-running m0000 over the existing tables must fail ("table
+    // already exists"), the heal drops + re-migrates, and the save path
+    // is healthy again.
+    const db = await getWorkspaceDb();
+    expect(db).toBeDefined();
+    expect(warnSpy).toHaveBeenCalledTimes(1);
+
+    const saved = await saveChart({
+      label: "Partial-migration chart",
+      envelope: envelope(),
+      inputs: storedCalculationInputsSchema.parse(STORED_INPUTS),
+      identity: storedIdentitySchema.parse(STORED_IDENTITY),
+    });
+    const detail = await getChartDetail(saved.chartId);
+    expect(detail?.chart.label).toBe("Partial-migration chart");
+    expect(detail?.latest.identity.label).toBe(STORED_IDENTITY.label);
+  });
+
+  it("the self-heal is bounded to ONE attempt — a DB that fails even after the drop + re-migrate throws typed OPEN_FAILED", async () => {
+    // A VIEW named chart_revisions: DROP TABLE cannot remove it, so the
+    // heal's drop list spares it and the re-migrate fails on the name
+    // conflict — a database that fails even after drop + re-migrate.
+    const handle = SQLite.openDatabaseSync(WORKSPACE_DB_NAME);
+    handle.execSync("CREATE VIEW chart_revisions AS SELECT 1 AS id");
+    handle.closeSync();
+
+    vi.stubGlobal("__DEV__", true);
+    const errorSpy = vi.spyOn(logger, "error").mockImplementation(() => {});
+    const warnSpy = vi.spyOn(logger, "warn").mockImplementation(() => {});
+
+    await expect(getWorkspaceDb()).rejects.toMatchObject({
+      name: "WorkspaceError",
+      code: "OPEN_FAILED",
+      message: expect.stringContaining("self-heal"),
+    } satisfies Partial<WorkspaceError>);
+    // Exactly one gate failure logged, no successful-heal warn: the
+    // heal ran once (the stage is named in the thrown copy) and was
+    // never retried.
+    expect(errorSpy).toHaveBeenCalledTimes(1);
+    expect(errorSpy).toHaveBeenCalledWith(
+      "workspace db gate failed — storage engine error",
+      {
+        error_code: "OPEN_FAILED",
+        error_message: expect.stringContaining("chart_revisions"),
+      }
+    );
+    expect(warnSpy).not.toHaveBeenCalled();
   });
 });
