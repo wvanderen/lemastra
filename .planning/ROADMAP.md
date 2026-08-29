@@ -115,7 +115,7 @@ Plans:
   4. User can export one chart's structured data and provenance or export/delete all locally stored personal data.
   5. Charts and later personal artifacts are local and private by default, while analytics, logs, and crash telemetry exclude or redact sensitive content and credentials.
 
-**Plans:** 9 plans (8 complete, 1 gap closure)
+**Plans:** 9/9 plans complete
 
 Plans:
 **Wave 1**
@@ -148,7 +148,7 @@ Plans:
 
 **Wave 7** *(gap closure — UAT Test 1 boot-crash blocker, diagnosed in .planning/debug/app-boot-crash-drizzle-migration.md)*
 
-- [ ] 03-09-PLAN.md — Metro + babel bundler wiring for drizzle .sql migrations (package-legitimacy checkpoint, expo export web/ios exit 0) + bundler-config guard test (WORK-01, WORK-02; remediates 03-01's skipped drizzle Expo guide Steps 6–7)
+- [x] 03-09-PLAN.md — Metro + babel bundler wiring for drizzle .sql migrations (package-legitimacy checkpoint, expo export web/ios exit 0) + bundler-config guard test (WORK-01, WORK-02; remediates 03-01's skipped drizzle Expo guide Steps 6–7)
 
 **UI hint:** yes
 
@@ -273,7 +273,7 @@ Plans:
 |-------|----------------|--------|-----------|
 | 1. Trust and Release Boundary | 7/7 | Complete    | 2026-08-23 |
 | 2. Trustworthy Natal Chart | 9/9 | Complete    | 2026-08-26 |
-| 3. Private Local Workspace | 8/8 | Complete   | 2026-08-27 |
+| 3. Private Local Workspace | 9/9 | Complete   | 2026-08-27 |
 | 4. Semantic Chart Exploration | 0/TBD | Not started | - |
 | 5. Natal Transit Workspace | 0/TBD | Not started | - |
 | 6. Repeatable Reading Method | 0/TBD | Not started | - |
