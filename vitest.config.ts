@@ -28,11 +28,14 @@ const sqlAsRawString: Plugin = {
 // CommonJS-context package (the repo's package.json has no "type":
 // "module"), and vite-node's interop for that shape is order-fragile
 // when mixed with externalized CJS deps (drizzle's migrator pulls
-// react). On device Metro bundles it fine — only the test pipeline
-// needs help. Intercept the app's relative import of the generated
-// index and serve the SAME shape as a virtual ESM module assembled
-// from the committed journal + .sql artifacts (auto-follows new
-// migrations; nothing is hardcoded).
+// react). Real bundling works because metro.config.js registers sql
+// as a resolver extension and babel.config.js inlines .sql imports as
+// strings (03-09, drizzle Expo guide Steps 6–7); these vite plugins
+// remain the test-pipeline mirror of that wiring because vite consumes
+// neither metro nor babel config. Intercept the app's relative import
+// of the generated index and serve the SAME shape as a virtual ESM
+// module assembled from the committed journal + .sql artifacts
+// (auto-follows new migrations; nothing is hardcoded).
 const DRIZZLE_DIR = path.join(dirname, "drizzle");
 const VIRTUAL_DRIZZLE_MIGRATIONS = "\0lemastra:drizzle-migrations";
 
