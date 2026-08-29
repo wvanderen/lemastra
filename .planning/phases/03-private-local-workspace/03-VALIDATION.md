@@ -5,13 +5,13 @@ status: active
 nyquist_compliant: true
 wave_0_complete: true
 created: 2026-08-27
-updated: 2026-08-27
+updated: 2026-08-29
 ---
 
 # Phase 3 — Validation Strategy
 
 > Per-phase validation contract for feedback sampling during execution.
-> Populated from 03-RESEARCH.md §"Validation Architecture"; task IDs from plans 03-01 … 03-08 (20 tasks).
+> Populated from 03-RESEARCH.md §"Validation Architecture"; task IDs from plans 03-01 … 03-09 (23 tasks).
 
 ---
 
@@ -60,6 +60,9 @@ updated: 2026-08-27
 | 03-07-T2 | 07 | 6 | WORK-04 | T-03-23 | Revise param zod-parsed (malformed → fresh-form fallback, never unvalidated prefill); chartId threads birth→confirm→result; same-chart append + dedupe copy; History row-count growth | component | `npx vitest run src/__tests__/revise-prefill.test.tsx src/__tests__/revision-history.test.tsx && npx tsc --noEmit` | ❌ created by task | ⬜ pending |
 | 03-08-T1 | 08 | 6 | PRIV-05, PRIV-06 | T-03-25, T-03-26 | Export-all deep-equals the seeded corpus (nothing silently omitted); delete-all wipes to completion state with the disclosure AsyncStorage flag surviving; cancel no-op; web cards disabled | component | `npx vitest run src/__tests__/data-controls.test.tsx` | ❌ created by task | ⬜ pending |
 | 03-08-T2 | 08 | 6 | PRIV-05, PRIV-06 | T-03-27 | /privacy extension is additive-only (provider rendering byte-unchanged, registry invariant holds); Phase-1 governance tests pass unmodified | regression (existing suites) | `npx vitest run src/__tests__/data-controls.test.tsx src/__tests__/privacy-screen.test.tsx src/__tests__/disclosures-consistency.test.ts && npx vitest run && npx tsc --noEmit` | ❌/✅ (privacy-screen + disclosures-consistency existing) | ⬜ pending |
+| 03-09-T1 | 09 | 7 | WORK-02 | T-03-SC | Blocking pre-install legitimacy gate for [ASSUMED] package `babel-plugin-inline-import` — human verifies on npmjs before Task 2 may install; never auto-approvable | checkpoint (decision) | n/a — human approval via resume-signal ("approved") | — (human gate) | ⬜ pending |
+| 03-09-T2 | 09 | 7 | WORK-01, WORK-02 | T-03-SC | Plugin lands in devDependencies only (build-time, never in app graph); drizzle/migrations.js and src/lib/workspace/db.ts stay byte-identical; web bundle resolves drizzle .sql imports | config-check + bundle-export | `npm ls babel-plugin-inline-import && node -e "const m=require('./metro.config.js');const b=require('./babel.config.js');if(!m.resolver.sourceExts.includes('sql'))throw new Error('sql missing from sourceExts');if(!JSON.stringify(b).includes('inline-import'))throw new Error('inline-import missing from babel config');console.log('bundler config ok')" && EXPO_NO_TELEMETRY=1 npx expo export --platform web` | ❌ created by task (metro.config.js, babel.config.js) | ⬜ pending |
+| 03-09-T3 | 09 | 7 | WORK-01, WORK-02 | T-03-GC-01 | Fail-hard source-scan guard (telemetry-guard archetype) fails CI vitest job if metro.config.js, babel.config.js, or the devDependency is removed/staled — no allowlist file; mutation-verified positive control | source-scan (guard) | `npx vitest run src/__tests__/bundler-config-guard.test.ts` | ❌/✅ (guard new; vitest.config.ts comment fix) | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -107,7 +110,7 @@ Existing infrastructure (Vitest 4 + RNTL 14 `/pure` + RN shim + CI vitest/tsc/gi
 
 ## Validation Sign-Off
 
-- [x] All tasks have `<automated>` verify or Wave 0 dependencies (20/20 tasks carry automated commands)
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies (22/23 tasks carry automated commands; 03-09-T1 is the blocking pre-install approval checkpoint — human verification by design, gate is the action)
 - [x] Sampling continuity: no 3 consecutive tasks without automated verify (every task sampled 1:1)
 - [x] Wave 0 covers all MISSING references (no MISSING references — each test file is created by its owning task, test-first)
 - [x] No watch-mode flags (all commands are `vitest run` form, never watch mode)
