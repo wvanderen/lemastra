@@ -262,8 +262,10 @@ describe("explore route — native content", () => {
     repository.getChartDetail.mockResolvedValue(chartDetail());
     const view = await renderExplore({ id: "chart-1" });
 
-    await waitFor(() => expect(view.getByTestId("wheel-canvas")).toBeTruthy());
-    expect(view.getByTestId("fact-panel")).toBeTruthy();
+    // 04-07: the canvas lives under the Pattern-6 a11y-hiding wrapper,
+    // so RNTL excludes it from default queries — the visible fact
+    // panel is the content-mounted marker.
+    await waitFor(() => expect(view.getByTestId("fact-panel")).toBeTruthy());
     // Idle panel until a factor is selected (D-09).
     expect(view.getByText(FACT_PANEL_IDLE)).toBeTruthy();
   });
@@ -274,7 +276,7 @@ describe("explore route — native content", () => {
     repository.getChartDetail.mockResolvedValue(chartDetail());
 
     const view = await renderExplore({ id: "chart-1" });
-    await waitFor(() => expect(view.getByTestId("wheel-canvas")).toBeTruthy());
+    await waitFor(() => expect(view.getByTestId("fact-panel")).toBeTruthy());
     await act(async () => {});
 
     expect(fetchSpy).not.toHaveBeenCalled();
@@ -286,7 +288,7 @@ describe("explore route — native content", () => {
     repository.getRevisionContent.mockResolvedValue(revisionRead());
     const view = await renderExplore({ id: "chart-1", revision: "rev-1" });
 
-    await waitFor(() => expect(view.getByTestId("wheel-canvas")).toBeTruthy());
+    await waitFor(() => expect(view.getByTestId("fact-panel")).toBeTruthy());
     expect(repository.getRevisionContent).toHaveBeenCalledWith("rev-1");
     expect(repository.getChartDetail).not.toHaveBeenCalled();
   });

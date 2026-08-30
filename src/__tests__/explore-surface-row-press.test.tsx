@@ -170,7 +170,10 @@ describe("explore surface — row press drives the shared selection", () => {
       </Wrapper>
     );
     await act(async () => {});
-    await waitFor(() => expect(view.getByTestId("wheel-canvas")).toBeTruthy());
+    // 04-07: the canvas sits under the Pattern-6 a11y-hiding wrapper
+    // (excluded from default RNTL queries) — the visible fact panel is
+    // the content-mounted marker.
+    await waitFor(() => expect(view.getByTestId("fact-panel")).toBeTruthy());
 
     // 03-05 law: presses on query-mounted screens go through
     // fireEvent.press on the accessible host.

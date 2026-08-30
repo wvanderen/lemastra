@@ -10,8 +10,9 @@ import {
 } from "react-native";
 
 import { AssumptionsLine } from "@/components/chart/assumptions-line";
+import { factPanelA11yLabel } from "@/components/chart/explore/copy";
 import { EvidenceLists } from "@/components/chart/explore/evidence-lists";
-import { FactPanel } from "@/components/chart/explore/fact-panel";
+import { FactPanel, resolveFact } from "@/components/chart/explore/fact-panel";
 import { ModeToggle } from "@/components/chart/explore/mode-toggle";
 import {
   createScrollLoopGuard,
@@ -20,6 +21,7 @@ import {
   scrollTargetFor,
   type RowTopsRegistry,
 } from "@/components/chart/explore/scroll-target";
+import { WheelA11yOverlay, overlayKeyFor } from "@/components/chart/explore/wheel-a11y-overlay";
 import { WheelCanvas } from "@/components/chart/explore/wheel-canvas";
 import { UnavailableFactors } from "@/components/chart/unavailable-factors";
 import { ThemedText } from "@/components/themed-text";
@@ -217,6 +219,33 @@ function ExploreContent({ envelope }: { envelope: CalculateResponse }) {
   // clamped to the geometry base (never upscaled past 720).
   const wheelSize = Math.min(Math.max(width - Spacing.three * 2, 360), 720);
 
+  // Pattern 6 host frame: the canvas centers inside the (max-width
+  // clamped) content frame — the overlay mirrors that square exactly,
+  // so its elements sit over the same base-coordinate rects the canvas
+  // draws (scaled about the same origin).
+  const frameWidth = Math.min(width, MaxContentWidth) - Spacing.three * 2;
+  const canvasLeft = (frameWidth - wheelSize) / 2;
+
+  // WHEEL-05/D-12: the overlay's labels ARE the panel's composed
+  // sentences — resolveFact → factPanelA11yLabel, the ONE resolver and
+  // ONE degree split (A-UI-4; zero second formatters, T-04-15). The map
+  // recomputes with the mode, so overlay labels flip vocabulary with
+  // everything else (D-06 same-data-path). Keys are overlayKeyFor —
+  // DISTINCT per sign/angle (rowKeyFor collapses those; the overlay
+  // has an element per factor).
+  const overlaySentences = useMemo(() => {
+    const sentences = new Map<string, string>();
+    for (const region of geometry.hitRegions) {
+      const fact = resolveFact(region.factor, envelope, mode);
+      if (fact === null) continue;
+      sentences.set(
+        overlayKeyFor(region.factor),
+        factPanelA11yLabel(fact.sentence, fact.provisionalNote)
+      );
+    }
+    return sentences;
+  }, [geometry, envelope, mode]);
+
   return (
     <ScrollView
       ref={scrollRef}
@@ -230,14 +259,41 @@ function ExploreContent({ envelope }: { envelope: CalculateResponse }) {
           one flip changes wheel labels, list rows, and the fact panel
           together (vocabulary + factor depth, same envelope). */}
       <ModeToggle mode={mode} onChange={setMode} />
-      {/* D-02 wheel-first hero at the top — the chart's visual face. */}
-      <WheelCanvas
-        geometry={geometry}
-        selection={selection}
-        onSelect={selectFromWheel}
-        size={wheelSize}
-        mode={mode}
-      />
+      {/* D-02 wheel-first hero at the top — the chart's visual face.
+          Pattern 6 (04-07): the a11y overlay renders UNDER the canvas —
+          every sighted touch keeps flowing to the canvas's RNGH gesture
+          shell (Pitfall 6: touchable Pressables above it would starve
+          the pan/pinch), while the canvas wrapper hides the canvas from
+          screen readers (importantForAccessibility
+          "no-hide-descendants" + accessibilityElementsHidden) so the
+          invisible WheelA11yOverlay Pressables over the SAME geometry
+          hit regions carry the semantic wheel (WHEEL-05): screen-reader
+          users navigate and select factors exactly where sighted users
+          tap — z-order never removes elements from the a11y tree. */}
+      <View testID="wheel-hero">
+        <WheelA11yOverlay
+          geometry={geometry}
+          regions={geometry.hitRegions}
+          selection={selection}
+          onSelect={selectFromWheel}
+          sentences={overlaySentences}
+          displaySize={wheelSize}
+          style={{ left: canvasLeft, top: 0, width: wheelSize, height: wheelSize }}
+        />
+        <View
+          testID="wheel-canvas-hidden"
+          importantForAccessibility="no-hide-descendants"
+          accessibilityElementsHidden
+        >
+          <WheelCanvas
+            geometry={geometry}
+            selection={selection}
+            onSelect={selectFromWheel}
+            size={wheelSize}
+            mode={mode}
+          />
+        </View>
+      </View>
       {/* D-09 inline fact panel adjacent below — selection and its facts
           read as one unit; no bottom sheet, no navigated fact screen. */}
       <FactPanel selection={selection} envelope={envelope} mode={mode} />

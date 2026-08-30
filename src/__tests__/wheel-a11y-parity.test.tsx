@@ -45,6 +45,14 @@ import type { ChartDetail } from "@/lib/workspace/repository";
 // full-depth Technical sentences are the pinned vocabulary (the
 // mode-keyed behavior itself is explore-mode.test.tsx's assignment).
 //
+// includeHiddenElements: this suite asserts ON the a11y-hidden subtree
+// itself — RNTL excludes elements under accessibilityElementsHidden /
+// importantForAccessibility no-hide-descendants from queries by
+// default, which is exactly the behavior the canvas-hiding test
+// proves; the canvas INSIDE the hidden wrapper must stay queryable
+// here (the overlay renders UNDER the wrapper as a sibling, so its
+// elements need no such opt-in).
+//
 // Test-order law (04-04): the press test runs LAST — one
 // state-updating interaction per test file; nothing after it.
 
@@ -224,9 +232,11 @@ let resolveFact: typeof import("@/components/chart/explore/fact-panel").resolveF
 let ExploreScreen: typeof import("@/app/chart/explore").default;
 
 beforeAll(async () => {
-  ({ render, fireEvent, cleanup, act, waitFor } = await import(
-    "@testing-library/react-native/pure"
-  ));
+  const pure = await import("@testing-library/react-native/pure");
+  ({ render, fireEvent, cleanup, act, waitFor } = pure);
+  // This suite queries INTO the a11y-hidden canvas subtree (see the
+  // header note) — opt the file's queries into hidden elements.
+  pure.configure({ defaultIncludeHiddenElements: true });
   ({ resolveFact } = await import("@/components/chart/explore/fact-panel"));
   ({ default: ExploreScreen } = await import("@/app/chart/explore"));
 });
@@ -305,7 +315,9 @@ describe("wheel a11y overlay — count parity (WHEEL-05/D-12)", () => {
   it("renders exactly one overlay element per Timed hit region (8 planets, 12 signs, 12 houses, 4 angles, 4 aspects)", async () => {
     const view = await renderExplore(timedEnvelope);
 
-    const overlayElements = view.getAllByTestId(/^wheel-a11y-/);
+    // Factor elements only — the host carries its own wheel-a11y-
+    // overlay testID and must not count.
+    const overlayElements = view.getAllByTestId(/^wheel-a11y-(planet|sign|house|angle|aspect)-/);
     expect(overlayElements.length).toBe(timedGeometry.hitRegions.length);
     expect(view.getAllByTestId(/^wheel-a11y-planet-/).length).toBe(8);
     expect(view.getAllByTestId(/^wheel-a11y-sign-/).length).toBe(12);
@@ -317,7 +329,9 @@ describe("wheel a11y overlay — count parity (WHEEL-05/D-12)", () => {
   it("renders exactly one overlay element per Unknown-time hit region and NO house/angle elements (D-10 honesty)", async () => {
     const view = await renderExplore(unknownEnvelope);
 
-    expect(view.getAllByTestId(/^wheel-a11y-/).length).toBe(unknownGeometry.hitRegions.length);
+    expect(view.getAllByTestId(/^wheel-a11y-(planet|sign|house|angle|aspect)-/).length).toBe(
+      unknownGeometry.hitRegions.length
+    );
     expect(view.queryAllByTestId(/^wheel-a11y-house-/)).toEqual([]);
     expect(view.queryAllByTestId(/^wheel-a11y-angle-/)).toEqual([]);
     expect(view.getAllByTestId(/^wheel-a11y-planet-/).length).toBe(5);
@@ -385,7 +399,9 @@ describe("wheel a11y overlay — canvas hiding (A11Y-01, Pattern 6)", () => {
     // …and NOT one overlay element — the Pressables stay reachable.
     expect(hiddenSubtree.filter((id) => id.startsWith("wheel-a11y"))).toEqual([]);
     expect(view.getByTestId("wheel-a11y-overlay")).toBeTruthy();
-    expect(view.getAllByTestId(/^wheel-a11y-/).length).toBe(timedGeometry.hitRegions.length);
+    expect(view.getAllByTestId(/^wheel-a11y-(planet|sign|house|angle|aspect)-/).length).toBe(
+      timedGeometry.hitRegions.length
+    );
   });
 });
 
@@ -433,15 +449,20 @@ describe("wheel a11y overlay — selected conveyance + identical outcome", () =>
   it("activating an overlay element selects it, conveys selected state, announces the SAME sentence in the panel, and highlights the list row", async () => {
     const view = await renderExplore(timedEnvelope);
 
-    const sun = view.getByTestId("wheel-a11y-planet-Sun");
-    const pressedLabel = sun.props.accessibilityLabel as string;
-    await act(async () => {
-      fireEvent.press(sun);
-    });
+    const pressedLabel = view.getByTestId("wheel-a11y-planet-Sun").props
+      .accessibilityLabel as string;
+    // 03-05 law: press on the accessible host, then flush the act
+    // queue separately (the row-press precedent).
+    fireEvent.press(view.getByTestId("wheel-a11y-planet-Sun"));
+    await act(async () => {});
 
+    // Re-query after the commit (the shim's facade swaps host
+    // identities per commit — pre-press handles go stale).
     // Selected state conveyed on the activated element (and only it).
-    expect(sun.props.accessibilityState).toEqual({ selected: true });
-    expect(view.getByTestId("wheel-a11y-sign-Aries").props.accessibilityState).toEqual({
+    expect(view.getByTestId("wheel-a11y-planet-Sun").props.accessibilityState).toMatchObject({
+      selected: true,
+    });
+    expect(view.getByTestId("wheel-a11y-sign-Aries").props.accessibilityState).toMatchObject({
       selected: false,
     });
 
@@ -449,7 +470,7 @@ describe("wheel a11y overlay — selected conveyance + identical outcome", () =>
     // the pressed element's label (string equality — A-UI-4)…
     expect(view.getByTestId("fact-panel").props.accessibilityLabel).toBe(pressedLabel);
     // …and the synchronized list row highlights (D-10).
-    expect(view.getByTestId("evidence-row-planet-Sun").props.accessibilityState).toEqual({
+    expect(view.getByTestId("evidence-row-planet-Sun").props.accessibilityState).toMatchObject({
       selected: true,
     });
   });
