@@ -34,8 +34,8 @@
 - [x] **WHEEL-03**: User can zoom or otherwise inspect a dense wheel without losing access to overlapping factors.
 - [ ] **WHEEL-04**: User can inspect placements, houses, aspects, orbs, and relevant motion in structured lists or tables synchronized with the wheel.
 - [ ] **WHEEL-05**: User can access every meaningful wheel factor through a non-visual semantic representation.
-- [ ] **EVID-01**: User can distinguish calculated facts, methodological judgments, generated interpretation, and uncertainty in the interface.
-- [ ] **EVID-02**: User can move between beginner-friendly summaries and technical detail derived from the same underlying evidence.
+- [x] **EVID-01**: User can distinguish calculated facts, methodological judgments, generated interpretation, and uncertainty in the interface.
+- [x] **EVID-02**: User can move between beginner-friendly summaries and technical detail derived from the same underlying evidence.
 
 ### Transit Analysis
 
@@ -92,7 +92,7 @@
 - [ ] **PLAT-01**: User can complete the natal-to-report core workflow on supported iOS devices.
 - [ ] **PLAT-02**: User can complete the natal-to-report core workflow on supported Android devices.
 - [ ] **A11Y-01**: User can navigate the core workflow with platform screen-reader support.
-- [ ] **A11Y-02**: User can use the core workflow with supported text scaling and without relying on color alone.
+- [x] **A11Y-02**: User can use the core workflow with supported text scaling and without relying on color alone.
 - [ ] **A11Y-03**: User can access chart evidence and transit contacts without interpreting the graphical wheel.
 
 ### Release Gates
@@ -180,8 +180,8 @@ Every v1 requirement maps to exactly one roadmap phase.
 | WHEEL-03 | Phase 4 | Complete |
 | WHEEL-04 | Phase 4 | Pending |
 | WHEEL-05 | Phase 4 | Pending |
-| EVID-01 | Phase 4 | Pending |
-| EVID-02 | Phase 4 | Pending |
+| EVID-01 | Phase 4 | Complete |
+| EVID-02 | Phase 4 | Complete |
 | TRAN-01 | Phase 5 | Pending |
 | TRAN-02 | Phase 5 | Pending |
 | TRAN-03 | Phase 5 | Pending |
@@ -223,7 +223,7 @@ Every v1 requirement maps to exactly one roadmap phase.
 | PLAT-01 | Phase 10 | Pending |
 | PLAT-02 | Phase 10 | Pending |
 | A11Y-01 | Phase 4 | Pending |
-| A11Y-02 | Phase 4 | Pending |
+| A11Y-02 | Phase 4 | Complete |
 | A11Y-03 | Phase 4 | Pending |
 | GATE-01 | Phase 1 | Complete |
 | GATE-02 | Phase 2 | Complete |
