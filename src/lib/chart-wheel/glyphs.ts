@@ -157,3 +157,49 @@ export const ASPECT_STYLES: Record<string, AspectStyle> = {
 
 /** Style for aspect names the vocabulary does not know — benign solid hairline. */
 export const DEFAULT_ASPECT_STYLE: AspectStyle = { pattern: "solid", strokeWidth: 0.9 };
+
+// ---------------------------------------------------------------------------
+// Platform glyph resolution (A1 — on-device evidence, 04-07 fix-back)
+// ---------------------------------------------------------------------------
+
+/**
+ * The platform a renderer resolves glyphs for. Pure string union —
+ * the component layer maps Platform.OS onto it (this module stays
+ * react-native-free by law; callers pass the platform in).
+ */
+export type GlyphPlatform = "ios" | "android";
+
+/**
+ * Bodies whose Unicode glyphs rendered reliably in the 04-07
+ * on-device checkpoint on Android (the classical planets ☉..♇).
+ * Everything else the Android system font drew as tofu: the nodes
+ * ☊☋, Chiron ⚳, Lilith ⚸ — and the entire zodiac block ♈..♓ —
+ * render their pre-built abbreviations there instead.
+ */
+export const ANDROID_GLYPH_SAFE_BODIES: ReadonlySet<BodyName> = new Set<BodyName>([
+  "Sun",
+  "Moon",
+  "Mercury",
+  "Venus",
+  "Mars",
+  "Jupiter",
+  "Saturn",
+  "Uranus",
+  "Neptune",
+  "Pluto",
+]);
+
+/** Resolve a sign's render text on a platform (A1 tofu law). */
+export function signGlyphText(sign: SignName, platform: GlyphPlatform): string {
+  return platform === "android"
+    ? (SIGN_FALLBACKS[sign] ?? SIGN_GLYPHS[sign] ?? sign)
+    : (SIGN_GLYPHS[sign] ?? sign);
+}
+
+/** Resolve a body's render text on a platform (A1 tofu law). */
+export function bodyGlyphText(body: BodyName, platform: GlyphPlatform): string {
+  if (platform === "android" && !ANDROID_GLYPH_SAFE_BODIES.has(body)) {
+    return PLANET_FALLBACKS[body] ?? PLANET_GLYPHS[body] ?? body;
+  }
+  return PLANET_GLYPHS[body] ?? body;
+}

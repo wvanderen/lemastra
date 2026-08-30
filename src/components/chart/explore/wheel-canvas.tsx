@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { Platform, StyleSheet, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { useSharedValue } from "react-native-reanimated";
 import { runOnJS } from "react-native-worklets";
@@ -25,9 +25,12 @@ import { tierForScale, type DeclutterTier } from "@/lib/chart-wheel/collision";
 import {
   ASPECT_STYLES,
   DEFAULT_ASPECT_STYLE,
-  PLANET_GLYPHS,
-  SIGN_GLYPHS,
+  bodyGlyphText,
+  signGlyphText,
   type AspectStyle,
+  type BodyName,
+  type GlyphPlatform,
+  type SignName,
 } from "@/lib/chart-wheel/glyphs";
 import {
   MAX_ZOOM,
@@ -87,8 +90,12 @@ import { ANGLE_MARKERS, WHEEL_ZOOM_HINT } from "./copy";
  */
 
 // ---------------------------------------------------------------------------
-// Fonts (module scope — one per glyph class; matchFont default family,
-// the A1 Android-glyph risk is handled by glyphs.ts fallbacks, 04-07)
+// Fonts (module scope — one per glyph class; matchFont default family).
+// A1 Android tofu (04-07 on-device evidence): Android system fonts lack
+// the zodiac Unicode block and the nodes/Chiron/Lilith glyphs — those
+// slots resolve to their pre-built text abbreviations through
+// signGlyphText/bodyGlyphText below (glyphs.ts A1 law). Web never loads
+// this module (D-04 web stub).
 // ---------------------------------------------------------------------------
 
 const SIGN_FONT_SIZE = 24;
@@ -100,6 +107,11 @@ const signFont = matchFont({ fontFamily: "serif", fontSize: SIGN_FONT_SIZE });
 const planetFont = matchFont({ fontFamily: "serif", fontSize: PLANET_FONT_SIZE });
 const angleFont = matchFont({ fontFamily: "serif", fontSize: ANGLE_FONT_SIZE });
 const degreeFont = matchFont({ fontFamily: "serif", fontSize: DEGREE_FONT_SIZE });
+
+/** The glyph vocabulary this device renders (glyphs.ts A1 law). */
+function glyphPlatform(): GlyphPlatform {
+  return Platform.OS === "android" ? "android" : "ios";
+}
 
 /**
  * Radial offset from each glyph anchor toward the sign band where the
@@ -361,7 +373,7 @@ export function WheelGraphics({
         glyphText(
           signFont,
           SIGN_FONT_SIZE,
-          SIGN_GLYPHS[glyph.sign as keyof typeof SIGN_GLYPHS] ?? glyph.sign,
+          signGlyphText(glyph.sign as SignName, glyphPlatform()),
           glyph.point,
           colors.text,
           `sign-glyph-${glyph.sign}`
@@ -441,7 +453,7 @@ export function WheelGraphics({
         glyphText(
           planetFont,
           PLANET_FONT_SIZE,
-          PLANET_GLYPHS[anchor.body as keyof typeof PLANET_GLYPHS] ?? anchor.body,
+          bodyGlyphText(anchor.body as BodyName, glyphPlatform()),
           anchor.point,
           colors.text,
           `planet-glyph-${anchor.body}`
