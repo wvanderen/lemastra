@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 04
 current_phase_name: semantic-chart-exploration
 status: executing
-stopped_at: Completed 04-03-PLAN.md
-last_updated: "2026-08-30T16:13:41.624Z"
+stopped_at: Completed 04-04-PLAN.md
+last_updated: "2026-08-30T16:55:45.327Z"
 last_activity: 2026-08-30
 last_activity_desc: Phase 04 execution started
 progress:
   total_phases: 10
   completed_phases: 3
   total_plans: 35
-  completed_plans: 31
+  completed_plans: 32
   percent: 30
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-08-26)
 ## Current Position
 
 Phase: 04 (semantic-chart-exploration) — EXECUTING
-Plan: 4 of 7
+Plan: 5 of 7
 Status: Ready to execute
 Last activity: 2026-08-30 — Phase 04 execution started
 
@@ -84,6 +84,7 @@ Progress: [████████████████████] 25/25 p
 | Phase 04 P01 | 16 min | 3 tasks | 12 files |
 | Phase 04 P02 | 4 min | 2 tasks | 6 files |
 | Phase 04 P03 | 24 min | 3 tasks | 19 files |
+| Phase 04 P04 | 30 min | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -166,6 +167,11 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - [Phase 04]: 04-03: reanimated + worklets committed vitest facades + aliases (Rule 3) — the D-03 mini-wheel card drags the wheel canvas into every result/saved test graph and the real entries are ESM-directory-imports + native runtimes plain Node cannot load — Extends the 04-01 RNGH facade law: per-file vi.mocks keep precedence; useSharedValue becomes a plain { value } box and runOnJS an immediate call
 - [Phase 04]: 04-03: WheelCanvas taps forward only numbers via runOnJS from the worklet; inverseTransform + hitTest run JS-side through the pure module — no duplicated math, and the identity zoom seam (scale/offsetX/offsetY shared values) is named and live for 04-05 — Worklet-safe by construction; keeps geometry.ts free of worklet directives while 04-05 only has to drive the existing seam
 - [Phase 04]: 04-03: the 02-09 result-screen 'no wheel or preview' trust-boundary test was reconciled with Phase-4 D-03 — the static preview card is intended; the test still pins zero interpretation strings and NO interactive canvas — Phase-4's approved D-03 supersedes the Phase-2 absence assertion; the non-interactive preview law is pinned in mini-wheel-card.test.tsx
+- [Phase ?]: 04-04: the scroll assertion seam is scroll-target.ts's programmaticScrollTo — a module-boundary function with a structural ScrollViewLike handle (zero react-native imports); instance/prototype spying on the shim's ScrollView is impossible because the facade swaps component identities per commit, so the payload is the contract
+- [Phase ?]: 04-04: auto-scroll is WHEEL-origin only — a pressed row is already visible under the finger (D-10's auto-scroll clause names the wheel→list direction); row and wheel presses feed the SAME setSelection through distinct origin-marked wrappers
+- [Phase ?]: 04-04: registry composition at scroll time — row-within-list + list-within-root + wrapper page offsets compose when a selection fires, so measurement arrival order never matters (buffered re-emit when a list's offset lands after its rows)
+- [Phase ?]: 04-04: AssumptionsLine mounts read-only on the explore surface (03-07 optional action) — revise flows through the saved detail, keeping exploration chrome separate per D-01
+- [Phase ?]: 04-04: one state-updating interaction per test FILE — the RN shim's facade swaps ScrollView identities per commit and drops later in-file acts, so the row-press direction lives in explore-surface-row-press.test.tsx (vitest per-file isolation is the reliability boundary)
 
 ### Pending Todos
 
@@ -192,6 +198,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-30T16:13:41.618Z
-Stopped at: Completed 04-03-PLAN.md
+Last session: 2026-08-30T16:55:45.320Z
+Stopped at: Completed 04-04-PLAN.md
 Resume file: None
