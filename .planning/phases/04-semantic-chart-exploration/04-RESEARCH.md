@@ -500,22 +500,25 @@ export function aspectChordHit(chords: Chord[], p: Pt, threshold = 12): AspectRe
 
 **Everything else in this research was verified this session** against the local Expo SDK 57 install, the npm registry, official Shopify/Software Mansion/Expo/React Native documentation, or the repo's own code and vendored skill.
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Android glyph coverage (A1)**
+1. **Android glyph coverage (A1)** — *(RESOLVED → 04-07 Task 3)*
    - What we know: iOS covers the astrological Unicode ranges; Android coverage of the rarer glyphs is uncertain.
    - What's unclear: actual rendering on target Android devices/Expo Go.
    - Recommendation: Wave-0 spike task renders the glyph vocabulary on Android; fallback decision (bundled OFL font through the legitimacy gate vs text abbreviations) is pre-authorized by the discretion area.
+   - Resolution: 04-07 Task 3 blocking on-device checkpoint verifies glyph rendering (fallback abbreviations pre-built in 04-01 Task 3 glyphs.ts; bundled-font path legitimacy-gated).
 
-2. **Declutter tiers and zoom clamps (A4)**
+2. **Declutter tiers and zoom clamps (A4)** — *(RESOLVED → 04-05)*
    - What we know: vendor algorithm + linear zoom parameterization works.
    - What's unclear: exact thresholds that feel right at phone sizes.
    - Recommendation: implement as named constants; on-device UAT tunes them (no schema/data impact).
+   - Resolution: 04-05 Task 2 implements tiers/clamps as named constants with behavior-parameterized tests (monotonicity, denser packing at zoom); on-device tuning at the 04-07 Task 3 checkpoint.
 
-3. **List auto-scroll mechanism**
+3. **List auto-scroll mechanism** — *(RESOLVED → 04-04 scroll-target.ts)*
    - What we know: D-10 requires two-way sync; loop-guard contract is defined.
    - What's unclear: FlatList `scrollToIndex` vs ScrollView ref anchoring for the three tables.
    - Recommendation: planner picks the mechanism that keeps the vitest/RNTL seam mockable (03-05 pressable-host law applies).
+   - Resolution: 04-04 Task 2 delivers pure `scroll-target.ts` (`scrollTargetFor`) — computation stays out of RN scrolling mechanics; the scroll seam is spied/mockable in tests per the 03-05 law.
 
 ## Environment Availability
 

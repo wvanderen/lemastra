@@ -201,7 +201,7 @@ Plans:
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
-- [ ] 04-07-PLAN.md — Accessible overlay + canvas hiding + parity tests + web degradation proof + on-device checkpoint incl. glyph spike A1 (WHEEL-05, A11Y-01/02/03)
+- [ ] 04-07-PLAN.md — Accessible overlay + canvas hiding + parity tests + D-04 web evidence experience on /chart/result + on-device checkpoint incl. glyph spike A1 (WHEEL-05, EVID-02, A11Y-01/02/03)
 
 > **Wave-shape note (intentional deviation):** Waves 1–2 start foundation-heavy by design, not a slicing gap: the pure geometry module is simultaneously the numeric test surface, the mini-wheel source, and the a11y-overlay source — no UI can mount on it before it exists (same shape as Phases 2–3 Wave 1). The first user-visible slice lands in Wave 2 (04-03: calculate → wheel preview → explore → tap → exact facts) and the walkable loop runs unbroken through Wave 6 (zoom → lists sync → mode flip → screen-reader parity). Waves 3–6 serialize on shared files (explore/copy.ts, wheel-canvas.tsx, explore.tsx), not on doubts.
 
