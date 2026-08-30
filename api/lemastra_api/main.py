@@ -30,6 +30,18 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @asynccontextmanager
     async def lifespan(app: FastAPI):
         _verify_skill_checkout(settings)
+        if not settings.google_api_key:
+            # Absence-only copy (never the key value). Fires once per
+            # process start — visibility, not enforcement: keyless local
+            # dev is a documented posture (.env.example).
+            logger.warning(
+                "GOOGLE_API_KEY is not set: place search will answer "
+                "PLACE_PROVIDER_UNAVAILABLE (503). Manual birthplace "
+                "entry and every other endpoint are unaffected. To "
+                "enable live place search, copy api/.env.example to "
+                "api/.env and fill GOOGLE_API_KEY (shell-exported "
+                "variables take precedence over api/.env)."
+            )
         yield
 
     app = FastAPI(title="LemAstra API", version="0.1.0", lifespan=lifespan)
@@ -53,7 +65,14 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @app.get("/api/v1/health")
     def health() -> dict:
         versions = read_versions(settings.skill_path)
-        return {"status": "ok", "versions": versions}
+        return {
+            "status": "ok",
+            "versions": versions,
+            # Same emptiness check geocoding's _require_api_key uses —
+            # the flag, the startup warning, and the 503 behavior can
+            # never disagree. Boolean presence only, never key material.
+            "places_search_available": bool(settings.google_api_key),
+        }
 
     return app
 

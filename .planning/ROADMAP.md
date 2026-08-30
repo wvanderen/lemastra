@@ -8,7 +8,7 @@ LemAstra advances through ten vertical slices: establish a lawful and private re
 
 - [x] **Phase 1: Trust and Release Boundary** - Users can understand the supported product, providers, and privacy posture before sensitive data leaves their device. (completed 2026-08-23)
 - [x] **Phase 2: Trustworthy Natal Chart** - Users can resolve birth details and calculate a validated, provenance-rich natal chart. (completed 2026-08-26)
-- [ ] **Phase 3: Private Local Workspace** - Users can save, revise, reopen, export, and delete charts without an account.
+- [x] **Phase 3: Private Local Workspace** - Users can save, revise, reopen, export, and delete charts without an account. (UAT blocker gap closure in progress) (completed 2026-08-29)
 - [ ] **Phase 4: Semantic Chart Exploration** - Users can explore the natal wheel and the same evidence through accessible beginner and technical views.
 - [ ] **Phase 5: Natal Transit Workspace** - Users can calculate, inspect, save, and reopen a transit comparison tied to an exact natal revision.
 - [ ] **Phase 6: Repeatable Reading Method** - Users can select a focus and inspect a reproducible `astrology-skill` reading plan before generation.
@@ -115,7 +115,50 @@ Plans:
   4. User can export one chart's structured data and provenance or export/delete all locally stored personal data.
   5. Charts and later personal artifacts are local and private by default, while analytics, logs, and crash telemetry exclude or redact sensitive content and credentials.
 
-**Plans:** TBD
+**Plans:** 12/12 plans complete
+
+Plans:
+**Wave 1**
+
+- [x] 03-01-PLAN.md — Storage engine: deps (legitimacy-audited), node:sqlite test facade, Drizzle schema + migrations + migration gate (WORK-02 foundation)
+- [x] 03-02-PLAN.md — Telemetry guardrails: redact() + sanctioned logger + dependency/import/call-site guard tests (PRIV-03, PRIV-04)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [x] 03-03-PLAN.md — Workspace repository: save/dedupe/list/get/rename/cascade-delete/export-all/delete-all + restart/immutability/no-network integration matrix (WORK-02/03/04, PRIV-01)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [x] 03-04-PLAN.md — Save flow UI: Save CTA + label-prompt modal + Saved ✓/dedupe states + request-param threading (WORK-02, PRIV-01)
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
+- [x] 03-05-PLAN.md — Workspace home list + /chart/saved reopen-by-id + web degradation (WORK-01, WORK-03)
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
+- [x] 03-06-PLAN.md — Rename + confirmed delete (shared modal) + single-chart JSON export with share sheet (WORK-05, WORK-06, WORK-07)
+
+**Wave 6** *(blocked on Wave 5 completion)*
+
+- [x] 03-07-PLAN.md — Revision History + read-only revision view + revise-birth-details prefill appending under the same chart (WORK-04)
+- [x] 03-08-PLAN.md — /privacy "Your data": export-all file + confirm-gated delete-all sparing disclosure flags (PRIV-05, PRIV-06)
+
+> **Wave-shape note (intentional deviation):** Waves 1–2 are data-layer-heavy by design: the D-03 adapter seam, the node:sqlite test facade, and the revision model must exist (and be proven against real SQL) before any screen mounts on them — the repo's first persistence code has no UI to mount on otherwise. The first user-visible slice lands in Wave 3 (Save CTA) and the walkable loop runs unbroken through Wave 6 (save → browse → reopen → revise → history → data controls).
+
+**Wave 7** *(gap closure — UAT Test 1 boot-crash blocker, diagnosed in .planning/debug/app-boot-crash-drizzle-migration.md)*
+
+- [x] 03-09-PLAN.md — Metro + babel bundler wiring for drizzle .sql migrations (package-legitimacy checkpoint, expo export web/ios exit 0) + bundler-config guard test (WORK-01, WORK-02; remediates 03-01's skipped drizzle Expo guide Steps 6–7)
+
+**Wave 8** *(gap closure — UAT Test 1 silent save-failure blocker, diagnosed in .planning/debug/chart-save-fails.md)*
+
+- [x] 03-10-PLAN.md — Storage-layer observability + DB-gate robustness: sanctioned-logger error boundary, typed OPEN_FAILED gate with dev-build self-heal for stale device DBs, sync-path test coverage (WORK-02, PRIV-03, PRIV-04)
+- [x] 03-11-PLAN.md — Error surfacing UI: WorkspaceError code on the save-error card + distinct home list error state (WORK-01, WORK-03)
+
+**Wave 9** *(gap closure — UAT keyless-503 DX gap: api/.env never loaded by any code path; see 03-UAT.md Gaps)*
+
+- [x] 03-12-PLAN.md — API env loading: minimal api/.env bridge in settings.py (real env wins, zero new deps) + keyless visibility (startup warning + health places_search_available flag) + README/.env.example truth (WORK-01, WORK-02)
+
 **UI hint:** yes
 
 ### Phase 4: Semantic Chart Exploration
@@ -239,7 +282,7 @@ Plans:
 |-------|----------------|--------|-----------|
 | 1. Trust and Release Boundary | 7/7 | Complete    | 2026-08-23 |
 | 2. Trustworthy Natal Chart | 9/9 | Complete    | 2026-08-26 |
-| 3. Private Local Workspace | 0/TBD | Not started | - |
+| 3. Private Local Workspace | 12/12 | Complete   | 2026-08-29 |
 | 4. Semantic Chart Exploration | 0/TBD | Not started | - |
 | 5. Natal Transit Workspace | 0/TBD | Not started | - |
 | 6. Repeatable Reading Method | 0/TBD | Not started | - |

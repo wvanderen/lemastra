@@ -22,6 +22,7 @@ import {
 } from "@/components/birth/copy";
 import { PlaceSearch, type PlaceSelection } from "@/components/birth/place-search";
 import { ThemedText } from "@/components/themed-text";
+import { REVISE_TITLE } from "@/components/workspace/copy";
 import { ErrorBanner } from "@/components/ui/error-banner";
 import { MaxContentWidth, Spacing } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
@@ -34,6 +35,7 @@ import {
   type HouseSystem,
   type ResolveTimeResponse,
 } from "@/lib/api-schemas";
+import { storedCalculationInputsSchema, type StoredCalculationInputs } from "@/lib/workspace/schema";
 
 /**
  * /birth — Birth entry form (BIRTH-01, BIRTH-04 client behavior).
@@ -52,6 +54,15 @@ import {
  * param (BIRTH-02, in-memory only — no persistence this phase, T-02-23).
  * Resolve failures render the ErrorBanner in place; PLACE_* codes
  * deep-link the PlaceSearch manual branch via its controlled branch prop.
+ *
+ * Revise mode (03-07, D-08): a revise param carrying {chartId, stored
+ * inputs} prefills every field and swaps the title to "Revise birth
+ * details" — the fields, helpers, and the confirm → calculate chain stay
+ * EXACTLY the Phase-2 flow (no forked edit path); the chartId merely
+ * threads through so the revise-flow result saves under the same chart.
+ * The param parses with a local zod schema; malformed values fall back
+ * to the fresh form (T-03-23 — never a crash, never unvalidated
+ * prefill).
  */
 
 /** Matches the server's DATE_PATTERN (api/lemastra_api/schemas.py). */
@@ -142,24 +153,67 @@ export const birthFormSchema = z
 
 export type BirthFormValues = z.infer<typeof birthFormSchema>;
 
+/**
+ * The revise router param (D-08): which saved chart the recalculation
+ * appends under, plus the stored inputs that prefill the form. An
+ * id-style payload — the calculation envelope NEVER travels in params.
+ */
+const reviseParamSchema = z.object({
+  chartId: z.string().min(1).describe("The saved chart this revise appends under."),
+  inputs: storedCalculationInputsSchema.describe(
+    "The stored calculation inputs (03-04 request contract) — the prefill source."
+  ),
+});
+
+/** Parse the revise param; null when absent or malformed (T-03-23). */
+function parseReviseParam(raw: string | undefined): z.infer<typeof reviseParamSchema> | null {
+  if (!raw) return null;
+  try {
+    return reviseParamSchema.parse(JSON.parse(raw));
+  } catch {
+    // Malformed/spoofed param → the fresh-flow form, never a crash,
+    // never unvalidated prefill (T-03-23).
+    return null;
+  }
+}
+
+/** Map stored inputs onto the form's default values (Pattern 5). */
+function reviseDefaults(inputs: StoredCalculationInputs): BirthFormValues {
+  return {
+    date: inputs.date,
+    // Unknown confidence stores the 12:00 noon REFERENCE — the form shows
+    // the honest empty field (the D-09 disabled+cleared behavior).
+    time: inputs.confidence === "Unknown" ? "" : normalizeTimeInput(inputs.time),
+    // place_form IS the PlaceSearch union branch — prefills verbatim.
+    place: inputs.place_form,
+    confidence: inputs.confidence,
+    house_system: inputs.house_system,
+  };
+}
+
 export default function BirthForm() {
   const theme = useTheme();
 
   // CALC_UNSUITABLE_HOUSE_SYSTEM deep-link landing (02-08): the confirm
   // screen's "Open Assumptions" action navigates here with openAssumptions=1;
   // the keyed remount lands the control expanded without touching form state.
-  const params = useLocalSearchParams<{ openAssumptions?: string }>();
+  // The revise param (03-07, D-08) rides the same screen: stored inputs
+  // prefill every field and the title swaps to "Revise birth details".
+  const params = useLocalSearchParams<{ openAssumptions?: string; revise?: string }>();
   const assumptionsOpen = params.openAssumptions === "1";
+  const revise = parseReviseParam(params.revise);
 
   const { control, handleSubmit, setValue, watch } = useForm<BirthFormValues>({
     resolver: zodResolver(birthFormSchema),
-    defaultValues: {
-      date: "",
-      time: "",
-      place: null,
-      confidence: "Timed",
-      house_system: "Whole Sign",
-    },
+    defaultValues: revise
+      ? reviseDefaults(revise.inputs)
+      : {
+          date: "",
+          time: "",
+          place: null,
+          confidence: "Timed",
+          house_system: "Whole Sign",
+        },
   });
 
   // Controlled PlaceSearch branch so error-banner actions can deep-link
@@ -194,7 +248,12 @@ export default function BirthForm() {
     onSuccess: ({ values, response }) => {
       router.push({
         pathname: "/birth/confirm",
-        params: { draft: JSON.stringify({ ...values, resolve: response }) },
+        params: {
+          draft: JSON.stringify({ ...values, resolve: response }),
+          // D-08 threading: the revise chain keeps appending under the
+          // SAME chart; the fresh flow carries no chartId at all.
+          ...(revise ? { chartId: revise.chartId } : {}),
+        },
       });
     },
   });
@@ -213,7 +272,7 @@ export default function BirthForm() {
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
       <ThemedText type="default" accessibilityRole="header" style={styles.title}>
-        {BIRTH_FORM_TITLE}
+        {revise ? REVISE_TITLE : BIRTH_FORM_TITLE}
       </ThemedText>
 
       <View style={styles.fields}>

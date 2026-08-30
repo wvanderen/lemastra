@@ -1,8 +1,16 @@
-"""Health endpoint: version-reporting contract (CALC-03 foundation)."""
+"""Health endpoint: version-reporting contract (CALC-03 foundation).
+
+Keyless-visibility tests (places_search_available + startup warning)
+pin GOOGLE_API_KEY via ``monkeypatch.setenv`` — present-but-empty for
+the keyless state, because ``setdefault`` (the .env bridge) can only
+fill ABSENT variables: this keeps the tests deterministic on machines
+where a real populated api/.env exists.
+"""
 
 from __future__ import annotations
 
 import json
+import logging
 import re
 from importlib.metadata import version as pkg_version
 from pathlib import Path
@@ -95,3 +103,82 @@ def test_startup_fails_fast_when_skill_script_missing(
     message = str(excinfo.value)
     assert "birth_to_chart.py" in message
     assert "git submodule update --init" in message
+
+
+def test_health_keyless_reports_places_search_unavailable(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Key cleared -> flag false, versions shape and status unchanged."""
+    monkeypatch.setenv("GOOGLE_API_KEY", "")  # present-but-empty beats .env
+    with TestClient(create_app()) as client:
+        body = client.get("/api/v1/health").json()
+    assert body["status"] == "ok"
+    assert set(body["versions"]) == {
+        "skill_revision",
+        "swisseph",
+        "tzdata",
+        "schema",
+        "api",
+    }
+    assert body["places_search_available"] is False
+
+
+def test_health_with_key_reports_places_search_available(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("GOOGLE_API_KEY", "test-key")
+    with TestClient(create_app()) as client:
+        body = client.get("/api/v1/health").json()
+    assert body["places_search_available"] is True
+
+
+def test_startup_keyless_warns_once_without_key_material(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """Exactly one absence-only remediation warning; no key value logged.
+
+    The .env file is pointed at a canary so the no-leak assertion is
+    strong: the file HAS a key, the shell env says empty (precedence),
+    the warning fires, and the canary never reaches any log line.
+    """
+    canary = "leak-canary-key-DO-NOT-LOG"
+    monkeypatch.setenv("GOOGLE_API_KEY", "")  # present-but-empty beats .env
+    monkeypatch.setattr(
+        "lemastra_api.settings._DOTENV_PATH",
+        tmp_path / ".env",
+    )
+    (tmp_path / ".env").write_text(
+        f"GOOGLE_API_KEY={canary}\n", encoding="utf-8"
+    )
+    with caplog.at_level(logging.WARNING):
+        with TestClient(create_app()):
+            pass
+    key_warnings = [
+        record
+        for record in caplog.records
+        if record.levelno == logging.WARNING and "GOOGLE_API_KEY" in record.getMessage()
+    ]
+    assert len(key_warnings) == 1
+    message = key_warnings[0].getMessage()
+    assert "PLACE_PROVIDER_UNAVAILABLE" in message
+    assert ".env.example" in message
+    assert canary not in message
+    assert canary not in caplog.text
+
+
+def test_startup_with_key_emits_no_warning(
+    monkeypatch: pytest.MonkeyPatch,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    monkeypatch.setenv("GOOGLE_API_KEY", "test-key")
+    with caplog.at_level(logging.WARNING):
+        with TestClient(create_app()):
+            pass
+    key_warnings = [
+        record
+        for record in caplog.records
+        if record.levelno == logging.WARNING and "GOOGLE_API_KEY" in record.getMessage()
+    ]
+    assert key_warnings == []

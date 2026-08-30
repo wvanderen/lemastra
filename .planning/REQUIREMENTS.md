@@ -19,13 +19,13 @@
 
 ### Personal Workspace
 
-- [ ] **WORK-01**: User can calculate and inspect a first chart without creating an account.
-- [ ] **WORK-02**: User can save a chart locally with a chosen display label.
-- [ ] **WORK-03**: User can browse and reopen locally saved charts after restarting the app.
-- [ ] **WORK-04**: User can revise birth details by creating a new immutable chart revision without changing the basis of existing analyses or reports.
-- [ ] **WORK-05**: User can rename a locally saved chart.
-- [ ] **WORK-06**: User can delete a locally saved chart and its dependent local artifacts after confirming the action.
-- [ ] **WORK-07**: User can export the structured data and provenance for a saved chart.
+- [x] **WORK-01**: User can calculate and inspect a first chart without creating an account.
+- [x] **WORK-02**: User can save a chart locally with a chosen display label.
+- [x] **WORK-03**: User can browse and reopen locally saved charts after restarting the app.
+- [x] **WORK-04**: User can revise birth details by creating a new immutable chart revision without changing the basis of existing analyses or reports.
+- [x] **WORK-05**: User can rename a locally saved chart.
+- [x] **WORK-06**: User can delete a locally saved chart and its dependent local artifacts after confirming the action.
+- [x] **WORK-07**: User can export the structured data and provenance for a saved chart.
 
 ### Chart Wheel and Evidence
 
@@ -82,12 +82,12 @@
 
 ### Privacy, Accessibility, and Mobile Quality
 
-- [ ] **PRIV-01**: Charts, conversations, analyses, and reports are private and local by default.
+- [x] **PRIV-01**: Charts, conversations, analyses, and reports are private and local by default.
 - [ ] **PRIV-02**: The app sends only the user-approved bounded payload to the selected calculation, place/time, or model provider.
-- [ ] **PRIV-03**: Birth data, chart content, questions, conversations, and report prose are excluded from product analytics.
-- [ ] **PRIV-04**: Logs and crash telemetry redact provider credentials and sensitive astrology payloads.
-- [ ] **PRIV-05**: User can export all personal data stored locally by the app.
-- [ ] **PRIV-06**: User can delete all personal data stored locally by the app.
+- [x] **PRIV-03**: Birth data, chart content, questions, conversations, and report prose are excluded from product analytics.
+- [x] **PRIV-04**: Logs and crash telemetry redact provider credentials and sensitive astrology payloads.
+- [x] **PRIV-05**: User can export all personal data stored locally by the app.
+- [x] **PRIV-06**: User can delete all personal data stored locally by the app.
 - [x] **PRIV-07**: User can review current provider, retention, and data-transmission disclosures before enabling remote calculation or model features.
 - [ ] **PLAT-01**: User can complete the natal-to-report core workflow on supported iOS devices.
 - [ ] **PLAT-02**: User can complete the natal-to-report core workflow on supported Android devices.
@@ -168,13 +168,13 @@ Every v1 requirement maps to exactly one roadmap phase.
 | CALC-02 | Phase 2 | Complete |
 | CALC-03 | Phase 2 | Complete |
 | CALC-04 | Phase 2 | Complete |
-| WORK-01 | Phase 3 | Pending |
-| WORK-02 | Phase 3 | Pending |
-| WORK-03 | Phase 3 | Pending |
-| WORK-04 | Phase 3 | Pending |
-| WORK-05 | Phase 3 | Pending |
-| WORK-06 | Phase 3 | Pending |
-| WORK-07 | Phase 3 | Pending |
+| WORK-01 | Phase 3 | Complete |
+| WORK-02 | Phase 3 | Complete |
+| WORK-03 | Phase 3 | Complete |
+| WORK-04 | Phase 3 | Complete |
+| WORK-05 | Phase 3 | Complete |
+| WORK-06 | Phase 3 | Complete |
+| WORK-07 | Phase 3 | Complete |
 | WHEEL-01 | Phase 4 | Pending |
 | WHEEL-02 | Phase 4 | Pending |
 | WHEEL-03 | Phase 4 | Pending |
@@ -213,12 +213,12 @@ Every v1 requirement maps to exactly one roadmap phase.
 | REPT-04 | Phase 9 | Pending |
 | REPT-05 | Phase 9 | Pending |
 | REPT-06 | Phase 9 | Pending |
-| PRIV-01 | Phase 3 | Pending |
+| PRIV-01 | Phase 3 | Complete |
 | PRIV-02 | Phase 7 | Pending |
-| PRIV-03 | Phase 3 | Pending |
-| PRIV-04 | Phase 3 | Pending |
-| PRIV-05 | Phase 3 | Pending |
-| PRIV-06 | Phase 3 | Pending |
+| PRIV-03 | Phase 3 | Complete |
+| PRIV-04 | Phase 3 | Complete |
+| PRIV-05 | Phase 3 | Complete |
+| PRIV-06 | Phase 3 | Complete |
 | PRIV-07 | Phase 1 | Complete |
 | PLAT-01 | Phase 10 | Pending |
 | PLAT-02 | Phase 10 | Pending |

@@ -5,7 +5,7 @@ import type {
   within as rtlWithin,
 } from "@testing-library/react-native/pure";
 import type { ReactNode } from "react";
-import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   BIRTH_DATE_ERROR,
@@ -84,6 +84,22 @@ vi.mock("@/components/animated-icon", () => ({
   AnimatedSplashOverlay: () => null,
 }));
 
+// Since 03-05 the home screen consumes useWorkspaceCharts — the
+// repository seam is faked (empty corpus) so the home contract test
+// stays hermetic: no real SQLite mounts, and the press assertions are
+// not raced by an in-flight DB open. home-workspace.test.tsx owns the
+// list states; 03-04's save-flow tests own saveChart.
+const workspaceRepository = vi.hoisted(() => ({
+  saveChart: vi.fn(),
+  listCharts: vi.fn(),
+  isWorkspaceStorageAvailable: vi.fn(),
+}));
+vi.mock("@/lib/workspace/repository", () => ({
+  saveChart: workspaceRepository.saveChart,
+  listCharts: workspaceRepository.listCharts,
+  isWorkspaceStorageAvailable: workspaceRepository.isWorkspaceStorageAvailable,
+}));
+
 vi.mock("@/lib/api", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/api")>();
   return {
@@ -141,6 +157,14 @@ afterEach(async () => {
   await cleanup();
   vi.clearAllMocks();
   searchParamsState.value = {};
+});
+
+// Workspace seam defaults (after clearAllMocks resets the return values):
+// native storage available, empty corpus — the home contract test renders
+// the empty workspace.
+beforeEach(() => {
+  workspaceRepository.isWorkspaceStorageAvailable.mockReturnValue(true);
+  workspaceRepository.listCharts.mockResolvedValue([]);
 });
 
 /** A rendered host element queryable by `within`. */
@@ -416,15 +440,37 @@ describe("Birth form (/birth) — resolve-then-navigate (BIRTH-02 client half)",
 
 describe("Home screen (/)", () => {
   it("renders the home contract and links to /birth and /privacy", async () => {
-    const view = await render(<Home />);
+    // Since 03-05 home consumes useWorkspaceCharts — render inside a
+    // fresh retry-off QueryClient (the renderBirthForm law).
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+    });
+    const view = await render(
+      <QueryClientProvider client={client}>
+        <Home />
+      </QueryClientProvider>
+    );
     expect(view.getByText(HOME_HEADING)).toBeTruthy();
     expect(view.getByText(HOME_SUBLINE)).toBeTruthy();
     expect(view.getByText(PRIVACY_LINK)).toBeTruthy();
 
-    await userEvent.press(view.getByText(HOME_CTA));
+    // Flush the pending workspace-list query (03-05: home consumes
+    // useWorkspaceCharts) so presses hit settled elements (RN-shim law:
+    // act-flush + re-query after every interaction).
+    await act(async () => {});
+    // Presses dispatch on the Pressable hosts via fireEvent: with a live
+    // query mounted, userEvent's pressability sequence (130ms in-press
+    // wait) gets torn down by the query's re-render under the RN shim —
+    // the same act-queue quirk class 03-04 documented. fireEvent.press
+    // exercises the real onPress wiring synchronously.
+    await act(async () => {
+      fireEvent.press(view.getByRole("button", { name: HOME_CTA }));
+    });
     expect(routerMock.push).toHaveBeenCalledWith("/birth");
 
-    await userEvent.press(view.getByText(PRIVACY_LINK));
+    await act(async () => {
+      fireEvent.press(view.getByRole("link", { name: PRIVACY_LINK }));
+    });
     expect(routerMock.push).toHaveBeenCalledWith("/privacy");
   });
 });
