@@ -175,7 +175,7 @@ Plans:
   4. User can tell calculated fact, methodological judgment, generated interpretation, and uncertainty apart wherever they appear.
   5. User can navigate the core chart view with a screen reader and text scaling, without relying on color or interpreting the graphical wheel.
 
-**Plans:** 2/7 plans executed
+**Plans:** 3/7 plans executed
 
 Plans:
 **Wave 1** *(foundation — see wave-shape note)*
@@ -185,7 +185,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 04-03-PLAN.md — /chart/explore route + wheel hero + tap selection + fact panel + mini-wheel entry cards on result/saved + web capability branch (WHEEL-01, WHEEL-02; first walkable slice)
+- [x] 04-03-PLAN.md — /chart/explore route + wheel hero + tap selection + fact panel + mini-wheel entry cards on result/saved + web capability branch (WHEEL-01, WHEEL-02; first walkable slice)
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
@@ -312,7 +312,7 @@ Plans:
 | 1. Trust and Release Boundary | 7/7 | Complete    | 2026-08-23 |
 | 2. Trustworthy Natal Chart | 9/9 | Complete    | 2026-08-26 |
 | 3. Private Local Workspace | 12/12 | Complete   | 2026-08-29 |
-| 4. Semantic Chart Exploration | 2/7 | In Progress|  |
+| 4. Semantic Chart Exploration | 3/7 | In Progress|  |
 | 5. Natal Transit Workspace | 0/TBD | Not started | - |
 | 6. Repeatable Reading Method | 0/TBD | Not started | - |
 | 7. Grounded AI Reading | 0/TBD | Not started | - |
