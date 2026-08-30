@@ -15,6 +15,8 @@
  * label tiers monotonically; minAngularDistanceForScale shrinks the
  * packing distance as the user zooms in (denser regions resolve).
  */
+import { describe, expect, it } from "vitest";
+
 import {
   MAX_LEVEL,
   MIN_ANGULAR_DISTANCE,
