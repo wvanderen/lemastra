@@ -3,7 +3,7 @@ status: diagnosed
 phase: 03-private-local-workspace
 source: [03-VERIFICATION.md]
 started: 2026-08-29T17:30:00Z
-updated: 2026-08-30T00:02:46Z
+updated: 2026-08-30T02:51:13Z
 ---
 
 ## Current Test
@@ -62,8 +62,9 @@ blocked: 0
   debug_session: .planning/debug/resolved/app-boot-crash-drizzle-migration.md
 
 - truth: "A populated api/.env with GOOGLE_API_KEY produces a working local API when started per the README — place search returns results"
-  status: failed
-  reason: "User reported: 'Hitting a 503 after starting uv' — POST /api/v1/places/search returns 503 PLACE_PROVIDER_UNAVAILABLE despite api/.env existing with a valid key; 'this did work earlier on this machine'"
+  status: resolved
+  reason: "Was: user reported 'Hitting a 503 after starting uv' — POST /api/v1/places/search returned 503 PLACE_PROVIDER_UNAVAILABLE despite api/.env existing with a valid key; it 'worked earlier' only because the key was exported in that shell. Closed by gap-closure plan 03-12 (candidate (c), commits 198f560/c76b9c4/60443f4): minimal stdlib .env bridge in settings.load_settings (os.environ.setdefault — real env always wins, zero new dependencies, uv.lock untouched), keyless visibility (one absence-only startup warning + places_search_available health flag), README/.env.example document the auto-load as THE start flow. Independently re-verified 2026-08-30 (03-VERIFICATION.md): 112 tests green offline on a machine with a real populated api/.env; behavioral probes — fresh-env key pickup from file (env -u → settings populated), keyless flag false + exactly one .env.example-named warning, present-but-empty precedence. Executor live smoke: health ok + flag true + place search 200 with candidates in a fresh shell."
+  resolved_by: 03-12-PLAN.md (+ 03-VERIFICATION.md 2026-08-30)
   severity: minor
   test: 1
   root_cause: "DIAGNOSED during session (2026-08-29): api/.env is never loaded by any code path. settings.py reads raw os.environ (deliberately, no pydantic-settings); 'uv run' does not load .env files; uvicorn's --env-file flag would crash because it lazy-imports python-dotenv (uvicorn/config.py:347) which is NOT in the api lockfile. The documented README start command (api/README.md:38 'uv run uvicorn lemastra_api.main:app --reload --port 8000') therefore silently ignores the key — GOOGLE_API_KEY defaults to '' and the places endpoint maps missing-key to 503 (services/geocoding.py). It 'worked earlier' because the key was exported in that shell session. Workaround used: 'set -a && source .env && set +a' before uv run."
