@@ -312,7 +312,7 @@ Plans:
 | 1. Trust and Release Boundary | 7/7 | Complete    | 2026-08-23 |
 | 2. Trustworthy Natal Chart | 9/9 | Complete    | 2026-08-26 |
 | 3. Private Local Workspace | 12/12 | Complete   | 2026-08-29 |
-| 4. Semantic Chart Exploration | 7/7 | Complete   | 2026-08-30 |
+| 4. Semantic Chart Exploration | 7/7 | Complete    | 2026-08-30 |
 | 5. Natal Transit Workspace | 0/TBD | Not started | - |
 | 6. Repeatable Reading Method | 0/TBD | Not started | - |
 | 7. Grounded AI Reading | 0/TBD | Not started | - |
