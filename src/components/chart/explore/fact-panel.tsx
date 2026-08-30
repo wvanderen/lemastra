@@ -106,8 +106,14 @@ function provisionalFor(
  * unsupported. The mode keys the sentence template pair (D-06: same
  * facts, same degree split — Simple plain vocabulary vs Technical full
  * precision; never a second data path).
+ *
+ * Exported (04-07 Task 1) as the SINGLE sentence source the a11y
+ * overlay shares with the panel: the overlay's labels come from THIS
+ * resolver (zero second formatters — A-UI-4/T-04-15 parity is
+ * structural), and the parity suite asserts string equality against
+ * the panel's composed label through it.
  */
-function resolveFact(
+export function resolveFact(
   selection: FactorRef,
   envelope: CalculateResponse,
   mode: ExploreMode
