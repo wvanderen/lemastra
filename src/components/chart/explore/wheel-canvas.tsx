@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { useSharedValue } from "react-native-reanimated";
@@ -15,8 +15,12 @@ import {
   matchFont,
 } from "@shopify/react-native-skia";
 
+import { formatDegreeMinutes, splitDegreeMinutes } from "@/components/chart/placement-list";
+import { ThemedText } from "@/components/themed-text";
+import { Spacing } from "@/constants/theme";
 import { PROVISIONAL_MARKER } from "@/components/chart/evidence-vocabulary/tokens";
 import { useTheme } from "@/hooks/use-theme";
+import { tierForScale, type DeclutterTier } from "@/lib/chart-wheel/collision";
 import {
   ASPECT_STYLES,
   DEFAULT_ASPECT_STYLE,
@@ -35,7 +39,7 @@ import {
   type WheelGeometry,
 } from "@/lib/chart-wheel/geometry";
 
-import { ANGLE_MARKERS } from "./copy";
+import { ANGLE_MARKERS, WHEEL_ZOOM_HINT } from "./copy";
 
 /**
  * WheelCanvas — the repo's first Skia surface (04-03 Task 2, WHEEL-02's
@@ -88,9 +92,19 @@ import { ANGLE_MARKERS } from "./copy";
 const SIGN_FONT_SIZE = 24;
 const PLANET_FONT_SIZE = 30;
 const ANGLE_FONT_SIZE = 16;
+/** Degree-label font for the mid/high declutter tiers (04-05 Task 2). */
+const DEGREE_FONT_SIZE = 13;
 const signFont = matchFont({ fontFamily: "serif", fontSize: SIGN_FONT_SIZE });
 const planetFont = matchFont({ fontFamily: "serif", fontSize: PLANET_FONT_SIZE });
 const angleFont = matchFont({ fontFamily: "serif", fontSize: ANGLE_FONT_SIZE });
+const degreeFont = matchFont({ fontFamily: "serif", fontSize: DEGREE_FONT_SIZE });
+
+/**
+ * Radial offset from each glyph anchor toward the sign band where the
+ * tiered degree labels sit (base size 720; A4 tunable, verified
+ * on-device at the 04-07 checkpoint).
+ */
+const DEGREE_LABEL_OFFSET = 16;
 
 /** Dash intervals per non-solid stroke pattern (base-size units). */
 const DASH_INTERVALS = { dashed: [8, 6], dotted: [1, 4] } as const;
@@ -256,6 +270,13 @@ export type WheelGraphicsProps = {
   /** The shared selection (D-10) — renders the accent outline highlight. */
   selection: FactorRef | null;
   colors: WheelColors;
+  /**
+   * Label-detail tier (04-05, tierForScale): "base" renders glyphs
+   * only; "mid" adds D° degree labels; "high" adds the finest set
+   * (D°MM′). Static consumers (the D-03 mini preview) omit it and stay
+   * at base — the preview never forks from the wheel's data path.
+   */
+  tier?: DeclutterTier;
 };
 
 /**
@@ -266,7 +287,7 @@ export type WheelGraphicsProps = {
  * primitives through this component (one geometry, one renderer — never
  * a forked preview).
  */
-export function WheelGraphics({ geometry, selection, colors }: WheelGraphicsProps) {
+export function WheelGraphics({ geometry, selection, colors, tier = "base" }: WheelGraphicsProps) {
   const selectedRegion =
     selection === null
       ? undefined
@@ -410,6 +431,29 @@ export function WheelGraphics({ geometry, selection, colors }: WheelGraphicsProp
         )
       )}
 
+      {/* Tiered degree labels (04-05 Task 2, D-11 declutter tiers):
+          hidden at base, D° at mid, D°MM′ at high — derived from the
+          EMITTED absolute longitudes through the ONE degree split
+          (positioning math over emitted facts, never a recalculated
+          astrological fact), placed just radially outward of each
+          decluttered glyph anchor. Labels are not hit targets. */}
+      {tier !== "base" &&
+        geometry.planetAnchors.map((anchor) => {
+          const withinSign = anchor.longitude % 30;
+          const label =
+            tier === "mid"
+              ? `${splitDegreeMinutes(withinSign).degrees}°`
+              : formatDegreeMinutes(withinSign);
+          return glyphText(
+            degreeFont,
+            DEGREE_FONT_SIZE,
+            label,
+            polarLocal(geometry.cx, geometry.cy, anchor.angle, anchor.radius + DEGREE_LABEL_OFFSET),
+            colors.textSecondary,
+            `degree-label-${anchor.body}`
+          );
+        })}
+
       {/* Selection highlight — accent outline over the region
           (stroke + weight; a hue-only change is forbidden) */}
       {renderSelectionOutline(geometry, selectedRegion, colors.accent)}
@@ -442,6 +486,19 @@ export function WheelCanvas({ geometry, selection, onSelect, size }: WheelCanvas
   const savedScale = useSharedValue(1);
   const savedOffsetX = useSharedValue(0);
   const savedOffsetY = useSharedValue(0);
+
+  // Declutter tier (04-05 Task 2): React state holds the TIER — never
+  // the per-frame scale (D-11 law). The settled pinch end commits
+  // tierForScale(live scale) through runOnJS, so labels recompute
+  // exactly once per threshold crossing, not per gesture frame.
+  const [tier, setTier] = useState<DeclutterTier>("base");
+  const commitTier = useMemo(
+    () => (viewScale: number) => {
+      const next = tierForScale(viewScale);
+      setTier((prev) => (prev === next ? prev : next));
+    },
+    []
+  );
 
   // Pan clamp (base coordinates): the transformed wheel center
   // (cx + offsetX, cy + offsetY) must stay inside the canvas square —
@@ -507,7 +564,9 @@ export function WheelCanvas({ geometry, selection, onSelect, size }: WheelCanvas
   );
 
   // Pinch zoom about the wheel center (the Group origin below), clamped
-  // to [MIN_ZOOM, MAX_ZOOM] = 1–4× (A4 starting values).
+  // to [MIN_ZOOM, MAX_ZOOM] = 1–4× (A4 starting values). The gesture
+  // end saves the scale AND commits the settled tier — the only tier
+  // state transition (labels recompute once per threshold crossing).
   const pinch = useMemo(
     () =>
       Gesture.Pinch()
@@ -518,8 +577,9 @@ export function WheelCanvas({ geometry, selection, onSelect, size }: WheelCanvas
         .onEnd(() => {
           "worklet";
           savedScale.value = scale.value;
+          runOnJS(commitTier)(scale.value);
         }),
-    [scale, savedScale]
+    [scale, savedScale, commitTier]
   );
 
   // Composition: pan + pinch run simultaneously (Pattern 4) with the
@@ -546,6 +606,7 @@ export function WheelCanvas({ geometry, selection, onSelect, size }: WheelCanvas
               <WheelGraphics
                 geometry={geometry}
                 selection={selection}
+                tier={tier}
                 colors={{
                   text: theme.text,
                   textSecondary: theme.textSecondary,
@@ -556,6 +617,16 @@ export function WheelCanvas({ geometry, selection, onSelect, size }: WheelCanvas
           </Group>
         </Canvas>
       </GestureDetector>
+      {/* Deck-exact zoom hint, once, under the canvas (D-11 affordance:
+          dense regions are inspectable; tap selection stays exact). */}
+      <ThemedText
+        type="small"
+        themeColor="textSecondary"
+        style={styles.zoomHint}
+        testID="wheel-zoom-hint"
+      >
+        {WHEEL_ZOOM_HINT}
+      </ThemedText>
     </View>
   );
 }
@@ -617,5 +688,9 @@ const styles = StyleSheet.create({
   frame: {
     width: "100%",
     alignItems: "center",
+  },
+  zoomHint: {
+    marginTop: Spacing.one,
+    textAlign: "center",
   },
 });

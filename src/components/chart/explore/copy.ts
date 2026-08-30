@@ -46,6 +46,17 @@ export const EXPLORE_CARD_HELPER =
 export const EXPLORE_CARD_SAVE_HINT = "Exploring saves this chart to your workspace first.";
 
 // ---------------------------------------------------------------------------
+// Wheel zoom hint (04-05 Task 2, D-11) — rendered once near the canvas
+// ---------------------------------------------------------------------------
+
+/**
+ * Zoom/pan affordance hint under the wheel canvas: states the D-11
+ * inspection gestures (and that tap selection keeps working zoomed).
+ */
+export const WHEEL_ZOOM_HINT =
+  "Pinch to zoom and drag to pan the wheel for a closer look at crowded areas.";
+
+// ---------------------------------------------------------------------------
 // Fact panel (D-09)
 // ---------------------------------------------------------------------------
 
