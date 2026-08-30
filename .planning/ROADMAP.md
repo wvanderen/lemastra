@@ -115,7 +115,7 @@ Plans:
   4. User can export one chart's structured data and provenance or export/delete all locally stored personal data.
   5. Charts and later personal artifacts are local and private by default, while analytics, logs, and crash telemetry exclude or redact sensitive content and credentials.
 
-**Plans:** 11/12 plans complete
+**Plans:** 12/12 plans complete
 
 Plans:
 **Wave 1**
@@ -157,7 +157,7 @@ Plans:
 
 **Wave 9** *(gap closure — UAT keyless-503 DX gap: api/.env never loaded by any code path; see 03-UAT.md Gaps)*
 
-- [ ] 03-12-PLAN.md — API env loading: minimal api/.env bridge in settings.py (real env wins, zero new deps) + keyless visibility (startup warning + health places_search_available flag) + README/.env.example truth (WORK-01, WORK-02)
+- [x] 03-12-PLAN.md — API env loading: minimal api/.env bridge in settings.py (real env wins, zero new deps) + keyless visibility (startup warning + health places_search_available flag) + README/.env.example truth (WORK-01, WORK-02)
 
 **UI hint:** yes
 
@@ -282,7 +282,7 @@ Plans:
 |-------|----------------|--------|-----------|
 | 1. Trust and Release Boundary | 7/7 | Complete    | 2026-08-23 |
 | 2. Trustworthy Natal Chart | 9/9 | Complete    | 2026-08-26 |
-| 3. Private Local Workspace | 11/11 | Complete   | 2026-08-29 |
+| 3. Private Local Workspace | 12/12 | Complete   | 2026-08-29 |
 | 4. Semantic Chart Exploration | 0/TBD | Not started | - |
 | 5. Natal Transit Workspace | 0/TBD | Not started | - |
 | 6. Repeatable Reading Method | 0/TBD | Not started | - |

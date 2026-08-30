@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 03
 current_phase_name: private-local-workspace
 status: executing
-stopped_at: Completed 03-11-PLAN.md (gap closure — UAT Test 1 items 4+5 closed, phase 03 gap-closure wave complete)
-last_updated: "2026-08-29T21:57:36.815Z"
-last_activity: 2026-08-29
+stopped_at: "Completed 03-12-PLAN.md (gap closure — UAT gap 3 closed: api/.env auto-load + keyless visibility; phase 03 complete)"
+last_updated: "2026-08-30T02:46:44.724Z"
+last_activity: 2026-08-30
 last_activity_desc: Phase 03 execution started
 progress:
   total_phases: 10
   completed_phases: 3
-  total_plans: 27
-  completed_plans: 27
+  total_plans: 28
+  completed_plans: 28
   percent: 30
 ---
 
@@ -29,9 +29,9 @@ See: .planning/PROJECT.md (updated 2026-08-26)
 ## Current Position
 
 Phase: 03 (private-local-workspace) — EXECUTING
-Plan: 3 of 11
+Plan: 2 of 12
 Status: Ready to execute
-Last activity: 2026-08-29 — Phase 03 execution started
+Last activity: 2026-08-30 — Phase 03 execution started
 
 Progress: [████████████████████] 25/25 plans (100%)
 
@@ -80,6 +80,7 @@ Progress: [████████████████████] 25/25 p
 | Phase 03 P09 | 15 min | 3 tasks | 6 files |
 | Phase 03 P10 | 6 min | 3 tasks | 7 files |
 | Phase 03 P11 | 2 min | 2 tasks | 5 files |
+| Phase 03 P12 | 3 min | 3 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -151,6 +152,7 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - [Phase Phase 03]: [Phase 03]: 03-10: DB-gate hardening lives in the gate, not migration SQL: post-migrate PRAGMA shape check vs drizzle getTableColumns (zero-maintenance) + dev-only one-shot self-heal (FK-ordered drops + re-migrate); production builds never wipe — typed+logged OPEN_FAILED — ranked root cause 1 (stale device-resident lemastra.db with journal row at the committed when); T-03-10-02 dev-flag-only bounded wipe
 - [Phase ?]: 03-11: result.tsx imports the WorkspaceError class from dependency-free errors.ts (singleton identity in every test mock graph; component graph stays free of repository/db) while copy.ts takes the type from the repository re-export per plan — Partial repository mock factories in tests would need class pass-throughs otherwise; errors.ts imports nothing so instanceof identity is guaranteed; the type-only import is runtime-erased
 - [Phase ?]: 03-11: home isError takes precedence over hasCharts — a failed listCharts never half-renders (no heading over zero rows); hero + calculate CTA remain; empty/web/error states mutually distinct and test-pinned — A background-refetch failure with cached rows would otherwise half-render; a dead DB must never read as 'no charts'
+- [Phase 03]: 03-12: keyless-state test hygiene pins GOOGLE_API_KEY via present-but-empty setenv (setdefault only fills ABSENT variables) — the only form deterministic against a real populated api/.env; the .env bridge is a restrictive stdlib loader at the single configuration read site (zero new packages, uv.lock untouched)
 
 ### Pending Todos
 
@@ -177,6 +179,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-29T21:57:36.808Z
-Stopped at: Completed 03-11-PLAN.md (gap closure — UAT Test 1 items 4+5 closed, phase 03 gap-closure wave complete)
+Last session: 2026-08-30T02:46:41.292Z
+Stopped at: Completed 03-12-PLAN.md (gap closure — UAT gap 3 closed: api/.env auto-load + keyless visibility; phase 03 complete)
 Resume file: None
