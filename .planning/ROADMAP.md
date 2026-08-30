@@ -9,7 +9,7 @@ LemAstra advances through ten vertical slices: establish a lawful and private re
 - [x] **Phase 1: Trust and Release Boundary** - Users can understand the supported product, providers, and privacy posture before sensitive data leaves their device. (completed 2026-08-23)
 - [x] **Phase 2: Trustworthy Natal Chart** - Users can resolve birth details and calculate a validated, provenance-rich natal chart. (completed 2026-08-26)
 - [x] **Phase 3: Private Local Workspace** - Users can save, revise, reopen, export, and delete charts without an account. (UAT blocker gap closure in progress) (completed 2026-08-29)
-- [ ] **Phase 4: Semantic Chart Exploration** - Users can explore the natal wheel and the same evidence through accessible beginner and technical views.
+- [x] **Phase 4: Semantic Chart Exploration** - Users can explore the natal wheel and the same evidence through accessible beginner and technical views. (completed 2026-08-30)
 - [ ] **Phase 5: Natal Transit Workspace** - Users can calculate, inspect, save, and reopen a transit comparison tied to an exact natal revision.
 - [ ] **Phase 6: Repeatable Reading Method** - Users can select a focus and inspect a reproducible `astrology-skill` reading plan before generation.
 - [ ] **Phase 7: Grounded AI Reading** - Users can securely stream evidence-grounded readings through managed or BYO connections.
@@ -175,7 +175,7 @@ Plans:
   4. User can tell calculated fact, methodological judgment, generated interpretation, and uncertainty apart wherever they appear.
   5. User can navigate the core chart view with a screen reader and text scaling, without relying on color or interpreting the graphical wheel.
 
-**Plans:** 6/7 plans executed
+**Plans:** 7/7 plans complete
 
 Plans:
 **Wave 1** *(foundation — see wave-shape note)*
@@ -201,7 +201,7 @@ Plans:
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
-- [ ] 04-07-PLAN.md — Accessible overlay + canvas hiding + parity tests + D-04 web evidence experience on /chart/result + on-device checkpoint incl. glyph spike A1 (WHEEL-05, EVID-02, A11Y-01/02/03)
+- [x] 04-07-PLAN.md — Accessible overlay + canvas hiding + parity tests + D-04 web evidence experience on /chart/result + on-device checkpoint incl. glyph spike A1 (WHEEL-05, EVID-02, A11Y-01/02/03)
 
 > **Wave-shape note (intentional deviation):** Waves 1–2 start foundation-heavy by design, not a slicing gap: the pure geometry module is simultaneously the numeric test surface, the mini-wheel source, and the a11y-overlay source — no UI can mount on it before it exists (same shape as Phases 2–3 Wave 1). The first user-visible slice lands in Wave 2 (04-03: calculate → wheel preview → explore → tap → exact facts) and the walkable loop runs unbroken through Wave 6 (zoom → lists sync → mode flip → screen-reader parity). Waves 3–6 serialize on shared files (explore/copy.ts, wheel-canvas.tsx, explore.tsx), not on doubts.
 
@@ -312,7 +312,7 @@ Plans:
 | 1. Trust and Release Boundary | 7/7 | Complete    | 2026-08-23 |
 | 2. Trustworthy Natal Chart | 9/9 | Complete    | 2026-08-26 |
 | 3. Private Local Workspace | 12/12 | Complete   | 2026-08-29 |
-| 4. Semantic Chart Exploration | 6/7 | In Progress|  |
+| 4. Semantic Chart Exploration | 7/7 | Complete   | 2026-08-30 |
 | 5. Natal Transit Workspace | 0/TBD | Not started | - |
 | 6. Repeatable Reading Method | 0/TBD | Not started | - |
 | 7. Grounded AI Reading | 0/TBD | Not started | - |
