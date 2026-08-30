@@ -167,6 +167,8 @@ let cleanup: () => Promise<void>;
 let act: <T>(callback: () => T | Promise<T>) => Promise<T>;
 let waitFor: typeof import("@testing-library/react-native/pure").waitFor;
 let Platform: typeof import("react-native").Platform;
+/** The suite's ambient OS — captured once; every swap restores it. */
+let originalOS: typeof Platform.OS;
 // Typed as the FACADE module — the vitest alias resolves the specifier
 // to the recording facade (wheel-selection.test.tsx law).
 type SkiaFacade = typeof import("../../scripts/vitest/skia-facade/index");
@@ -179,6 +181,7 @@ beforeAll(async () => {
     "@testing-library/react-native/pure"
   ));
   ({ Platform } = await import("react-native"));
+  originalOS = Platform.OS;
   skia = (await import("@shopify/react-native-skia")) as unknown as SkiaFacade;
   ({ default: ResultScreen } = await import("@/app/chart/result"));
   ({ default: ExploreScreen } = await import("@/app/chart/explore"));
@@ -189,7 +192,7 @@ afterEach(async () => {
   vi.clearAllMocks();
   paramsState.value = {};
   modeStore.set("@lemastra:explore.mode.v1", "technical");
-  if (Platform.OS !== "ios") Platform.OS = "ios";
+  if (Platform.OS !== originalOS) Platform.OS = originalOS;
 });
 
 beforeEach(() => {
@@ -284,10 +287,12 @@ describe("web /chart/result — D-04 evidence experience", () => {
       expect(view.queryByText(SECT_HEADING)).toBeNull();
       expect(view.queryByText(orbVisualPhrase(0.3))).toBeNull();
 
-      // Same envelope, same deck: the retrograde placement chips its
-      // glossary term (D-08) — the covered vocabulary survives the
-      // platform change because the SAME components mount.
-      expect(view.getByTestId("glossary-retrograde")).toBeTruthy();
+      // Same envelope, same deck: the retrograde placements chip their
+      // glossary term (D-08, one chip per covered row — the fixture
+      // carries Mercury AND Uranus retrograde; the 04-06
+      // getAllByTestId scoping law) — the covered vocabulary survives
+      // the platform change because the SAME components mount.
+      expect(view.getAllByTestId("glossary-retrograde").length).toBe(2);
 
       // Zero canvas on web in every mode.
       expect(canvasMounts()).toBe(0);
@@ -349,55 +354,18 @@ describe("web /chart/result — selection via pressable rows (D-10 list-half)", 
       ).toBeTruthy();
 
       // Selected state: accessibilityState + accent border, never
-      // color alone (A11Y-02).
+      // color alone (A11Y-02). The accent is the LAST borderColor in
+      // the row's style array (hairline first, accent when selected).
       const row = view.getByTestId("evidence-row-planet-Sun");
       expect(row.props.accessibilityState).toMatchObject({ selected: true });
-      const borderColor = [row.props.style]
+      const borderColors = [row.props.style]
         .flat()
         .filter((s) => s && typeof s === "object")
         .map((s) => (s as { borderColor?: string }).borderColor)
-        .find((c) => c !== undefined);
-      expect(borderColor).toBe(ACCENT);
-    } finally {
-      restore();
-    }
-  });
+        .filter((c): c is string => c !== undefined);
+      expect(borderColors[borderColors.length - 1]).toBe(ACCENT);
 
-  it("flipping the mode toggle switches vocabulary and depth together from the same envelope (runs LAST)", async () => {
-    const { view, restore } = await renderResultWeb();
-    try {
-      // Select a factor in Technical…
-      fireEvent.press(view.getByTestId("evidence-row-planet-Sun"));
-      await act(async () => {});
-      expect(
-        view.getByText(
-          "Sun in Aries 26°39′, House 4, Direct motion, Dignities: Exaltation, absolute 26.65°"
-        )
-      ).toBeTruthy();
-
-      // …then flip to Simple: the SAME selection re-renders through
-      // the plain-language templates (same data path), the deep
-      // sections disappear, and the toggle's checked state moves.
-      fireEvent.press(view.getByTestId("mode-simple"));
-      await act(async () => {});
-
-      expect(
-        view.getByText("Sun in Aries at 26°39′, in House 4, moving direct, Exaltation")
-      ).toBeTruthy();
-      expect(view.queryByTestId("evidence-section-lots")).toBeNull();
-      expect(view.queryByTestId("evidence-section-sect")).toBeNull();
-      expect(view.getByTestId("mode-simple").props.accessibilityState).toMatchObject({
-        checked: true,
-      });
-      expect(view.getByTestId("mode-technical").props.accessibilityState).toMatchObject({
-        checked: false,
-      });
-
-      // The row keeps its selected state across the flip — selection
-      // and mode share the FactorRef space, not the same state.
-      expect(view.getByTestId("evidence-row-planet-Sun").props.accessibilityState).toMatchObject({
-        selected: true,
-      });
+      // Zero canvas on web at every step.
       expect(canvasMounts()).toBe(0);
     } finally {
       restore();

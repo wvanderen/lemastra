@@ -6,7 +6,9 @@ import type { render as rtlRender } from "@testing-library/react-native/pure";
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { factPanelA11yLabel } from "@/components/chart/explore/copy";
+import { PROVISIONAL_MARKER } from "@/components/chart/evidence-vocabulary/tokens";
 import { calculateResponseSchema, type CalculateResponse } from "@/lib/api-schemas";
+import { ASPECT_STYLES, DEFAULT_ASPECT_STYLE } from "@/lib/chart-wheel/glyphs";
 import { buildWheelGeometry, type FactorRef, type HitRegion } from "@/lib/chart-wheel/geometry";
 import type { ChartDetail } from "@/lib/workspace/repository";
 
@@ -230,6 +232,10 @@ let act: <T>(callback: () => T | Promise<T>) => Promise<T>;
 let waitFor: typeof import("@testing-library/react-native/pure").waitFor;
 let resolveFact: typeof import("@/components/chart/explore/fact-panel").resolveFact;
 let ExploreScreen: typeof import("@/app/chart/explore").default;
+// Typed as the FACADE module — the vitest alias resolves the specifier
+// to the recording facade (wheel-selection.test.tsx law).
+type SkiaFacade = typeof import("../../scripts/vitest/skia-facade/index");
+let skia: SkiaFacade;
 
 beforeAll(async () => {
   const pure = await import("@testing-library/react-native/pure");
@@ -239,6 +245,7 @@ beforeAll(async () => {
   pure.configure({ defaultIncludeHiddenElements: true });
   ({ resolveFact } = await import("@/components/chart/explore/fact-panel"));
   ({ default: ExploreScreen } = await import("@/app/chart/explore"));
+  skia = (await import("@shopify/react-native-skia")) as unknown as SkiaFacade;
 });
 
 afterEach(async () => {
@@ -250,6 +257,7 @@ afterEach(async () => {
 
 beforeEach(() => {
   repository.isWorkspaceStorageAvailable.mockReturnValue(true);
+  skia.__clearRendered();
 });
 
 /** Fresh retry-off QueryClient wrapper (saved-chart-detail.test.tsx law). */
@@ -437,6 +445,120 @@ describe("wheel a11y overlay — positioning from hit-region rects", () => {
     expect(signFrame.height).toBeGreaterThan(44);
     expect(signFrame.left).toBeGreaterThanOrEqual(-1);
     expect(signFrame.top).toBeGreaterThanOrEqual(-1);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// A11Y-02 conformance at RENDER level (04-07 Task 2) — re-asserted on
+// the route-mounted canvas through the recording facade: every aspect
+// chord carries its family's stroke PATTERN + WEIGHT (never hue alone)
+// and the D-16 provisional treatment is dashed + text-redundant.
+// ---------------------------------------------------------------------------
+
+describe("A11Y-02 conformance — aspect chords at render level", () => {
+  it("styles every chord with the family's strokePattern + strokeWidth, dash children exactly for non-solid patterns (all three patterns covered)", async () => {
+    await renderExplore(timedEnvelope);
+
+    /** Value point comparison — the route builds its own geometry instance. */
+    const samePoint = (a: unknown, b: { x: number; y: number }): boolean =>
+      typeof a === "object" &&
+      a !== null &&
+      Math.abs((a as { x: number }).x - b.x) < 1e-6 &&
+      Math.abs((a as { y: number }).y - b.y) < 1e-6;
+
+    // The fixture carries square (solid), sextile (dotted), trine
+    // (dashed) — the full pattern range in one render.
+    const patternsSeen = new Set<string>();
+    for (const chord of timedGeometry.aspectChords) {
+      const style = ASPECT_STYLES[chord.aspectName] ?? DEFAULT_ASPECT_STYLE;
+      const line = skia
+        .__getRendered()
+        .find(
+          (entry) =>
+            entry.type === "Line" &&
+            samePoint(entry.props.p1, chord.from) &&
+            samePoint(entry.props.p2, chord.to)
+        );
+      expect(line, `chord line for aspect ${chord.index} (${chord.aspectName})`).toBeDefined();
+      expect(line!.props.style).toBe("stroke");
+      expect(line!.props.strokeWidth).toBe(style.strokeWidth);
+      const child = line!.props.children as { type?: { displayName?: string } } | null;
+      if (style.pattern === "solid") {
+        expect(child).toBeNull(); // solid carries weight alone — no dash effect
+      } else {
+        expect(child?.type?.displayName).toBe("DashPathEffect");
+      }
+      patternsSeen.add(style.pattern);
+    }
+    expect(patternsSeen).toEqual(new Set(["solid", "dashed", "dotted"]));
+  });
+});
+
+describe("A11Y-02 conformance — D-16 provisional treatment at render level", () => {
+  it("draws exactly one DASHED outline around the provisional Moon anchor (unknown-time fixture)", async () => {
+    await renderExplore(unknownEnvelope);
+
+    // Provisional circles carry PROVISIONAL_MARKER.strokeWidth with a
+    // DashPathEffect child; the mode hydration re-render commits the
+    // tree more than once, so uniqueness is asserted per anchor point
+    // (the fixture flags exactly one body).
+    const provisionalCircles = skia
+      .__getRendered()
+      .filter(
+        (entry) =>
+          entry.type === "Circle" &&
+          entry.props.strokeWidth === PROVISIONAL_MARKER.strokeWidth &&
+          (entry.props.children as { type?: { displayName?: string } } | null)?.type
+            ?.displayName === "DashPathEffect"
+      );
+    expect(provisionalCircles.length).toBeGreaterThanOrEqual(1);
+    const anchors = new Set(
+      provisionalCircles.map((entry) => `${entry.props.cx},${entry.props.cy}`)
+    );
+    expect(anchors.size).toBe(1);
+
+    // …centered on the provisional body's glyph anchor (the Moon).
+    const moon = unknownGeometry.planetAnchors.find((anchor) => anchor.body === "Moon")!;
+    expect(provisionalCircles[0]!.props.cx).toBeCloseTo(moon.point.x, 5);
+    expect(provisionalCircles[0]!.props.cy).toBeCloseTo(moon.point.y, 5);
+
+    // Text redundancy (never hue/pattern alone): the Moon's overlay
+    // label carries the Provisional reason phrase — pinned by the
+    // label-parity test above through the same composed sentence the
+    // panel announces.
+  });
+});
+
+// ---------------------------------------------------------------------------
+// A11Y-02/A11Y-03 conformance — default font scaling across the explore
+// family (Pitfall 8: facts live in RN Text surfaces; no surface may
+// disable scaling — Skia text is never the sole fact carrier)
+// ---------------------------------------------------------------------------
+
+/** The explore family + the surfaces that mount it (source-scan law). */
+const FONT_SCALING_SOURCES = [
+  "src/components/chart/explore/wheel-a11y-overlay.tsx",
+  "src/components/chart/explore/wheel-canvas.tsx",
+  "src/components/chart/explore/fact-panel.tsx",
+  "src/components/chart/explore/evidence-lists.tsx",
+  "src/components/chart/explore/mode-toggle.tsx",
+  "src/components/chart/explore/glossary.tsx",
+  "src/components/chart/explore/mini-wheel-card.tsx",
+  "src/components/chart/explore/copy.ts",
+  "src/components/themed-text.tsx",
+  "src/app/chart/explore.tsx",
+  "src/app/chart/result.tsx",
+] as const;
+
+describe("A11Y-03 conformance — font scaling preserved", () => {
+  it("no explore-family text surface disables allowFontScaling (Pitfall 8)", () => {
+    for (const sourcePath of FONT_SCALING_SOURCES) {
+      const source = readFileSync(new URL(`../../${sourcePath}`, import.meta.url), "utf8");
+      expect(
+        source.includes("allowFontScaling={false}"),
+        `${sourcePath} must not disable font scaling`
+      ).toBe(false);
+    }
   });
 });
 
