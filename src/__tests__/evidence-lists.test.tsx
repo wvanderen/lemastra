@@ -49,13 +49,13 @@ import { calculateResponseSchema, type CalculateResponse } from "@/lib/api-schem
 
 let render: typeof rtlRender;
 let within: typeof rtlWithin;
-let fireEvent: typeof import("@testing-library/react-native/pure").fireEvent;
+let userEvent: typeof import("@testing-library/react-native/pure").userEvent;
 let cleanup: () => Promise<void>;
 let EvidenceLists: typeof import("@/components/chart/explore/evidence-lists").EvidenceLists;
 let Colors: typeof import("@/constants/theme").Colors;
 
 beforeAll(async () => {
-  ({ render, within, fireEvent, cleanup } = await import(
+  ({ render, within, userEvent, cleanup } = await import(
     "@testing-library/react-native/pure"
   ));
   ({ EvidenceLists } = await import("@/components/chart/explore/evidence-lists"));
@@ -180,9 +180,12 @@ describe("EvidenceLists — pressable rows emit the wheel's FactorRef", () => {
       <EvidenceLists envelope={timedEnvelope} selection={null} onSelect={onSelect} />
     );
 
-    fireEvent.press(view.getByTestId("evidence-row-planet-Sun"));
-    fireEvent.press(view.getByTestId("evidence-row-house-3"));
-    fireEvent.press(view.getByTestId("evidence-row-aspect-2"));
+    // userEvent (not bare fireEvent.press): the full pressability
+    // sequence completes the interaction — a bare press leaves pending
+    // state that corrupts later renders in this file (03-05 law).
+    await userEvent.press(view.getByTestId("evidence-row-planet-Sun"));
+    await userEvent.press(view.getByTestId("evidence-row-house-3"));
+    await userEvent.press(view.getByTestId("evidence-row-aspect-2"));
 
     expect(onSelect).toHaveBeenCalledTimes(3);
     expect(onSelect).toHaveBeenNthCalledWith(1, { kind: "planet", body: "Sun" });
@@ -343,7 +346,7 @@ describe("EvidenceLists — unknown-time envelope", () => {
     expect(view.queryByTestId("evidence-section-sect")).toBeNull();
     expect(view.queryByText(HOUSES_HEADING)).toBeNull();
     expect(view.queryByText(LOTS_HEADING)).toBeNull();
-    expect(view.queryByText(SECTS_HEADING)).toBeNull();
+    expect(view.queryByText(SECT_HEADING)).toBeNull();
 
     // Placements still render (5 fixture bodies), houseless (D-10).
     expect(view.getAllByTestId(/evidence-row-planet-/)).toHaveLength(5);

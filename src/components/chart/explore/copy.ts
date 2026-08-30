@@ -1,6 +1,6 @@
 import type { AngleWhich } from "@/lib/chart-wheel/geometry";
 
-import { housePhrase, motionLabel } from "../copy";
+import { housePhrase, motionLabel, spokenDegrees } from "../copy";
 
 /**
  * Explore copy deck (04-03 Task 1) — exact approved strings for the D-09
@@ -218,4 +218,124 @@ export function factPanelA11yLabel(sentence: string, provisionalNote?: string): 
   return [sentence, provisionalNote]
     .filter((segment): segment is string => segment !== undefined)
     .join(" — ");
+}
+
+// ---------------------------------------------------------------------------
+// Evidence list sections (04-04 Task 1) — WHEEL-04's table half
+// ---------------------------------------------------------------------------
+
+/** Houses section heading (renders only when the envelope carries cusps). */
+export const HOUSES_HEADING = "Houses";
+
+/** Aspects section heading (renders only when the envelope carries aspects). */
+export const ASPECTS_HEADING = "Aspects";
+
+/** Lots section heading — the D-06 Technical-only section, full depth. */
+export const LOTS_HEADING = "Lots";
+
+/** Sect section heading — the D-06 Technical-only section, full depth. */
+export const SECT_HEADING = "Sect";
+
+/** Sect status line — "{status} chart" with the server verdict verbatim. */
+export function sectStatusPhrase(status: string): string {
+  return `${status} chart`;
+}
+
+/** Sect card line label — the luminary of sect. */
+export const SECT_LUMINARY_LABEL = "Luminary of sect";
+
+/** Sect card line label — the planets of the same sect. */
+export const SECT_MATES_LABEL = "Sect mates";
+
+/** Visual orb phrase — "Orb: {n}°" (same template as the fact panel). */
+export function orbVisualPhrase(orbDegrees: number): string {
+  return `${ORB_LABEL}: ${orbDegrees}°`;
+}
+
+/** Spoken orb phrase — "Orb {n} degrees" (A-UI-4 spoken form). */
+export function orbSpokenPhrase(orbDegrees: number): string {
+  return `Orb ${orbDegrees} degrees`;
+}
+
+/** Inputs to the house-row a11y sentence (degree already split). */
+export interface HouseRowA11yInput {
+  house: number;
+  cuspSign: string;
+  degrees: number;
+  minutes: number;
+}
+
+/** House-row sentence — "House {n} cusp in {sign}, {degree spoken}". */
+export function houseRowA11yLabel(input: HouseRowA11yInput): string {
+  return `House ${input.house} cusp in ${input.cuspSign}, ${spokenDegrees(
+    input.degrees,
+    input.minutes
+  )}`;
+}
+
+/** Inputs to the aspect-row sentence (presence flags, calculator contract). */
+export interface AspectRowA11yInput {
+  bodyA: string;
+  /** Aspect name verbatim from the envelope (lowercase calculator vocabulary). */
+  aspect: string;
+  bodyB: string;
+  orbDegrees: number;
+  applying?: boolean;
+  separating?: boolean;
+  exact: boolean;
+}
+
+/**
+ * Aspect-row sentence — "{a} {aspect} {b}, Orb {n} degrees
+ * [, Applying|Separating], Exact|Not exact". Applying/separating speak
+ * only when the presence flag exists (stationary contacts carry
+ * neither — calculator contract).
+ */
+export function aspectRowA11yLabel(input: AspectRowA11yInput): string {
+  return [
+    `${input.bodyA} ${input.aspect} ${input.bodyB}`,
+    orbSpokenPhrase(input.orbDegrees),
+    input.applying === true ? APPLYING_LABEL : undefined,
+    input.separating === true ? SEPARATING_LABEL : undefined,
+    input.exact ? EXACT_ASPECT_LABEL : NOT_EXACT_ASPECT_LABEL,
+  ]
+    .filter((segment): segment is string => segment !== undefined)
+    .join(", ");
+}
+
+/** Inputs to the lot-row sentence (degree already split). */
+export interface LotRowA11yInput {
+  name: string;
+  sign: string;
+  degrees: number;
+  minutes: number;
+  /** Lot formula as computed (day/night sect variant) — verbatim. */
+  formula: string;
+}
+
+/** Lot-row sentence — "{name} in {sign}, {degree spoken}, {formula verbatim}". */
+export function lotRowA11yLabel(input: LotRowA11yInput): string {
+  return `${input.name} in ${input.sign}, ${spokenDegrees(input.degrees, input.minutes)}, ${
+    input.formula
+  }`;
+}
+
+/** Inputs to the sect-card sentence — every envelope field. */
+export interface SectCardA11yInput {
+  /** Server sect verdict ("day" | "night") — verbatim. */
+  status: string;
+  luminary: string;
+  sectMates: readonly string[];
+  /** Sun-altitude basis for the verdict — verbatim. */
+  notes: string;
+}
+
+/** Sect-card sentence — status, luminary, mates, notes; all fields, verbatim. */
+export function sectCardA11yLabel(input: SectCardA11yInput): string {
+  return [
+    sectStatusPhrase(input.status),
+    `${SECT_LUMINARY_LABEL}: ${input.luminary}`,
+    `${SECT_MATES_LABEL}: ${input.sectMates.join(", ")}`,
+    input.notes,
+  ].join(", ");
 }
