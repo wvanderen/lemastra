@@ -19,6 +19,8 @@
  */
 import { readFileSync } from "node:fs";
 
+import { describe, expect, it } from "vitest";
+
 import { calculateResponseSchema } from "@/lib/api-schemas";
 
 import { MAX_ZOOM, MIN_ZOOM, anchorLongitude, buildWheelGeometry, hitTest, inverseTransform, lonToAngle, polar } from "./geometry";
@@ -109,9 +111,10 @@ describe("sign spokes and glyph anchors (vendor 383–401)", () => {
     expect(g.signSpokes[0]!.longitude).toBe(0); // Aries boundary
     expect(g.signSpokes[0]!.angle).toBeCloseTo(4.9872783376, 6);
     // spokes span the sign band to the outer rim (252 → 330)
-    expect(g.signSpokes[0]!.inner).toEqual({ x: 108, y: 360 });
-    expect(g.signSpokes[0]!.outer.x).toBeCloseTo(30, 6);
-    expect(g.signSpokes[0]!.outer.y).toBeCloseTo(360, 6);
+    expect(g.signSpokes[0]!.inner.x).toBeCloseTo(428.402993, 5);
+    expect(g.signSpokes[0]!.inner.y).toBeCloseTo(602.53872, 5);
+    expect(g.signSpokes[0]!.outer.x).toBeCloseTo(449.575348, 5);
+    expect(g.signSpokes[0]!.outer.y).toBeCloseTo(677.610228, 5);
   });
 
   it("anchors sign glyphs at mid-sign (+15°) inside the sign band", () => {
@@ -132,9 +135,12 @@ describe("house lines (vendor 403–419)", () => {
     expect(h1.house).toBe(1);
     expect(h1.longitude).toBe(ANCHOR);
     expect(h1.angle).toBe(Math.PI); // the anchor IS cusp 1
-    expect(h1.inner).toEqual({ x: 351, y: 360 }); // r = 9
-    expect(h1.outer).toEqual({ x: 108, y: 360 }); // r = signInner 252
-    expect(h1.label).toEqual({ x: 234, y: 360 }); // signInner − 18
+    expect(h1.inner.x).toBeCloseTo(351, 6); // r = 9
+    expect(h1.inner.y).toBeCloseTo(360, 6);
+    expect(h1.outer.x).toBeCloseTo(108, 6); // r = signInner 252
+    expect(h1.outer.y).toBeCloseTo(360, 6);
+    expect(h1.label.x).toBeCloseTo(126, 6); // polar(π, signInner − 18)
+    expect(h1.label.y).toBeCloseTo(360, 6);
   });
 });
 
