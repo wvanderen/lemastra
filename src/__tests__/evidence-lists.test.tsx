@@ -103,7 +103,7 @@ function flattenStyle(style: unknown): Record<string, unknown> {
 describe("EvidenceLists — five sections, full envelope depth", () => {
   it("renders every section heading and all pressable rows for the Timed fixture", async () => {
     const view = await render(
-      <EvidenceLists envelope={timedEnvelope} selection={null} onSelect={() => undefined} />
+      <EvidenceLists mode="technical" envelope={timedEnvelope} selection={null} onSelect={() => undefined} />
     );
 
     for (const heading of [
@@ -158,7 +158,7 @@ describe("EvidenceLists — five sections, full envelope depth", () => {
 
   it("keeps lot rows and the sect card non-pressable — no FactorRef exists for them", async () => {
     const view = await render(
-      <EvidenceLists envelope={timedEnvelope} selection={null} onSelect={() => undefined} />
+      <EvidenceLists mode="technical" envelope={timedEnvelope} selection={null} onSelect={() => undefined} />
     );
 
     // Lots + sect render as plain listitems; only planet/house/aspect
@@ -177,7 +177,7 @@ describe("EvidenceLists — pressable rows emit the wheel's FactorRef", () => {
   it("emits {kind:'planet', body} / {kind:'house', house} / {kind:'aspect', index} on press", async () => {
     const onSelect = vi.fn();
     const view = await render(
-      <EvidenceLists envelope={timedEnvelope} selection={null} onSelect={onSelect} />
+      <EvidenceLists mode="technical" envelope={timedEnvelope} selection={null} onSelect={onSelect} />
     );
 
     // userEvent (not bare fireEvent.press): the full pressability
@@ -201,7 +201,7 @@ describe("EvidenceLists — pressable rows emit the wheel's FactorRef", () => {
 describe("EvidenceLists — a11y sentences from the copy decks", () => {
   it("exposes the unchanged placement sentence plus the new deck row sentences", async () => {
     const view = await render(
-      <EvidenceLists envelope={timedEnvelope} selection={null} onSelect={() => undefined} />
+      <EvidenceLists mode="technical" envelope={timedEnvelope} selection={null} onSelect={() => undefined} />
     );
 
     // Placements keep the Phase-2 sentence contract (placementA11yLabel).
@@ -263,7 +263,7 @@ describe("EvidenceLists — applying/separating render ONLY when the flag exists
     delete stationary.chart_data.aspects![0]!.separating;
 
     const view = await render(
-      <EvidenceLists envelope={stationary} selection={null} onSelect={() => undefined} />
+      <EvidenceLists mode="technical" envelope={stationary} selection={null} onSelect={() => undefined} />
     );
 
     const row = view.getByTestId("evidence-row-aspect-0");
@@ -286,6 +286,7 @@ describe("EvidenceLists — selected row state", () => {
   it("conveys selection through accessibilityState + accent border + 600 label weight", async () => {
     const view = await render(
       <EvidenceLists
+        mode="technical"
         envelope={timedEnvelope}
         selection={{ kind: "planet", body: "Sun" }}
         onSelect={() => undefined}
@@ -317,6 +318,7 @@ describe("EvidenceLists — selected row state", () => {
     // Cross-section selection: an aspect selection highlights the aspect row.
     const aspectView = await render(
       <EvidenceLists
+        mode="technical"
         envelope={timedEnvelope}
         selection={{ kind: "aspect", index: 0 }}
         onSelect={() => undefined}
@@ -338,7 +340,7 @@ describe("EvidenceLists — selected row state", () => {
 describe("EvidenceLists — unknown-time envelope", () => {
   it("renders placements + aspects and NO houses/lots/sect sections (not empty shells)", async () => {
     const view = await render(
-      <EvidenceLists envelope={unknownEnvelope} selection={null} onSelect={() => undefined} />
+      <EvidenceLists mode="technical" envelope={unknownEnvelope} selection={null} onSelect={() => undefined} />
     );
 
     expect(view.queryByTestId("evidence-section-houses")).toBeNull();

@@ -4,6 +4,7 @@ import { provisionalMarkerA11yPhrase } from "@/components/chart/evidence-vocabul
 import { formatDegreeMinutes } from "@/components/chart/placement-list";
 import { ThemedText } from "@/components/themed-text";
 import { Spacing } from "@/constants/theme";
+import type { ExploreMode } from "@/hooks/use-explore-mode";
 import { useTheme } from "@/hooks/use-theme";
 import type { CalculateResponse } from "@/lib/api-schemas";
 import { SIGN_ORDER } from "@/lib/chart-wheel/glyphs";
@@ -13,11 +14,16 @@ import {
   FACT_PANEL_IDLE,
   FACT_PANEL_LABEL,
   angleFactSentence,
+  angleFactSentenceSimple,
   aspectFactSentence,
+  aspectFactSentenceSimple,
   factPanelA11yLabel,
   houseFactSentence,
+  houseFactSentenceSimple,
   planetFactSentence,
+  planetFactSentenceSimple,
   signFactSentence,
+  signFactSentenceSimple,
 } from "./copy";
 
 /**
@@ -50,6 +56,13 @@ export type FactPanelProps = {
   selection: FactorRef | null;
   /** The already-zod-parsed envelope (repository edge — parse-then-trust). */
   envelope: CalculateResponse;
+  /**
+   * The explore mode (04-06, D-06): Simple sentences use the deck's
+   * plain-language templates (same facts, same degree split — only
+   * vocabulary and the D-06 hidden fields differ); Technical keeps
+   * full precision. One envelope, mode-keyed templates.
+   */
+  mode: ExploreMode;
 };
 
 /** A resolved selection: the fact sentence plus its D-16 note when provisional. */
@@ -88,16 +101,26 @@ function provisionalFor(
   return match === undefined ? undefined : { id: match.factor, reason: match.reason };
 }
 
-/** Resolve a selection to its exact envelope facts, or null when unsupported. */
-function resolveFact(selection: FactorRef, envelope: CalculateResponse): ResolvedFact | null {
+/**
+ * Resolve a selection to its exact envelope facts, or null when
+ * unsupported. The mode keys the sentence template pair (D-06: same
+ * facts, same degree split — Simple plain vocabulary vs Technical full
+ * precision; never a second data path).
+ */
+function resolveFact(
+  selection: FactorRef,
+  envelope: CalculateResponse,
+  mode: ExploreMode
+): ResolvedFact | null {
   const chart = envelope.chart_data;
+  const simple = mode === "simple";
 
   let sentence: string | undefined;
   switch (selection.kind) {
     case "planet": {
       const placement = chart.placements.find((p) => p.body === selection.body);
       if (placement === undefined) return null;
-      sentence = planetFactSentence({
+      const input = {
         body: placement.body,
         sign: placement.sign,
         degreeText: formatDegreeMinutes(placement.degree),
@@ -105,7 +128,8 @@ function resolveFact(selection: FactorRef, envelope: CalculateResponse): Resolve
         motion: placement.motion,
         dignities: placement.dignity,
         absoluteDegree: placement.absolute_degree,
-      });
+      };
+      sentence = simple ? planetFactSentenceSimple(input) : planetFactSentence(input);
       break;
     }
     case "angle": {
@@ -122,11 +146,12 @@ function resolveFact(selection: FactorRef, envelope: CalculateResponse): Resolve
         position = signAndDegree((chart.midheaven.absolute_degree + 180) % 360);
       }
       if (position === undefined) return null; // unknown-time: no angle facts
-      sentence = angleFactSentence({
+      const input = {
         which: selection.which,
         sign: position.sign,
         degreeText: formatDegreeMinutes(position.degree),
-      });
+      };
+      sentence = simple ? angleFactSentenceSimple(input) : angleFactSentence(input);
       break;
     }
     case "house": {
@@ -135,23 +160,26 @@ function resolveFact(selection: FactorRef, envelope: CalculateResponse): Resolve
       const bodies = chart.placements
         .filter((p) => p.house === selection.house)
         .map((p) => p.body);
-      sentence = houseFactSentence({
+      const input = {
         house: cusp.house,
         cuspSign: cusp.sign,
         cuspDegreeText: formatDegreeMinutes(cusp.degree),
         bodies,
-      });
+      };
+      sentence = simple ? houseFactSentenceSimple(input) : houseFactSentence(input);
       break;
     }
     case "sign": {
       const bodies = chart.placements.filter((p) => p.sign === selection.sign).map((p) => p.body);
-      sentence = signFactSentence({ sign: selection.sign, bodies });
+      sentence = simple
+        ? signFactSentenceSimple({ sign: selection.sign, bodies })
+        : signFactSentence({ sign: selection.sign, bodies });
       break;
     }
     case "aspect": {
       const aspect = chart.aspects?.[selection.index];
       if (aspect === undefined) return null;
-      sentence = aspectFactSentence({
+      const input = {
         bodyA: aspect.body_a,
         aspect: aspect.aspect,
         bodyB: aspect.body_b,
@@ -159,7 +187,8 @@ function resolveFact(selection: FactorRef, envelope: CalculateResponse): Resolve
         applying: aspect.applying,
         separating: aspect.separating,
         exact: aspect.exact,
-      });
+      };
+      sentence = simple ? aspectFactSentenceSimple(input) : aspectFactSentence(input);
       break;
     }
   }
@@ -180,9 +209,9 @@ function resolveFact(selection: FactorRef, envelope: CalculateResponse): Resolve
 /** Hairline carried forward from the Phase-1 card treatment. */
 const HAIRLINE_BORDER_COLOR = "rgba(128, 128, 128, 0.4)";
 
-export function FactPanel({ selection, envelope }: FactPanelProps) {
+export function FactPanel({ selection, envelope, mode }: FactPanelProps) {
   const theme = useTheme();
-  const fact = selection === null ? null : resolveFact(selection, envelope);
+  const fact = selection === null ? null : resolveFact(selection, envelope, mode);
   const a11yLabel =
     fact === null ? FACT_PANEL_IDLE : factPanelA11yLabel(fact.sentence, fact.provisionalNote);
 

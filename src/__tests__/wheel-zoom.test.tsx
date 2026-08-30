@@ -159,6 +159,7 @@ async function renderTimed() {
   const onSelect = vi.fn();
   const view = await render(
     <WheelCanvas
+      mode="technical"
       geometry={timedGeometry}
       selection={null}
       onSelect={onSelect}

@@ -9,15 +9,19 @@ import {
 import { formatDegreeMinutes, splitDegreeMinutes } from "@/components/chart/placement-list";
 import { ThemedText } from "@/components/themed-text";
 import { Spacing } from "@/constants/theme";
+import type { ExploreMode } from "@/hooks/use-explore-mode";
 import { useTheme } from "@/hooks/use-theme";
 import type { CalculateResponse } from "@/lib/api-schemas";
 import type { FactorRef } from "@/lib/chart-wheel/geometry";
 
 import { PLACEMENTS_HEADING, housePhrase, motionLabel, placementA11yLabel } from "../copy";
+import { Glossary } from "./glossary";
 import {
   APPLYING_LABEL,
   ASPECTS_HEADING,
   EXACT_ASPECT_LABEL,
+  GLOSSARY,
+  GLOSSARY_TERM_RETROGRADE,
   HOUSES_HEADING,
   LOTS_HEADING,
   NOT_EXACT_ASPECT_LABEL,
@@ -26,7 +30,9 @@ import {
   SECT_MATES_LABEL,
   SEPARATING_LABEL,
   aspectRowA11yLabel,
+  aspectRowA11yLabelSimple,
   houseRowA11yLabel,
+  houseRowA11yLabelSimple,
   lotRowA11yLabel,
   orbVisualPhrase,
   sectCardA11yLabel,
@@ -44,7 +50,8 @@ import {
  * aspects and NO houses/lots/sect shells (Phase-2 D-10 honesty: absent
  * keys ⇒ absent sections). Lots + sect render at FULL envelope depth
  * (formula, luminary, sect mates, notes verbatim) — the D-06
- * Technical-only sections; 04-06 hides them in Simple mode.
+ * Technical-only sections; Simple mode hides them (04-06), along with
+ * the orb / applying / separating fields, from the SAME data path.
  *
  * Rows extend the PlacementList patterns (never a fork): the Phase-1
  * card treatment, the ONE degree split (splitDegreeMinutes feeds both
@@ -139,6 +146,15 @@ export type EvidenceListsProps = {
    * page offset — scroll-target.ts owns the target math.
    */
   onRowLayout?: (factor: FactorRef, topWithinLists: number) => void;
+  /**
+   * The explore mode (04-06, D-06): Simple hides the lots + sect
+   * sections and the orb / applying / separating fields, swaps the
+   * row sentences to the deck's plain-language variants, and renders
+   * glossary chips for the covered terms — all from the SAME envelope
+   * (no mode branch recomputes or rewords an astrological fact,
+   * T-04-12). Technical renders every field at full depth.
+   */
+  mode: ExploreMode;
 };
 
 function SectionHeading({ label }: { label: string }) {
@@ -185,9 +201,10 @@ function SelectableRow({
   );
 }
 
-export function EvidenceLists({ envelope, selection, onSelect, onRowLayout }: EvidenceListsProps) {
+export function EvidenceLists({ envelope, selection, onSelect, onRowLayout, mode }: EvidenceListsProps) {
   const theme = useTheme();
   const chart = envelope.chart_data;
+  const simple = mode === "simple";
 
   // Measurement buffers (Task 2 seam): rows arrive before/after their
   // list offset — emit whenever either lands, re-emitting buffered rows.
@@ -261,6 +278,11 @@ export function EvidenceLists({ envelope, selection, onSelect, onRowLayout }: Ev
               {placement.dignity && placement.dignity.length > 0 ? (
                 <ThemedText type="default">{placement.dignity.join(", ")}</ThemedText>
               ) : null}
+              {/* D-08: Simple mode chips the covered motion term — the
+                  glossary explains "retrograde" one tap away. */}
+              {simple && placement.motion === GLOSSARY_TERM_RETROGRADE ? (
+                <Glossary term={GLOSSARY_TERM_RETROGRADE} />
+              ) : null}
             </SelectableRow>
           );
         })}
@@ -288,12 +310,21 @@ export function EvidenceLists({ envelope, selection, onSelect, onRowLayout }: Ev
                   selected={selected}
                   onPress={onSelect}
                   onLayout={handleRowLayout(factor, LIST_KEYS.houses)}
-                  a11yLabel={houseRowA11yLabel({
-                    house: cusp.house,
-                    cuspSign: cusp.sign,
-                    degrees,
-                    minutes,
-                  })}
+                  a11yLabel={
+                    simple
+                      ? houseRowA11yLabelSimple({
+                          house: cusp.house,
+                          cuspSign: cusp.sign,
+                          degrees,
+                          minutes,
+                        })
+                      : houseRowA11yLabel({
+                          house: cusp.house,
+                          cuspSign: cusp.sign,
+                          degrees,
+                          minutes,
+                        })
+                  }
                 >
                   <ThemedText type="default" style={styles.rowLabel}>
                     {housePhrase(cusp.house)}
@@ -330,34 +361,57 @@ export function EvidenceLists({ envelope, selection, onSelect, onRowLayout }: Ev
                   selected={selected}
                   onPress={onSelect}
                   onLayout={handleRowLayout(factor, LIST_KEYS.aspects)}
-                  a11yLabel={aspectRowA11yLabel({
-                    bodyA: aspect.body_a,
-                    aspect: aspect.aspect,
-                    bodyB: aspect.body_b,
-                    orbDegrees: aspect.orb_degrees,
-                    applying: aspect.applying,
-                    separating: aspect.separating,
-                    exact: aspect.exact,
-                  })}
+                  a11yLabel={
+                    simple
+                      ? aspectRowA11yLabelSimple({
+                          bodyA: aspect.body_a,
+                          aspect: aspect.aspect,
+                          bodyB: aspect.body_b,
+                          orbDegrees: aspect.orb_degrees,
+                          applying: aspect.applying,
+                          separating: aspect.separating,
+                          exact: aspect.exact,
+                        })
+                      : aspectRowA11yLabel({
+                          bodyA: aspect.body_a,
+                          aspect: aspect.aspect,
+                          bodyB: aspect.body_b,
+                          orbDegrees: aspect.orb_degrees,
+                          applying: aspect.applying,
+                          separating: aspect.separating,
+                          exact: aspect.exact,
+                        })
+                  }
                 >
                   <ThemedText
                     type="default"
                     style={styles.rowLabel}
                   >{`${aspect.body_a} ${aspect.aspect} ${aspect.body_b}`}</ThemedText>
-                  <ThemedText type="default" style={selected ? styles.detailSelected : undefined}>
-                    {orbVisualPhrase(aspect.orb_degrees)}
-                  </ThemedText>
-                  {/* Presence flags render ONLY when they exist — stationary
+                  {/* D-06: orb is a Technical-only field — Simple hides
+                      the deep-technical columns, never rewords them. */}
+                  {simple ? null : (
+                    <ThemedText type="default" style={selected ? styles.detailSelected : undefined}>
+                      {orbVisualPhrase(aspect.orb_degrees)}
+                    </ThemedText>
+                  )}
+                  {/* Presence flags render ONLY when they exist AND the
+                      mode shows them (D-06 hidden list) — stationary
                       contacts carry neither (calculator contract). */}
-                  {aspect.applying === true ? (
+                  {aspect.applying === true && !simple ? (
                     <ThemedText type="default">{APPLYING_LABEL}</ThemedText>
                   ) : null}
-                  {aspect.separating === true ? (
+                  {aspect.separating === true && !simple ? (
                     <ThemedText type="default">{SEPARATING_LABEL}</ThemedText>
                   ) : null}
                   <ThemedText type="default">
                     {aspect.exact ? EXACT_ASPECT_LABEL : NOT_EXACT_ASPECT_LABEL}
                   </ThemedText>
+                  {/* D-08: Simple mode chips the aspect term (rendered
+                      only when the deck covers it — envelope aspect
+                      names stay verbatim, the glossary explains them). */}
+                  {simple && GLOSSARY[aspect.aspect] !== undefined ? (
+                    <Glossary term={aspect.aspect} />
+                  ) : null}
                 </SelectableRow>
               );
             })}
@@ -366,8 +420,9 @@ export function EvidenceLists({ envelope, selection, onSelect, onRowLayout }: Ev
       ) : null}
 
       {/* Lots — D-06 Technical-only section at full envelope depth
-          (no FactorRef kind: plain listitems, never pressable). */}
-      {chart.lots !== undefined ? (
+          (no FactorRef kind: plain listitems, never pressable).
+          Simple mode hides it entirely (hidden list, D-06). */}
+      {mode === "technical" && chart.lots !== undefined ? (
         <>
           <SectionHeading label={LOTS_HEADING} />
           <View
@@ -408,8 +463,9 @@ export function EvidenceLists({ envelope, selection, onSelect, onRowLayout }: Ev
       ) : null}
 
       {/* Sect — D-06 Technical-only card at full envelope depth,
-          notes verbatim (the Sun-altitude basis). */}
-      {chart.sect !== undefined ? (
+          notes verbatim (the Sun-altitude basis). Simple mode hides
+          it entirely (hidden list, D-06). */}
+      {mode === "technical" && chart.sect !== undefined ? (
         <>
           <SectionHeading label={SECT_HEADING} />
           <View

@@ -19,6 +19,7 @@ import { formatDegreeMinutes, splitDegreeMinutes } from "@/components/chart/plac
 import { ThemedText } from "@/components/themed-text";
 import { Spacing } from "@/constants/theme";
 import { PROVISIONAL_MARKER } from "@/components/chart/evidence-vocabulary/tokens";
+import type { ExploreMode } from "@/hooks/use-explore-mode";
 import { useTheme } from "@/hooks/use-theme";
 import { tierForScale, type DeclutterTier } from "@/lib/chart-wheel/collision";
 import {
@@ -277,6 +278,15 @@ export type WheelGraphicsProps = {
    * at base — the preview never forks from the wheel's data path.
    */
   tier?: DeclutterTier;
+  /**
+   * Explore mode (04-06, D-06): "technical" renders glyphs + tiered
+   * degree labels; "simple" renders glyph labels only — the mode
+   * FILTERS the label set while the tier governs density (the two
+   * compose: labels exist only when both allow). Defaults to
+   * "technical" so static consumers (the D-03 mini preview) keep the
+   * full label path.
+   */
+  mode?: ExploreMode;
 };
 
 /**
@@ -287,7 +297,13 @@ export type WheelGraphicsProps = {
  * primitives through this component (one geometry, one renderer — never
  * a forked preview).
  */
-export function WheelGraphics({ geometry, selection, colors, tier = "base" }: WheelGraphicsProps) {
+export function WheelGraphics({
+  geometry,
+  selection,
+  colors,
+  tier = "base",
+  mode = "technical",
+}: WheelGraphicsProps) {
   const selectedRegion =
     selection === null
       ? undefined
@@ -432,12 +448,16 @@ export function WheelGraphics({ geometry, selection, colors, tier = "base" }: Wh
       )}
 
       {/* Tiered degree labels (04-05 Task 2, D-11 declutter tiers):
-          hidden at base, D° at mid, D°MM′ at high — derived from the
-          EMITTED absolute longitudes through the ONE degree split
-          (positioning math over emitted facts, never a recalculated
-          astrological fact), placed just radially outward of each
-          decluttered glyph anchor. Labels are not hit targets. */}
-      {tier !== "base" &&
+           hidden at base, D° at mid, D°MM′ at high — derived from the
+           EMITTED absolute longitudes through the ONE degree split
+           (positioning math over emitted facts, never a recalculated
+           astrological fact), placed just radially outward of each
+           decluttered glyph anchor. Labels are not hit targets.
+           04-06 (D-06): Simple mode filters the label set to glyphs
+           only — the tier governs density, the mode governs whether
+           degree labels exist at all; both must allow. */}
+      {mode === "technical" &&
+        tier !== "base" &&
         geometry.planetAnchors.map((anchor) => {
           const withinSign = anchor.longitude % 30;
           const label =
@@ -470,9 +490,11 @@ export type WheelCanvasProps = {
   onSelect: (factor: FactorRef) => void;
   /** Canvas square side in px — pass the measured container width. */
   size: number;
+  /** The explore mode (04-06, D-06): Simple renders glyphs only. */
+  mode: ExploreMode;
 };
 
-export function WheelCanvas({ geometry, selection, onSelect, size }: WheelCanvasProps) {
+export function WheelCanvas({ geometry, selection, onSelect, size, mode }: WheelCanvasProps) {
   const theme = useTheme();
   const displayScale = size / geometry.size;
 
@@ -607,6 +629,7 @@ export function WheelCanvas({ geometry, selection, onSelect, size }: WheelCanvas
                 geometry={geometry}
                 selection={selection}
                 tier={tier}
+                mode={mode}
                 colors={{
                   text: theme.text,
                   textSecondary: theme.textSecondary,

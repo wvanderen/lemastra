@@ -27,6 +27,23 @@ const routerMock = vi.hoisted(() => ({
   replace: vi.fn(),
   navigate: vi.fn(),
 }));
+// 04-06: pre-seed the explore mode to "technical" (in-memory
+// AsyncStorage seam) — this suite pins the full-depth panel sentence,
+// and the unmocked-graph default is now Simple (explore-mode.test.tsx
+// owns the mode behavior itself).
+const modeStore = vi.hoisted(
+  () => new Map<string, string>([["@lemastra:explore.mode.v1", "technical"]])
+);
+vi.mock("@react-native-async-storage/async-storage", () => ({
+  __esModule: true,
+  default: {
+    getItem: (key: string) => Promise.resolve(modeStore.get(key) ?? null),
+    setItem: (key: string, value: string) => {
+      modeStore.set(key, value);
+      return Promise.resolve();
+    },
+  },
+}));
 const paramsState = vi.hoisted(() => ({ value: {} as Record<string, string | string[]> }));
 const repository = vi.hoisted(() => ({
   getChartDetail: vi.fn(),

@@ -12,6 +12,7 @@ import {
 import { AssumptionsLine } from "@/components/chart/assumptions-line";
 import { EvidenceLists } from "@/components/chart/explore/evidence-lists";
 import { FactPanel } from "@/components/chart/explore/fact-panel";
+import { ModeToggle } from "@/components/chart/explore/mode-toggle";
 import {
   createScrollLoopGuard,
   programmaticScrollTo,
@@ -26,6 +27,7 @@ import { LOADING_CHART, OPEN_FAILED_ERROR_COPY } from "@/components/workspace/co
 import { ErrorCard } from "@/components/workspace/error-card";
 import { WebUnsupported } from "@/components/workspace/web-unsupported";
 import { MaxContentWidth, Spacing } from "@/constants/theme";
+import { useExploreMode } from "@/hooks/use-explore-mode";
 import { useRevisionContent, useWorkspaceChart } from "@/hooks/use-workspace";
 import type { CalculateResponse } from "@/lib/api-schemas";
 import { buildWheelGeometry, type FactorRef } from "@/lib/chart-wheel/geometry";
@@ -46,6 +48,13 @@ import { buildWheelGeometry, type FactorRef } from "@/lib/chart-wheel/geometry";
  * under the loop guard, and scroll events can never re-select —
  * selection changes only on explicit user intent (Pitfall 9; the guard
  * contract lives in scroll-target.ts).
+ *
+ * Global mode (D-05, 04-06): the ModeToggle above the wheel hero flips
+ * the whole experience — wheel labels, list rows, and the fact panel
+ * change vocabulary + factor depth together, from the SAME envelope
+ * (D-06). The preference persists per device through useExploreMode
+ * (D-07); Simple mode adds the D-08 glossary chips. Mode flips never
+ * touch selection or scroll state (same FactorRef space).
  *
  * Route contract (id-param law): the only inputs are `?id={chartId}` and
  * the optional `?revision={revisionId}` (latest by default; the revision
@@ -145,6 +154,12 @@ function ExploreContent({ envelope }: { envelope: CalculateResponse }) {
   const [selection, setSelection] = useState<FactorRef | null>(null);
   const geometry = useMemo(() => buildWheelGeometry(envelope, { size: 720 }), [envelope]);
 
+  // D-05 global mode: ONE state from useExploreMode (D-07 persisted
+  // per device, first-run Simple) passed DOWN as a plain prop to every
+  // surface (D-06 same-data-path law: one state, prop-passed — not
+  // context, not two trees; both modes derive from the same envelope).
+  const { mode, setMode } = useExploreMode();
+
   // D-10 auto-scroll plumbing (Pitfall 9): rows report measured tops
   // relative to the lists root; the wrapper's own page offset composes
   // at scroll time; only WHEEL-origin selections scroll — a pressed row
@@ -211,16 +226,21 @@ function ExploreContent({ envelope }: { envelope: CalculateResponse }) {
       scrollEventThrottle={SCROLL_EVENT_THROTTLE_MS}
       testID="explore-scroll"
     >
+      {/* D-05 global Simple ↔ Technical toggle above the wheel hero —
+          one flip changes wheel labels, list rows, and the fact panel
+          together (vocabulary + factor depth, same envelope). */}
+      <ModeToggle mode={mode} onChange={setMode} />
       {/* D-02 wheel-first hero at the top — the chart's visual face. */}
       <WheelCanvas
         geometry={geometry}
         selection={selection}
         onSelect={selectFromWheel}
         size={wheelSize}
+        mode={mode}
       />
       {/* D-09 inline fact panel adjacent below — selection and its facts
           read as one unit; no bottom sheet, no navigated fact screen. */}
-      <FactPanel selection={selection} envelope={envelope} />
+      <FactPanel selection={selection} envelope={envelope} mode={mode} />
       {/* WHEEL-04: the synchronized evidence lists — five sections in
           D-02/D-13 order (placements → houses → aspects → lots → sect);
           the wrapper reports the block's page offset for auto-scroll. */}
@@ -230,6 +250,7 @@ function ExploreContent({ envelope }: { envelope: CalculateResponse }) {
           selection={selection}
           onSelect={selectFromRow}
           onRowLayout={handleRowLayout}
+          mode={mode}
         />
       </View>
       {/* D-13 judgment section — methodological assumptions, read-only

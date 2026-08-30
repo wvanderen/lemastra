@@ -139,6 +139,7 @@ async function renderTimed(selection: FactorRef | null = null) {
   const onSelect = vi.fn();
   const view = await render(
     <WheelCanvas
+      mode="technical"
       geometry={timedGeometry}
       selection={selection}
       onSelect={onSelect}
@@ -201,7 +202,7 @@ describe("WheelCanvas — tap selection", () => {
   it("maps display-pixel taps through the responsive size scaling (size 360 = half base)", async () => {
     const onSelect = vi.fn();
     await render(
-      <WheelCanvas geometry={timedGeometry} selection={null} onSelect={onSelect} size={360} />
+      <WheelCanvas mode="technical" geometry={timedGeometry} selection={null} onSelect={onSelect} size={360} />
     );
     const sun = timedGeometry.hitRegions.find(
       (region): region is Extract<HitRegion, { kind: "planet" }> =>
@@ -320,6 +321,7 @@ describe("WheelCanvas — chord styling and provisional marking", () => {
 
     await render(
       <WheelCanvas
+      mode="technical"
         geometry={unknownGeometry}
         selection={null}
         onSelect={vi.fn()}

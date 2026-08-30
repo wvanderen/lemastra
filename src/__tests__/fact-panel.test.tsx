@@ -78,7 +78,7 @@ function panelRoot(view: Awaited<ReturnType<typeof render>>) {
 describe("FactPanel — planet selection", () => {
   it("renders every present field exactly: body, sign + D°MM′, house, motion, dignities, absolute degrees", async () => {
     const selection: FactorRef = { kind: "planet", body: "Sun" };
-    const view = await render(<FactPanel selection={selection} envelope={frozenEnvelope} />);
+    const view = await render(<FactPanel mode="technical" selection={selection} envelope={frozenEnvelope} />);
 
     expect(
       view.getByText("Sun in Aries 26°39′, House 4, Direct motion, Dignities: Exaltation, absolute 26.65°")
@@ -87,7 +87,7 @@ describe("FactPanel — planet selection", () => {
 
   it("omits absent fields with no dash placeholder (no dignity segment when the placement carries none)", async () => {
     const selection: FactorRef = { kind: "planet", body: "Moon" };
-    const view = await render(<FactPanel selection={selection} envelope={frozenEnvelope} />);
+    const view = await render(<FactPanel mode="technical" selection={selection} envelope={frozenEnvelope} />);
 
     expect(
       view.getByText("Moon in Leo 12°30′, House 8, Direct motion, absolute 142.5°")
@@ -98,7 +98,7 @@ describe("FactPanel — planet selection", () => {
 
   it("renders a house-less placement (unknown-time) with no house segment", async () => {
     const selection: FactorRef = { kind: "planet", body: "Moon" };
-    const view = await render(<FactPanel selection={selection} envelope={unknownEnvelope} />);
+    const view = await render(<FactPanel mode="technical" selection={selection} envelope={unknownEnvelope} />);
 
     expect(
       view.getByText("Moon in Aquarius 22°06′, Direct motion, absolute 322.1°")
@@ -114,24 +114,24 @@ describe("FactPanel — planet selection", () => {
 describe("FactPanel — angle selection", () => {
   it("renders asc and mc from the envelope with the deck's display names", async () => {
     const asc = await render(
-      <FactPanel selection={{ kind: "angle", which: "asc" }} envelope={frozenEnvelope} />
+      <FactPanel mode="technical" selection={{ kind: "angle", which: "asc" }} envelope={frozenEnvelope} />
     );
     expect(asc.getByText("Ascendant in Sagittarius 14°15′")).toBeTruthy();
 
     const mc = await render(
-      <FactPanel selection={{ kind: "angle", which: "mc" }} envelope={frozenEnvelope} />
+      <FactPanel mode="technical" selection={{ kind: "angle", which: "mc" }} envelope={frozenEnvelope} />
     );
     expect(mc.getByText("Midheaven in Libra 0°30′")).toBeTruthy();
   });
 
   it("derives dsc and ic at the same +180° longitudes the wheel draws them at", async () => {
     const dsc = await render(
-      <FactPanel selection={{ kind: "angle", which: "dsc" }} envelope={frozenEnvelope} />
+      <FactPanel mode="technical" selection={{ kind: "angle", which: "dsc" }} envelope={frozenEnvelope} />
     );
     expect(dsc.getByText("Descendant in Gemini 14°15′")).toBeTruthy();
 
     const ic = await render(
-      <FactPanel selection={{ kind: "angle", which: "ic" }} envelope={frozenEnvelope} />
+      <FactPanel mode="technical" selection={{ kind: "angle", which: "ic" }} envelope={frozenEnvelope} />
     );
     expect(ic.getByText("IC in Aries 0°30′")).toBeTruthy();
   });
@@ -144,24 +144,24 @@ describe("FactPanel — angle selection", () => {
 describe("FactPanel — house and sign selection", () => {
   it("renders house number, cusp sign + degree, and the bodies placed in that house", async () => {
     const house8 = await render(
-      <FactPanel selection={{ kind: "house", house: 8 }} envelope={frozenEnvelope} />
+      <FactPanel mode="technical" selection={{ kind: "house", house: 8 }} envelope={frozenEnvelope} />
     );
     expect(house8.getByText("House 8 — cusp Cancer 22°24′, Bodies: Moon")).toBeTruthy();
 
     const house4 = await render(
-      <FactPanel selection={{ kind: "house", house: 4 }} envelope={frozenEnvelope} />
+      <FactPanel mode="technical" selection={{ kind: "house", house: 4 }} envelope={frozenEnvelope} />
     );
     expect(house4.getByText("House 4 — cusp Aries 0°30′, Bodies: Sun")).toBeTruthy();
   });
 
   it("renders the sign name and the bodies in that sign", async () => {
     const taurus = await render(
-      <FactPanel selection={{ kind: "sign", sign: "Taurus" }} envelope={frozenEnvelope} />
+      <FactPanel mode="technical" selection={{ kind: "sign", sign: "Taurus" }} envelope={frozenEnvelope} />
     );
     expect(taurus.getByText("Taurus — Bodies: Jupiter")).toBeTruthy();
 
     const emptySign = await render(
-      <FactPanel selection={{ kind: "sign", sign: "Libra" }} envelope={frozenEnvelope} />
+      <FactPanel mode="technical" selection={{ kind: "sign", sign: "Libra" }} envelope={frozenEnvelope} />
     );
     expect(emptySign.getByText("Libra")).toBeTruthy();
     expect(emptySign.queryByText(/Bodies/)).toBeNull();
@@ -175,14 +175,14 @@ describe("FactPanel — house and sign selection", () => {
 describe("FactPanel — aspect selection", () => {
   it("renders body_a, aspect name, body_b, orb, applying when the flag is present, and the exact state", async () => {
     const applying = await render(
-      <FactPanel selection={{ kind: "aspect", index: 0 }} envelope={frozenEnvelope} />
+      <FactPanel mode="technical" selection={{ kind: "aspect", index: 0 }} envelope={frozenEnvelope} />
     );
     expect(applying.getByText("Moon square Uranus, Orb: 0.3°, Applying, Not exact")).toBeTruthy();
   });
 
   it("renders separating when that flag is present instead", async () => {
     const separating = await render(
-      <FactPanel selection={{ kind: "aspect", index: 1 }} envelope={frozenEnvelope} />
+      <FactPanel mode="technical" selection={{ kind: "aspect", index: 1 }} envelope={frozenEnvelope} />
     );
     expect(separating.getByText("Sun square Saturn, Orb: 2.05°, Separating, Not exact")).toBeTruthy();
     expect(separating.queryByText(/Applying/)).toBeNull();
@@ -196,7 +196,7 @@ describe("FactPanel — aspect selection", () => {
 describe("FactPanel — provisional factor (D-16 text redundancy)", () => {
   it("additionally renders the provisional reason with the uncertainty phrasing and composes it into the a11y label", async () => {
     const selection: FactorRef = { kind: "planet", body: "Moon" };
-    const view = await render(<FactPanel selection={selection} envelope={unknownEnvelope} />);
+    const view = await render(<FactPanel mode="technical" selection={selection} envelope={unknownEnvelope} />);
 
     const sentence = "Moon in Aquarius 22°06′, Direct motion, absolute 322.1°";
     const note = "Provisional: Moon — Moon moves ~13°/day; position computed at the 12:00 noon reference.";
@@ -215,7 +215,7 @@ describe("FactPanel — provisional factor (D-16 text redundancy)", () => {
 describe("FactPanel — live region and idle state", () => {
   it("carries accessibilityLiveRegion polite and aria-live polite on the root; the a11y label equals the visible sentence", async () => {
     const view = await render(
-      <FactPanel selection={{ kind: "planet", body: "Sun" }} envelope={frozenEnvelope} />
+      <FactPanel mode="technical" selection={{ kind: "planet", body: "Sun" }} envelope={frozenEnvelope} />
     );
     const root = panelRoot(view);
     expect(root.props.accessibilityLiveRegion).toBe("polite");
@@ -226,20 +226,20 @@ describe("FactPanel — live region and idle state", () => {
   });
 
   it("renders the deck's idle hint when nothing is selected", async () => {
-    const view = await render(<FactPanel selection={null} envelope={frozenEnvelope} />);
+    const view = await render(<FactPanel mode="technical" selection={null} envelope={frozenEnvelope} />);
     expect(view.getByText(FACT_PANEL_IDLE)).toBeTruthy();
     expect(view.getByText(FACT_PANEL_LABEL)).toBeTruthy();
   });
 
   it("never renders house or angle facts for an unknown-time envelope (unsupported kinds fall back to the idle hint)", async () => {
     const house = await render(
-      <FactPanel selection={{ kind: "house", house: 1 }} envelope={unknownEnvelope} />
+      <FactPanel mode="technical" selection={{ kind: "house", house: 1 }} envelope={unknownEnvelope} />
     );
     expect(house.getByText(FACT_PANEL_IDLE)).toBeTruthy();
     expect(house.queryByText(/House \d/)).toBeNull();
 
     const angle = await render(
-      <FactPanel selection={{ kind: "angle", which: "asc" }} envelope={unknownEnvelope} />
+      <FactPanel mode="technical" selection={{ kind: "angle", which: "asc" }} envelope={unknownEnvelope} />
     );
     expect(angle.queryByText(/Ascendant/)).toBeNull();
   });

@@ -44,6 +44,26 @@ const routerMock = vi.hoisted(() => ({
   replace: vi.fn(),
   navigate: vi.fn(),
 }));
+// 04-06: the surface's useExploreMode persists through AsyncStorage;
+// this graph previously had no reason to mock it (an unmocked read
+// rejects and the hook falls back to the Simple default — which now
+// HIDES the lots/sect sections and swaps the panel/row vocabulary this
+// suite pins). Pre-seed the in-memory store to "technical" so the
+// full-depth D-02/D-13 order + sync assertions keep their meaning; the
+// mode behavior itself is covered by explore-mode.test.tsx.
+const modeStore = vi.hoisted(
+  () => new Map<string, string>([["@lemastra:explore.mode.v1", "technical"]])
+);
+vi.mock("@react-native-async-storage/async-storage", () => ({
+  __esModule: true,
+  default: {
+    getItem: (key: string) => Promise.resolve(modeStore.get(key) ?? null),
+    setItem: (key: string, value: string) => {
+      modeStore.set(key, value);
+      return Promise.resolve();
+    },
+  },
+}));
 const paramsState = vi.hoisted(() => ({ value: {} as Record<string, string | string[]> }));
 const repository = vi.hoisted(() => ({
   getChartDetail: vi.fn(),
