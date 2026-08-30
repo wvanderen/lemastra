@@ -24,7 +24,7 @@ import { describe, expect, it } from "vitest";
 import { calculateResponseSchema } from "@/lib/api-schemas";
 
 import { MAX_ZOOM, MIN_ZOOM, anchorLongitude, buildWheelGeometry, hitTest, inverseTransform, lonToAngle, polar } from "./geometry";
-import { ASPECT_STYLES, DEFAULT_ASPECT_STYLE, PLANET_FALLBACKS, PLANET_GLYPHS, SIGN_FALLBACKS, SIGN_GLYPHS } from "./glyphs";
+import { ASPECT_STYLES, ANDROID_GLYPH_SAFE_BODIES, DEFAULT_ASPECT_STYLE, PLANET_FALLBACKS, PLANET_GLYPHS, SIGN_FALLBACKS, SIGN_GLYPHS, bodyGlyphText, signGlyphText, type BodyName } from "./glyphs";
 
 // Fixtures load through the same parse-then-trust contract the app uses
 // (repository edge, D-02 Phase 3) — a fixture that drifts out of schema
@@ -382,5 +382,38 @@ describe("glyph vocabularies (vendor 43–104; A1 tofu path; A11Y-02)", () => {
   it("falls back to a default style for unknown aspect names", () => {
     expect(DEFAULT_ASPECT_STYLE.pattern).toBe("solid");
     expect(DEFAULT_ASPECT_STYLE.strokeWidth).toBeGreaterThan(0);
+  });
+});
+
+describe("platform glyph resolution (A1 on-device evidence, 04-07 fix-back)", () => {
+  it("resolves sign glyphs to abbreviations on Android, symbols elsewhere", () => {
+    expect(signGlyphText("Sagittarius", "android")).toBe("Sag");
+    expect(signGlyphText("Aries", "android")).toBe("Ari");
+    expect(signGlyphText("Sagittarius", "ios")).toBe("♐");
+    expect(signGlyphText("Aries", "ios")).toBe("♈");
+  });
+
+  it("keeps the classical planet symbols on Android (they rendered on-device)", () => {
+    for (const body of ["Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto"]) {
+      expect(ANDROID_GLYPH_SAFE_BODIES.has(body as BodyName)).toBe(true);
+      expect(bodyGlyphText(body as BodyName, "android")).toBe(PLANET_GLYPHS[body as keyof typeof PLANET_GLYPHS]);
+    }
+  });
+
+  it("abbreviates nodes, Chiron, and Lilith on Android (tofu in the on-device report)", () => {
+    expect(bodyGlyphText("True Node", "android")).toBe("TN");
+    expect(bodyGlyphText("North Node", "android")).toBe("NN");
+    expect(bodyGlyphText("South Node", "android")).toBe("SN");
+    expect(bodyGlyphText("Chiron", "android")).toBe("Ch");
+    expect(bodyGlyphText("Lilith", "android")).toBe("Li");
+    // iOS keeps every body symbol.
+    expect(bodyGlyphText("Chiron", "ios")).toBe("⚷");
+    expect(bodyGlyphText("Lilith", "ios")).toBe("⚸");
+  });
+
+  it("the Android-safe body set is exactly the classical planets", () => {
+    expect([...ANDROID_GLYPH_SAFE_BODIES].sort()).toEqual(
+      [...["Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto"]].sort()
+    );
   });
 });

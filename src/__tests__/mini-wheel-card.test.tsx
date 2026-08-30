@@ -160,14 +160,24 @@ let act: <T>(callback: () => T | Promise<T>) => Promise<T>;
 let fireEvent: typeof import("@testing-library/react-native/pure").fireEvent;
 let userEvent: typeof import("@testing-library/react-native/pure").userEvent;
 let waitFor: typeof import("@testing-library/react-native/pure").waitFor;
+let Platform: typeof import("react-native").Platform;
 let MiniWheelCard: typeof import("@/components/chart/explore/mini-wheel-card").MiniWheelCard;
 let ResultScreen: typeof import("@/app/chart/result").default;
 let SavedChartScreen: typeof import("@/app/chart/saved").default;
+/** The suite's ambient OS — captured once; every swap restores it. */
+let originalOS: typeof Platform.OS;
+// Typed as the FACADE module — the vitest alias resolves the specifier
+// to the recording facade (wheel-display-transform.test.tsx law).
+type SkiaFacade = typeof import("../../scripts/vitest/skia-facade/index");
+let skia: SkiaFacade;
 
 beforeAll(async () => {
   ({ render, cleanup, act, fireEvent, userEvent, waitFor } = await import(
     "@testing-library/react-native/pure"
   ));
+  ({ Platform } = await import("react-native"));
+  originalOS = Platform.OS;
+  skia = (await import("@shopify/react-native-skia")) as unknown as SkiaFacade;
   ({ MiniWheelCard } = await import("@/components/chart/explore/mini-wheel-card"));
   ({ default: ResultScreen } = await import("@/app/chart/result"));
   ({ default: SavedChartScreen } = await import("@/app/chart/saved"));
@@ -177,6 +187,7 @@ afterEach(async () => {
   await cleanup();
   vi.clearAllMocks();
   paramsState.value = {};
+  if (Platform.OS !== originalOS) Platform.OS = originalOS;
 });
 
 beforeEach(() => {
@@ -375,5 +386,60 @@ describe("MiniWheelCard on /chart/result", () => {
   it("hides the save hint once the chart has a chartId (revise flow)", async () => {
     const view = await renderResult({ chartId: "chart-revise" });
     expect(view.queryByText(EXPLORE_CARD_SAVE_HINT)).toBeNull();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Android glyph fallback (A1 — on-device evidence, 04-07 fix-back)
+// ---------------------------------------------------------------------------
+
+describe("MiniWheelCard — Android glyph fallback (A1)", () => {
+  /** The glyph Text primitives the card's canvas recorded. */
+  function glyphTexts(): string[] {
+    return skia
+      .__getRendered()
+      .filter((entry) => entry.type === "Text")
+      .map((entry) => entry.props.text as string);
+  }
+
+  it("renders sign abbreviations instead of tofu-risk sign glyphs on Android", async () => {
+    skia.__clearRendered();
+    Platform.OS = "android";
+    try {
+      await render(
+        <MiniWheelCard envelope={timedEnvelope()} onPressExplore={vi.fn()} testID="card" />
+      );
+
+      const texts = glyphTexts();
+      // Every sign slot renders its abbreviation…
+      for (const abbreviation of ["Ari", "Tau", "Gem", "Can", "Leo", "Vir", "Lib", "Sco", "Sag", "Cap", "Aqu", "Pis"]) {
+        expect(texts).toContain(abbreviation);
+      }
+      // …and NO sign-glyph unicode remains (the on-device tofu source).
+      for (const glyph of ["♈", "♉", "♊", "♋", "♌", "♍", "♎", "♏", "♐", "♑", "♒", "♓"]) {
+        expect(texts).not.toContain(glyph);
+      }
+      // The Android-safe body symbol still renders (Sun ☉ rendered on-device).
+      expect(texts).toContain("☉");
+    } finally {
+      Platform.OS = originalOS;
+    }
+  });
+
+  it("renders the symbol vocabulary on iOS (abbreviations are Android-only)", async () => {
+    skia.__clearRendered();
+    Platform.OS = "ios";
+    try {
+      await render(
+        <MiniWheelCard envelope={timedEnvelope()} onPressExplore={vi.fn()} testID="card" />
+      );
+
+      const texts = glyphTexts();
+      expect(texts).toContain("♐");
+      expect(texts).toContain("☉");
+      expect(texts).not.toContain("Sag");
+    } finally {
+      Platform.OS = originalOS;
+    }
   });
 });
