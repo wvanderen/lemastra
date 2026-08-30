@@ -5,8 +5,8 @@ milestone_name: milestone
 current_phase: 04
 current_phase_name: semantic-chart-exploration
 status: executing
-stopped_at: Completed 04-06-PLAN.md
-last_updated: "2026-08-30T17:53:05.473Z"
+stopped_at: "04-07 Task 3 checkpoint: fix-backs committed for all three on-device failures (2a18846+0000485 centering/tap, 9edb43c+040b7f1 Android glyphs, 7186696+322c670 web Skia isolation; suite 58 files/621 tests, tsc clean) — re-verification checkpoint PENDING user device test"
+last_updated: "2026-08-30T19:21:22.216Z"
 last_activity: 2026-08-30
 last_activity_desc: Phase 04 execution started
 progress:
@@ -177,6 +177,9 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - [Phase 04]: 04-06: Simple sentence templates reuse the Technical templates input interfaces — one resolved-facts object feeds either mode-keyed template, making the D-06 same-data-path law structural (a second data path would require a second input shape)
 - [Phase 04]: 04-06: aspect names stay verbatim in both modes; the glossary chip explains the term instead of the surface paraphrasing an envelope value (rewording would be interpretation-adjacent and break T-04-12). The D-06 hidden list is exhaustive — exact state and dignities stay visible in Simple
 - [Phase 04]: 04-06: WheelGraphics mode defaults technical (D-03 mini preview unchanged) while WheelCanvas requires it; surface suites that pin full-depth behavior pre-seed AsyncStorage to technical rather than weakening assertions to Simple strings
+- [Phase ?]: 04-07 fix-back: the display-scale Skia Group maps the base square onto the canvas square about the TOP-LEFT (no origin) — an origin at the base center pinned the wheel at canvas (360,360) on phone-sized canvases (bottom-right, off-screen) and offset every tap by origin·(1/displayScale−1); pinned by wheel-display-transform.test.tsx (projects the captured Group chain, taps the RENDERED position)
+- [Phase ?]: 04-07 fix-back (A1 resolved): Android renders sign + node/Chiron/Lilith glyph slots as pre-built text abbreviations via pure signGlyphText/bodyGlyphText (glyphs.ts stays react-native-free; classical planets + AC/IC/MC/DC confirmed on-device and stay symbolic); bundling an OFL symbol font remains the documented follow-up option, not taken (new-dependency gate)
+- [Phase ?]: 04-07 fix-back (D-04 web crash): the Skia wheel family is platform-gated via Metro .web.tsx stubs (wheel-canvas, mini-wheel-card) — CanvasKit never enters the web module graph (Expo Router eagerly evaluates route modules; static imports crashed web with 'TypefaceFontProvider'); web-skia-isolation.test.ts pins stub presence, skia-free content, VALUE-export parity, and no direct screen imports; expo export --platform web verified zero CanvasKit traces
 
 ### Pending Todos
 
@@ -203,6 +206,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-30T17:53:05.464Z
-Stopped at: 04-07 Tasks 1-2 committed (dfc307e f2e18ba d77bfbc ed1fe51); Task 3 on-device verification checkpoint PENDING — awaiting human approval (glyphs A1, gestures, screen reader, web card)
+Last session: 2026-08-30T19:21:22.208Z
+Stopped at: 04-07 Task 3 checkpoint: fix-backs committed for all three on-device failures (2a18846+0000485 centering/tap, 9edb43c+040b7f1 Android glyphs, 7186696+322c670 web Skia isolation; suite 58 files/621 tests, tsc clean) — re-verification checkpoint PENDING user device test
 Resume file: None
