@@ -29,9 +29,9 @@
 
 ### Chart Wheel and Evidence
 
-- [ ] **WHEEL-01**: User can view a deterministic natal chart wheel representing the calculated planets, signs, houses, angles, and supported aspects.
+- [x] **WHEEL-01**: User can view a deterministic natal chart wheel representing the calculated planets, signs, houses, angles, and supported aspects.
 - [ ] **WHEEL-02**: User can select a visual chart factor and see its exact calculated facts.
-- [ ] **WHEEL-03**: User can zoom or otherwise inspect a dense wheel without losing access to overlapping factors.
+- [x] **WHEEL-03**: User can zoom or otherwise inspect a dense wheel without losing access to overlapping factors.
 - [ ] **WHEEL-04**: User can inspect placements, houses, aspects, orbs, and relevant motion in structured lists or tables synchronized with the wheel.
 - [ ] **WHEEL-05**: User can access every meaningful wheel factor through a non-visual semantic representation.
 - [ ] **EVID-01**: User can distinguish calculated facts, methodological judgments, generated interpretation, and uncertainty in the interface.
@@ -175,9 +175,9 @@ Every v1 requirement maps to exactly one roadmap phase.
 | WORK-05 | Phase 3 | Complete |
 | WORK-06 | Phase 3 | Complete |
 | WORK-07 | Phase 3 | Complete |
-| WHEEL-01 | Phase 4 | Pending |
+| WHEEL-01 | Phase 4 | Complete |
 | WHEEL-02 | Phase 4 | Pending |
-| WHEEL-03 | Phase 4 | Pending |
+| WHEEL-03 | Phase 4 | Complete |
 | WHEEL-04 | Phase 4 | Pending |
 | WHEEL-05 | Phase 4 | Pending |
 | EVID-01 | Phase 4 | Pending |

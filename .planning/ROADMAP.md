@@ -175,12 +175,12 @@ Plans:
   4. User can tell calculated fact, methodological judgment, generated interpretation, and uncertainty apart wherever they appear.
   5. User can navigate the core chart view with a screen reader and text scaling, without relying on color or interpreting the graphical wheel.
 
-**Plans:** 7 plans (0 complete)
+**Plans:** 1/7 plans executed
 
 Plans:
 **Wave 1** *(foundation — see wave-shape note)*
 
-- [ ] 04-01-PLAN.md — Skia dependency (legitimacy checkpoint) + test facade + GestureHandlerRootView + pure geometry module with golden fixtures (WHEEL-01/03 math)
+- [x] 04-01-PLAN.md — Skia dependency (legitimacy checkpoint) + test facade + GestureHandlerRootView + pure geometry module with golden fixtures (WHEEL-01/03 math)
 - [ ] 04-02-PLAN.md — Evidence-vocabulary module (4 kinds, non-hue tokens) + useExploreMode preference hook (EVID-01/02, A11Y-02)
 
 **Wave 2** *(blocked on Wave 1 completion)*
@@ -312,7 +312,7 @@ Plans:
 | 1. Trust and Release Boundary | 7/7 | Complete    | 2026-08-23 |
 | 2. Trustworthy Natal Chart | 9/9 | Complete    | 2026-08-26 |
 | 3. Private Local Workspace | 12/12 | Complete   | 2026-08-29 |
-| 4. Semantic Chart Exploration | 0/7 | Not started | - |
+| 4. Semantic Chart Exploration | 1/7 | In Progress|  |
 | 5. Natal Transit Workspace | 0/TBD | Not started | - |
 | 6. Repeatable Reading Method | 0/TBD | Not started | - |
 | 7. Grounded AI Reading | 0/TBD | Not started | - |

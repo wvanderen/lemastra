@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 03
-status: "Phase 03 shipped — PR #2"
+current_phase: 04
+current_phase_name: semantic-chart-exploration
+status: executing
 stopped_at: Phase 4 context gathered
-last_updated: "2026-08-30T15:03:18.089Z"
+last_updated: "2026-08-30T15:37:58.807Z"
 last_activity: 2026-08-30
-last_activity_desc: Phase 04 planning complete
+last_activity_desc: Phase 04 execution started
 progress:
   total_phases: 10
   completed_phases: 3
-  total_plans: 28
-  completed_plans: 28
+  total_plans: 35
+  completed_plans: 29
   percent: 30
-current_phase_name: private-local-workspace
 ---
 
 # Project State
@@ -24,14 +24,14 @@ current_phase_name: private-local-workspace
 See: .planning/PROJECT.md (updated 2026-08-26)
 
 **Core value:** Users can move from an accurately calculated chart and transparent astrological evidence to a high-quality, methodical AI interpretation they can inspect, discuss, and preserve as a report.
-**Current focus:** Phase 03 — private-local-workspace
+**Current focus:** Phase 04 — semantic-chart-exploration
 
 ## Current Position
 
-Phase: 03 — COMPLETE
-Plan: 2 of 12
-Status: Phase 03 shipped — PR #2
-Last activity: 2026-08-30 — Phase 04 planning complete
+Phase: 04 (semantic-chart-exploration) — EXECUTING
+Plan: 2 of 7
+Status: Ready to execute
+Last activity: 2026-08-30 — Phase 04 execution started
 
 Progress: [████████████████████] 25/25 plans (100%)
 
@@ -81,6 +81,7 @@ Progress: [████████████████████] 25/25 p
 | Phase 03 P10 | 6 min | 3 tasks | 7 files |
 | Phase 03 P11 | 2 min | 2 tasks | 5 files |
 | Phase 03 P12 | 3 min | 3 tasks | 6 files |
+| Phase 04 P01 | 16 min | 3 tasks | 12 files |
 
 ## Accumulated Context
 
@@ -153,6 +154,10 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - [Phase ?]: 03-11: result.tsx imports the WorkspaceError class from dependency-free errors.ts (singleton identity in every test mock graph; component graph stays free of repository/db) while copy.ts takes the type from the repository re-export per plan — Partial repository mock factories in tests would need class pass-throughs otherwise; errors.ts imports nothing so instanceof identity is guaranteed; the type-only import is runtime-erased
 - [Phase ?]: 03-11: home isError takes precedence over hasCharts — a failed listCharts never half-renders (no heading over zero rows); hero + calculate CTA remain; empty/web/error states mutually distinct and test-pinned — A background-refetch failure with cached rows would otherwise half-render; a dead DB must never read as 'no charts'
 - [Phase 03]: 03-12: keyless-state test hygiene pins GOOGLE_API_KEY via present-but-empty setenv (setdefault only fills ABSENT variables) — the only form deterministic against a real populated api/.env; the .env bridge is a restrictive stdlib loader at the single configuration read site (zero new packages, uv.lock untouched)
+- [Phase ?]: [Phase 04]: 04-01: Skia 2.6.2 installed via npx expo install behind human legitimacy gate (T-04-SC, approved 2026-08-30 with postinstall disclosure) — tilde-pinned ~2.6.2; npm-latest 2.11.1 forbidden (Pitfall 3, T-04-01)
+- [Phase ?]: [Phase 04]: 04-01: no vitest graph loads CanvasKit — @shopify/react-native-skia + react-native-gesture-handler alias to committed facades (T-04-02); RNGH facade was a Rule 3 fix after _layout's GestureHandlerRootView pulled deep RN Flow imports into the birth-form graph
+- [Phase ?]: [Phase 04]: 04-01: wheel geometry is ONE pure module ported from vendor chart_diagram.py (anchor at 1st-house cusp → 9 o'clock, CCW longitudes, radii 330/302/252/210/130 at base 720) — every Phase-4 surface consumes it (STACK renderer split)
+- [Phase ?]: [Phase 04]: 04-01: declutter port fixes the vendor's non-terminating greedy scan at MAX_LEVEL — overlap accepted at the cap, termination pinned by test; unknown-time charts emit no house/angle/lots primitives (D-10) and provisional bodies are flagged on anchors (D-16)
 
 ### Pending Todos
 
@@ -179,6 +184,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-30T13:58:07.430Z
+Last session: 2026-08-30T15:37:35.359Z
 Stopped at: Phase 4 context gathered
 Resume file: .planning/phases/04-semantic-chart-exploration/04-CONTEXT.md
