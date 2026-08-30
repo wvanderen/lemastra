@@ -116,9 +116,12 @@ interface RecordedGroup {
   origin?: Point;
 }
 
-/** The recorded Group primitives in render (parent-before-child) order. */
+/** The recorded Group props in render (parent-before-child) order. */
 function recordedGroups(): RecordedGroup[] {
-  return skia.__getRendered().filter((entry) => entry.type === "Group") as RecordedGroup[];
+  return skia
+    .__getRendered()
+    .filter((entry) => entry.type === "Group")
+    .map((entry) => entry.props as RecordedGroup);
 }
 
 /**

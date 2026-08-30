@@ -82,7 +82,8 @@ import { ANGLE_MARKERS, WHEEL_ZOOM_HINT } from "./copy";
  *
  * Responsive square: `size` is the canvas side in px — pass the
  * measured container width (the parent owns responsiveness); the 720
- * base geometry scales linearly about the wheel center (Pitfall 1).
+ * base square maps linearly onto the canvas square (base 0,0 →
+ * canvas 0,0), so the wheel center always lands at (size/2, size/2).
  */
 
 // ---------------------------------------------------------------------------
@@ -613,10 +614,17 @@ export function WheelCanvas({ geometry, selection, onSelect, size, mode }: Wheel
     <View style={styles.frame} testID="wheel-canvas">
       <GestureDetector gesture={composed}>
         <Canvas style={{ width: size, height: size }}>
-          {/* Display scale about the wheel center wraps the zoom group:
-              canvas px = displayScale × zoom(base) — the exact chain the
-              tap inverse above reverses (Pitfall 1: origin = center). */}
-          <Group transform={[{ scale: displayScale }]} origin={{ x: geometry.cx, y: geometry.cy }}>
+          {/* Display scale about the TOP-LEFT (base 0,0 → canvas 0,0)
+              wraps the zoom group: canvas px = displayScale ×
+              zoom(base) — the exact chain the tap inverse above
+              reverses. NO origin on this Group: an origin at the BASE
+              center (360,360) would pin the wheel center at canvas
+              (360,360) on any phone-sized canvas — bottom-right,
+              mostly off-screen — and silently offset every tap by
+              origin·(1/displayScale − 1) (04-07 on-device fix-back:
+              the tap inverse and the a11y overlay frames both assume
+              the top-left-anchored display mapping). */}
+          <Group transform={[{ scale: displayScale }]}>
             <Group
               transform={[
                 { translateX: offsetX.value },

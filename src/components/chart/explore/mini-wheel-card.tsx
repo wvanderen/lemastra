@@ -62,10 +62,13 @@ export function MiniWheelCard({ envelope, onPressExplore, testID }: MiniWheelCar
       {/* Static preview: non-interactive — no gesture, no hit testing. */}
       <View pointerEvents="none" style={styles.wheelFrame} testID={testID ? `${testID}-wheel` : undefined}>
         <Canvas style={{ width: MINI_WHEEL_SIZE, height: MINI_WHEEL_SIZE }}>
-          <Group
-            transform={[{ scale: displayScale }]}
-            origin={{ x: geometry.cx, y: geometry.cy }}
-          >
+          {/* Display scale about the TOP-LEFT (base 0,0 → canvas 0,0) —
+              NO origin: an origin at the base center would pin the wheel
+              center at canvas (360,360) on the 288px card canvas —
+              bottom-right, mostly cut off (04-07 fix-back; the static
+              preview shares the interactive wheel's display-transform
+              law, single renderer, never a forked preview). */}
+          <Group transform={[{ scale: displayScale }]}>
             <WheelGraphics
               geometry={geometry}
               selection={null}
