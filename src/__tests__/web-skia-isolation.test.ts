@@ -85,17 +85,22 @@ function valueExports(content: string): string[] {
 
 /** VALUE-import check: an import of `specifier` that is NOT type-only. */
 function valueImports(content: string, specifier: string): boolean {
+  // Strip type-only imports first — `import type ... from "x"` is
+  // erased at build and is always allowed.
+  const withoutTypeImports = content.replace(
+    /import\s+type\s+[^"';]*?from\s*["'][^"']+["']/g,
+    ""
+  );
   const escaped = specifier.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const patterns = [
-    new RegExp(`import\\s+[^"'\\{]*?\\{(?![^}]*\\btype\\b)[^}]*\\}\\s*from\\s*["']${escaped}["']`),
-    // `import type ... from` (type-only) must NOT match: the leading
-    // clause above requires a non-type named clause; default/namespace
-    // imports are value imports.
+    // Named clause without a leading `type` keyword (already stripped).
+    new RegExp(`import\\s+[^"'\\{]*?\\{[^}]*\\}\\s*from\\s*["']${escaped}["']`),
+    // Default/namespace imports are value imports.
     new RegExp(`import\\s+[A-Za-z0-9_$]+\\s+from\\s*["']${escaped}["']`),
     new RegExp(`import\\s*\\*\\s*as\\s+[A-Za-z0-9_$]+\\s+from\\s*["']${escaped}["']`),
     new RegExp(`require\\s*\\(\\s*["']${escaped}["']\\s*\\)`),
   ];
-  return patterns.some((pattern) => pattern.test(content));
+  return patterns.some((pattern) => pattern.test(withoutTypeImports));
 }
 
 describe("web Skia isolation (D-04 — zero canvas on web)", () => {
