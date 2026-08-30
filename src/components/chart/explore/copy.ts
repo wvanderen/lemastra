@@ -1,3 +1,4 @@
+import type { ExploreMode } from "@/hooks/use-explore-mode";
 import type { AngleWhich } from "@/lib/chart-wheel/geometry";
 
 import { housePhrase, motionLabel, spokenDegrees } from "../copy";
@@ -348,5 +349,132 @@ export function sectCardA11yLabel(input: SectCardA11yInput): string {
     `${SECT_LUMINARY_LABEL}: ${input.luminary}`,
     `${SECT_MATES_LABEL}: ${input.sectMates.join(", ")}`,
     input.notes,
+  ].join(", ");
+}
+
+// ---------------------------------------------------------------------------
+// Global mode toggle + glossary (04-06 Task 1) — D-05/D-07/D-08
+// ---------------------------------------------------------------------------
+
+/** Toggle heading — the radiogroup's visible label. */
+export const MODE_TOGGLE_HEADING = "View mode";
+
+/** Simple option label — the D-06 plain-language mode. */
+export const MODE_LABEL_SIMPLE = "Simple";
+
+/** Technical option label — the D-06 full-precision mode. */
+export const MODE_LABEL_TECHNICAL = "Technical";
+
+/** The toggle's two segments, deck-ordered (Simple first — the D-07 default). */
+export const MODE_OPTIONS: ReadonlyArray<{ value: ExploreMode; label: string }> = [
+  { value: "simple", label: MODE_LABEL_SIMPLE },
+  { value: "technical", label: MODE_LABEL_TECHNICAL },
+];
+
+/**
+ * Glossary definitions (D-08) — copy-deck content, NEVER interpretation
+ * (T-04-13): every entry is a static definition of a term (what the
+ * word means), never a claim about the user's chart, and never a
+ * template — no envelope value flows into a definition. The inventory
+ * covers the envelope vocabulary the Simple-mode surfaces actually
+ * render: the calculator's five aspect families, orb, retrograde
+ * motion, and the ascendant.
+ */
+export const GLOSSARY: Readonly<Record<string, string>> = {
+  conjunction: "Two planets at nearly the same zodiac position — about 0° apart.",
+  sextile: "Two planets about 60° apart.",
+  square: "Two planets about 90° apart.",
+  trine: "Two planets about 120° apart.",
+  opposition: "Two planets about 180° apart, on opposite sides of the wheel.",
+  orb: "How far an aspect is from its exact angle, measured in degrees.",
+  retrograde: "A planet appearing to move backwards through the zodiac, as seen from Earth.",
+  ascendant: "The sign rising on the eastern horizon at the birth moment — the anchor of the first house.",
+};
+
+/** Deck-owned glossary term key the placement rows chip in Simple mode. */
+export const GLOSSARY_TERM_RETROGRADE = "retrograde";
+
+// ---------------------------------------------------------------------------
+// Mode-keyed sentence templates (D-06) — Simple plain-language variants.
+// Same inputs as the Technical templates (the SAME envelope fields flow
+// in; only vocabulary and the D-06 hidden list differ — no second data
+// path). Simple hides: absolute longitude, orb, applying/separating.
+// ---------------------------------------------------------------------------
+
+/**
+ * Simple planet sentence — "{body} in {sign} at {D°MM′}[, in House n][,
+ * moving {motion}][, {dignities}]". Same facts and the ONE degree
+ * split as planetFactSentence; plain vocabulary, no absolute
+ * longitude.
+ */
+export function planetFactSentenceSimple(input: PlanetFactInput): string {
+  return [
+    `${input.body} in ${input.sign} at ${input.degreeText}`,
+    input.house !== undefined ? `in House ${input.house}` : undefined,
+    `moving ${input.motion}`,
+    input.dignities && input.dignities.length > 0 ? input.dignities.join(", ") : undefined,
+  ]
+    .filter((segment): segment is string => segment !== undefined)
+    .join(", ");
+}
+
+/** Simple angle sentence — "{name} in {sign} at {D°MM′}". */
+export function angleFactSentenceSimple(input: AngleFactInput): string {
+  return `${ANGLE_NAMES[input.which]} in ${input.sign} at ${input.degreeText}`;
+}
+
+/**
+ * Simple house sentence — "House {n} starts in {sign} at {D°MM′}[,
+ * In this house: {bodies}]" — no "cusp" vocabulary.
+ */
+export function houseFactSentenceSimple(input: HouseFactInput): string {
+  return [
+    `House ${input.house} starts in ${input.cuspSign} at ${input.cuspDegreeText}`,
+    input.bodies.length > 0 ? `In this house: ${input.bodies.join(", ")}` : undefined,
+  ]
+    .filter((segment): segment is string => segment !== undefined)
+    .join(", ");
+}
+
+/** Simple sign sentence — "{sign}[ — In this sign: {bodies}]". */
+export function signFactSentenceSimple(input: SignFactInput): string {
+  return [
+    input.sign,
+    input.bodies.length > 0 ? `In this sign: ${input.bodies.join(", ")}` : undefined,
+  ]
+    .filter((segment): segment is string => segment !== undefined)
+    .join(" — ");
+}
+
+/**
+ * Simple aspect sentence — "{a} {aspect} {b}, Exact|Not exact". The
+ * aspect name stays VERBATIM from the envelope (rewording it would be
+ * interpretation-adjacent and break the same-data-path law, T-04-12);
+ * the glossary chip explains the term instead. Orb, applying, and
+ * separating are the D-06 hidden fields.
+ */
+export function aspectFactSentenceSimple(input: AspectFactInput): string {
+  return [
+    `${input.bodyA} ${input.aspect} ${input.bodyB}`,
+    input.exact ? EXACT_ASPECT_LABEL : NOT_EXACT_ASPECT_LABEL,
+  ].join(", ");
+}
+
+/** Simple house-row sentence — "House {n} starts in {sign}, {degree spoken}". */
+export function houseRowA11yLabelSimple(input: HouseRowA11yInput): string {
+  return `House ${input.house} starts in ${input.cuspSign}, ${spokenDegrees(
+    input.degrees,
+    input.minutes
+  )}`;
+}
+
+/**
+ * Simple aspect-row sentence — "{a} {aspect} {b}, Exact|Not exact" —
+ * no orb / applying / separating (D-06 hidden list).
+ */
+export function aspectRowA11yLabelSimple(input: AspectRowA11yInput): string {
+  return [
+    `${input.bodyA} ${input.aspect} ${input.bodyB}`,
+    input.exact ? EXACT_ASPECT_LABEL : NOT_EXACT_ASPECT_LABEL,
   ].join(", ");
 }
