@@ -43,6 +43,33 @@ vi.mock("react-native-gesture-handler", () => ({
         return this;
       },
     }),
+    // 04-05: WheelCanvas composes Pan + Pinch with the Tap through
+    // Gesture.Simultaneous — inert here (wheel-zoom.test.tsx captures
+    // their handlers); this file's mock only needs the surface to exist
+    // so the component renders.
+    Pan: () => ({
+      activeOffsetX() {
+        return this;
+      },
+      activeOffsetY() {
+        return this;
+      },
+      onUpdate() {
+        return this;
+      },
+      onEnd() {
+        return this;
+      },
+    }),
+    Pinch: () => ({
+      onUpdate() {
+        return this;
+      },
+      onEnd() {
+        return this;
+      },
+    }),
+    Simultaneous: (...gestures: unknown[]) => gestures,
   },
   GestureDetector: ({ children }: { children?: ReactNode }) => <>{children}</>,
 }));

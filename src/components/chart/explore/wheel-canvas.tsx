@@ -25,6 +25,8 @@ import {
   type AspectStyle,
 } from "@/lib/chart-wheel/glyphs";
 import {
+  MAX_ZOOM,
+  MIN_ZOOM,
   inverseTransform,
   hitTest,
   type FactorRef,
@@ -46,12 +48,24 @@ import { ANGLE_MARKERS } from "./copy";
  * coordinates (STACK renderer split). Tap coordinates arrive in canvas
  * pixels; hit regions live in base wheel coordinates — the display
  * mapping divides by size/geometry.size, the zoom mapping inverts the
- * live shared-value view (identity values this plan; pinch/pan arrive
- * in 04-05 through this same named seam).
+ * live shared-value view (Pitfall 5 — selection survives zoom ≠ 1).
+ *
+ * Zoom/pan shell (04-05 Task 1, Pattern 4): Gesture.Pan + Gesture.Pinch
+ * drive the shared values on the UI thread through
+ * Gesture.Simultaneous(pan, pinch, tap) — gesture frames NEVER
+ * re-render React (D-11 law; T-04-10). Each gesture derives its live
+ * value from the value SAVED at the previous gesture's end
+ * (savedScale/savedOffset); the scale is clamped to [MIN_ZOOM,
+ * MAX_ZOOM] (1–4×) and the pan offset is clamped so the transformed
+ * wheel center stays inside the canvas square — the wheel can never be
+ * lost off-canvas. The Group transform carries origin = wheel center
+ * (Skia's default is top-left — Pitfall 1).
  *
  * Gesture law: the Tap worklet forwards only numbers through runOnJS;
  * hitTest and the inverse transform run on the JS side against the same
- * pure functions the golden tests pin (no duplicated math).
+ * pure functions the golden tests pin (no duplicated math). The same
+ * law governs Pan/Pinch callbacks: only shared-value writes inside
+ * worklets — React state changes never happen per gesture frame.
  *
  * A11Y-02 laws: aspect chords differ by stroke pattern + weight per
  * family (ASPECT_STYLES — never hue alone); provisional bodies carry
@@ -92,6 +106,15 @@ const RIM_STROKE = 1.5;
 const RING_STROKE = 1;
 const SPOKE_STROKE = 1;
 const ANGLE_SPOKE_STROKE = 2;
+
+/**
+ * Pan activation threshold (px, either axis): smaller movements stay
+ * taps (and page scrolls), beyond it the wheel pan claims the drag —
+ * RNGH activation tuning so the wheel pan does not fight the page
+ * ScrollView (Pitfall 6; feel verified on-device at the 04-07
+ * checkpoint).
+ */
+const PAN_ACTIVATION_OFFSET = 6;
 
 // ---------------------------------------------------------------------------
 // Pure render helpers (run on JS; the worklet only forwards numbers)
@@ -409,12 +432,24 @@ export function WheelCanvas({ geometry, selection, onSelect, size }: WheelCanvas
   const theme = useTheme();
   const displayScale = size / geometry.size;
 
-  // 04-05 zoom seam (named, identity this plan): pinch/pan will drive
-  // these shared values on the UI thread; taps already inverse through
-  // the live view below (Pitfall 5 — selection survives zoom ≠ 1).
+  // Pattern-4 zoom shell (04-05 Task 1): the live view shared values
+  // pinch/pan drive on the UI thread, plus the SAVED counterparts each
+  // gesture derives from (onUpdate reads saved, onEnd writes saved —
+  // the verified RNGH pattern, 04-RESEARCH §Pattern 4).
   const scale = useSharedValue(1);
   const offsetX = useSharedValue(0);
   const offsetY = useSharedValue(0);
+  const savedScale = useSharedValue(1);
+  const savedOffsetX = useSharedValue(0);
+  const savedOffsetY = useSharedValue(0);
+
+  // Pan clamp (base coordinates): the transformed wheel center
+  // (cx + offsetX, cy + offsetY) must stay inside the canvas square —
+  // the wheel can never be dragged entirely off-canvas.
+  const panMinX = -geometry.cx;
+  const panMaxX = geometry.size - geometry.cx;
+  const panMinY = -geometry.cy;
+  const panMaxY = geometry.size - geometry.cy;
 
   // JS-side hit-testing: the worklet forwards tap px + the live view
   // numbers; everything else runs through the pure module here.
@@ -444,9 +479,57 @@ export function WheelCanvas({ geometry, selection, onSelect, size }: WheelCanvas
     [handleTap, scale, offsetX, offsetY]
   );
 
+  // Wheel pan: translate the live offset from the saved offset, clamped
+  // so the wheel center stays on the canvas. Only shared-value writes
+  // happen per frame — never a React state change (D-11, T-04-10).
+  const pan = useMemo(
+    () =>
+      Gesture.Pan()
+        .activeOffsetX([-PAN_ACTIVATION_OFFSET, PAN_ACTIVATION_OFFSET])
+        .activeOffsetY([-PAN_ACTIVATION_OFFSET, PAN_ACTIVATION_OFFSET])
+        .onUpdate((event) => {
+          "worklet";
+          offsetX.value = Math.min(
+            Math.max(savedOffsetX.value + event.translationX, panMinX),
+            panMaxX
+          );
+          offsetY.value = Math.min(
+            Math.max(savedOffsetY.value + event.translationY, panMinY),
+            panMaxY
+          );
+        })
+        .onEnd(() => {
+          "worklet";
+          savedOffsetX.value = offsetX.value;
+          savedOffsetY.value = offsetY.value;
+        }),
+    [offsetX, offsetY, savedOffsetX, savedOffsetY, panMinX, panMaxX, panMinY, panMaxY]
+  );
+
+  // Pinch zoom about the wheel center (the Group origin below), clamped
+  // to [MIN_ZOOM, MAX_ZOOM] = 1–4× (A4 starting values).
+  const pinch = useMemo(
+    () =>
+      Gesture.Pinch()
+        .onUpdate((event) => {
+          "worklet";
+          scale.value = Math.min(Math.max(savedScale.value * event.scale, MIN_ZOOM), MAX_ZOOM);
+        })
+        .onEnd(() => {
+          "worklet";
+          savedScale.value = scale.value;
+        }),
+    [scale, savedScale]
+  );
+
+  // Composition: pan + pinch run simultaneously (Pattern 4) with the
+  // tap alongside — a tap still fires when the fingers never moved
+  // beyond the pan activation offsets.
+  const composed = useMemo(() => Gesture.Simultaneous(tap, pan, pinch), [tap, pan, pinch]);
+
   return (
     <View style={styles.frame} testID="wheel-canvas">
-      <GestureDetector gesture={tap}>
+      <GestureDetector gesture={composed}>
         <Canvas style={{ width: size, height: size }}>
           {/* Display scale about the wheel center wraps the zoom group:
               canvas px = displayScale × zoom(base) — the exact chain the
