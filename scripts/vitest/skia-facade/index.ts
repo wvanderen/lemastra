@@ -57,7 +57,10 @@ interface NoopProps {
 function noopComponent(displayName: string): FC<NoopProps> {
   const component: FC<NoopProps> = (props) => {
     rendered.push({ type: displayName, props: props as Record<string, unknown> });
-    return null;
+    // Render children through: the tree stays renderless (every leaf
+    // returns null) but nested primitives still RECORD — assertions
+    // read the full primitive tree, parent before child.
+    return (props.children as ReactNode | undefined) ?? null;
   };
   component.displayName = displayName;
   return component;

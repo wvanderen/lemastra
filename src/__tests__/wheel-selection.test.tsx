@@ -77,12 +77,15 @@ const unknownGeometry = buildWheelGeometry(unknownEnvelope, { size: 720 });
 let render: typeof rtlRender;
 let cleanup: () => Promise<void>;
 let WheelCanvas: typeof import("@/components/chart/explore/wheel-canvas").WheelCanvas;
-let skiaFacade: typeof import("@shopify/react-native-skia");
+// Typed as the FACADE module — the vitest alias resolves the specifier
+// to the recording facade (the real package types govern app code only).
+type SkiaFacade = typeof import("../../scripts/vitest/skia-facade/index");
+let skia: SkiaFacade;
 
 beforeAll(async () => {
   ({ render, cleanup } = await import("@testing-library/react-native/pure"));
   ({ WheelCanvas } = await import("@/components/chart/explore/wheel-canvas"));
-  skiaFacade = (await import("@shopify/react-native-skia")) as typeof skiaFacade;
+  skia = (await import("@shopify/react-native-skia")) as unknown as SkiaFacade;
 });
 
 afterEach(async () => {
@@ -91,7 +94,7 @@ afterEach(async () => {
 
 beforeEach(() => {
   gesture.taps.length = 0;
-  skiaFacade.__clearRendered();
+  skia.__clearRendered();
 });
 
 /** The light-scheme accent — selection outlines resolve through useTheme. */
@@ -125,7 +128,7 @@ async function renderTimed(selection: FactorRef | null = null) {
 describe("WheelCanvas — tap selection", () => {
   it("mounts the Skia Canvas inside a GestureDetector", async () => {
     await renderTimed();
-    const types = skiaFacade.__getRendered().map((entry) => entry.type);
+    const types = skia.__getRendered().map((entry) => entry.type);
     expect(types).toContain("Canvas");
     expect(gesture.taps.length).toBeGreaterThan(0);
   });
@@ -194,8 +197,7 @@ describe("WheelCanvas — selection highlight", () => {
         region.kind === "planet" && region.body === "Sun"
     )!;
 
-    const outline = skiaFacade
-      .__getRendered()
+    const outline = skia.__getRendered()
       .find(
         (entry) =>
           entry.type === "Circle" &&
@@ -210,8 +212,7 @@ describe("WheelCanvas — selection highlight", () => {
 
   it("renders an accent sector-outline path for the selected sign", async () => {
     await renderTimed({ kind: "sign", sign: "Aries" });
-    const outline = skiaFacade
-      .__getRendered()
+    const outline = skia.__getRendered()
       .find((entry) => entry.type === "Path" && entry.props.color === ACCENT);
     expect(outline).toBeDefined();
     expect(outline!.props.style).toBe("stroke");
@@ -220,8 +221,7 @@ describe("WheelCanvas — selection highlight", () => {
 
   it("renders an accent outline for the selected angle marker", async () => {
     await renderTimed({ kind: "angle", which: "mc" });
-    const outline = skiaFacade
-      .__getRendered()
+    const outline = skia.__getRendered()
       .find((entry) => entry.type === "Circle" && entry.props.color === ACCENT);
     expect(outline).toBeDefined();
   });
@@ -229,8 +229,7 @@ describe("WheelCanvas — selection highlight", () => {
   it("renders an accent underlay stroke on the selected aspect chord", async () => {
     await renderTimed({ kind: "aspect", index: 0 });
     const chord = timedGeometry.aspectChords[0]!;
-    const outline = skiaFacade
-      .__getRendered()
+    const outline = skia.__getRendered()
       .find(
         (entry) =>
           entry.type === "Line" &&
@@ -245,8 +244,7 @@ describe("WheelCanvas — selection highlight", () => {
 
   it("renders no highlight when nothing is selected", async () => {
     await renderTimed(null);
-    const accentEntries = skiaFacade
-      .__getRendered()
+    const accentEntries = skia.__getRendered()
       .filter((entry) => entry.props.color === ACCENT);
     expect(accentEntries).toHaveLength(0);
   });
@@ -260,7 +258,7 @@ describe("WheelCanvas — selection highlight", () => {
 describe("WheelCanvas — chord styling and provisional marking", () => {
   it("styles chords with the per-family stroke pattern + weight from ASPECT_STYLES", async () => {
     await renderTimed();
-    const entries = skiaFacade.__getRendered();
+    const entries = skia.__getRendered();
 
     // The Timed fixture carries square (solid 1.6), sextile (dotted 1.2),
     // and trine (dashed 1.4) chords — one Line each at the family weight.
@@ -301,7 +299,7 @@ describe("WheelCanvas — chord styling and provisional marking", () => {
         size={720}
       />
     );
-    const entries = skiaFacade.__getRendered();
+    const entries = skia.__getRendered();
     const markerIndex = entries.findIndex(
       (entry) =>
         entry.type === "Circle" &&
@@ -319,8 +317,7 @@ describe("WheelCanvas — chord styling and provisional marking", () => {
 
   it("renders sign and planet glyphs at the geometry anchors from the vocabularies", async () => {
     await renderTimed();
-    const texts = skiaFacade
-      .__getRendered()
+    const texts = skia.__getRendered()
       .filter((entry) => entry.type === "Text")
       .map((entry) => entry.props.text as string);
     // Sign glyphs (♈..♓) and the fixture's planet glyphs both render.

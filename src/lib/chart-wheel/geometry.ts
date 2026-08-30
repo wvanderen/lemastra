@@ -136,6 +136,8 @@ export interface AngleMarker {
 export interface AspectChord {
   /** Index into the envelope's aspects array (D-10 selection vocabulary). */
   index: number;
+  /** The envelope's aspect name (e.g. "trine") — drives ASPECT_STYLES (A11Y-02). */
+  aspectName: string;
   /** body_a's projection onto the aspect circle. */
   from: Point;
   /** body_b's projection. */
@@ -309,6 +311,7 @@ export function buildWheelGeometry(
     if (lonA === undefined || lonB === undefined) return; // vendor skips unresolvable
     aspectChords.push({
       index,
+      aspectName: aspect.aspect,
       from: polar(cx, cy, angle(lonA), rings.aspect),
       to: polar(cx, cy, angle(lonB), rings.aspect),
     });

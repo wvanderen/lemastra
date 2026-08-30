@@ -67,6 +67,17 @@ export const ANGLE_NAMES: Record<AngleWhich, string> = {
   ic: "IC",
 };
 
+/**
+ * Compact on-wheel angle markers (vendor chart_diagram.py convention) —
+ * drawn at the geometry angle-label anchors where the hit circles live.
+ */
+export const ANGLE_MARKERS: Record<AngleWhich, string> = {
+  asc: "AC",
+  dsc: "DC",
+  mc: "MC",
+  ic: "IC",
+};
+
 /** Segment labels. */
 export const DIGNITIES_LABEL = "Dignities";
 export const BODIES_LABEL = "Bodies";
