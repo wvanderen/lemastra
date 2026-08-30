@@ -21,6 +21,7 @@ import {
   MAX_LEVEL,
   MIN_ANGULAR_DISTANCE,
   RADIUS_STEP,
+  TIER_THRESHOLDS,
   declutter,
   minAngularDistanceForScale,
   tierForScale,
@@ -126,5 +127,45 @@ describe("zoom tiers (Pattern 4 / A4)", () => {
     }
     expect(minAngularDistanceForScale(1)).toBeCloseTo(MIN_ANGULAR_DISTANCE, 12);
     expect(minAngularDistanceForScale(4)).toBeLessThan(minAngularDistanceForScale(1));
+  });
+});
+
+// 04-05 Task 2 — denser packing at zoom: the vendor algorithm run under
+// the tier-shrunk min distance (A4) positions previously-bumped glyphs
+// at lower radius levels, so dense regions resolve as the user zooms.
+describe("declutter at zoom (04-05, WHEEL-03)", () => {
+  it("positions a previously-bumped glyph at a lower radius level under tier-shrunk distances", () => {
+    const angles = [0, 5, 10].map((d) => d * D2R + Math.PI);
+    // Base packing (12°): 0→L0, 5→L1, 10→L2 (pinned above).
+    expect(declutter(angles).map((p) => p.radiusLevel)).toEqual([0, 1, 2]);
+
+    // High-tier distance (minAngularDistanceForScale at the high entry):
+    // the 10°-spaced pair now clears level 0 together — the previously
+    // level-2 glyph drops to level 0 (denser packing at zoom).
+    const high = minAngularDistanceForScale(TIER_THRESHOLDS.high);
+    expect(declutter(angles, { minAngularDistance: high }).map((p) => p.radiusLevel)).toEqual([
+      0, 1, 0,
+    ]);
+
+    // Full-zoom distance (4×): every pair clears — maximum density.
+    const fullZoom = minAngularDistanceForScale(4);
+    expect(declutter(angles, { minAngularDistance: fullZoom }).map((p) => p.radiusLevel)).toEqual([
+      0, 0, 0,
+    ]);
+  });
+
+  it("packs strictly denser as the tier rises (tier entry distances decrease)", () => {
+    // Behavior, not constants: each successive tier's entry scale maps to
+    // a strictly smaller packing distance — zoom may only ever relax.
+    const base = minAngularDistanceForScale(1);
+    const mid = minAngularDistanceForScale(TIER_THRESHOLDS.mid);
+    const high = minAngularDistanceForScale(TIER_THRESHOLDS.high);
+    const fullZoom = minAngularDistanceForScale(4);
+    expect(base).toBeGreaterThan(mid);
+    expect(mid).toBeGreaterThan(high);
+    expect(high).toBeGreaterThan(fullZoom);
+    // The tier thresholds the component consumes select these tiers.
+    expect(tierForScale(TIER_THRESHOLDS.mid)).toBe("mid");
+    expect(tierForScale(TIER_THRESHOLDS.high)).toBe("high");
   });
 });
