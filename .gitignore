@@ -45,6 +45,9 @@ __pycache__/
 # typescript
 *.tsbuildinfo
 
+# GSD planning
+.planning/research/.cache/
+
 example
 
 # generated native folders
