@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 04
 current_phase_name: semantic-chart-exploration
 status: executing
-stopped_at: Completed 04-05-PLAN.md
-last_updated: "2026-08-30T17:09:44.553Z"
+stopped_at: Completed 04-06-PLAN.md
+last_updated: "2026-08-30T17:26:31.165Z"
 last_activity: 2026-08-30
 last_activity_desc: Phase 04 execution started
 progress:
   total_phases: 10
   completed_phases: 3
   total_plans: 35
-  completed_plans: 33
+  completed_plans: 34
   percent: 30
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-08-26)
 ## Current Position
 
 Phase: 04 (semantic-chart-exploration) — EXECUTING
-Plan: 6 of 7
+Plan: 7 of 7
 Status: Ready to execute
 Last activity: 2026-08-30 — Phase 04 execution started
 
@@ -86,6 +86,7 @@ Progress: [████████████████████] 25/25 p
 | Phase 04 P03 | 24 min | 3 tasks | 19 files |
 | Phase 04 P04 | 30 min | 2 tasks | 7 files |
 | Phase 04 P05 | 5 min | 2 tasks | 5 files |
+| Phase 04 P06 | 10 min | 2 tasks | 13 files |
 
 ## Accumulated Context
 
@@ -173,6 +174,9 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - [Phase ?]: 04-04: registry composition at scroll time — row-within-list + list-within-root + wrapper page offsets compose when a selection fires, so measurement arrival order never matters (buffered re-emit when a list's offset lands after its rows)
 - [Phase ?]: 04-04: AssumptionsLine mounts read-only on the explore surface (03-07 optional action) — revise flows through the saved detail, keeping exploration chrome separate per D-01
 - [Phase ?]: 04-04: one state-updating interaction per test FILE — the RN shim's facade swaps ScrollView identities per commit and drops later in-file acts, so the row-press direction lives in explore-surface-row-press.test.tsx (vitest per-file isolation is the reliability boundary)
+- [Phase 04]: 04-06: Simple sentence templates reuse the Technical templates input interfaces — one resolved-facts object feeds either mode-keyed template, making the D-06 same-data-path law structural (a second data path would require a second input shape)
+- [Phase 04]: 04-06: aspect names stay verbatim in both modes; the glossary chip explains the term instead of the surface paraphrasing an envelope value (rewording would be interpretation-adjacent and break T-04-12). The D-06 hidden list is exhaustive — exact state and dignities stay visible in Simple
+- [Phase 04]: 04-06: WheelGraphics mode defaults technical (D-03 mini preview unchanged) while WheelCanvas requires it; surface suites that pin full-depth behavior pre-seed AsyncStorage to technical rather than weakening assertions to Simple strings
 
 ### Pending Todos
 
@@ -199,6 +203,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-30T17:09:44.546Z
-Stopped at: Completed 04-05-PLAN.md
+Last session: 2026-08-30T17:26:25.374Z
+Stopped at: Completed 04-06-PLAN.md
 Resume file: None

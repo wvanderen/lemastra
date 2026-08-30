@@ -175,7 +175,7 @@ Plans:
   4. User can tell calculated fact, methodological judgment, generated interpretation, and uncertainty apart wherever they appear.
   5. User can navigate the core chart view with a screen reader and text scaling, without relying on color or interpreting the graphical wheel.
 
-**Plans:** 5/7 plans executed
+**Plans:** 6/7 plans executed
 
 Plans:
 **Wave 1** *(foundation — see wave-shape note)*
@@ -197,7 +197,7 @@ Plans:
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
-- [ ] 04-06-PLAN.md — Global Simple ↔ Technical toggle + glossary + mode-aware depth across wheel/lists/panel (EVID-02, D-05–D-08)
+- [x] 04-06-PLAN.md — Global Simple ↔ Technical toggle + glossary + mode-aware depth across wheel/lists/panel (EVID-02, D-05–D-08)
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
@@ -312,7 +312,7 @@ Plans:
 | 1. Trust and Release Boundary | 7/7 | Complete    | 2026-08-23 |
 | 2. Trustworthy Natal Chart | 9/9 | Complete    | 2026-08-26 |
 | 3. Private Local Workspace | 12/12 | Complete   | 2026-08-29 |
-| 4. Semantic Chart Exploration | 5/7 | In Progress|  |
+| 4. Semantic Chart Exploration | 6/7 | In Progress|  |
 | 5. Natal Transit Workspace | 0/TBD | Not started | - |
 | 6. Repeatable Reading Method | 0/TBD | Not started | - |
 | 7. Grounded AI Reading | 0/TBD | Not started | - |
