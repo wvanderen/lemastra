@@ -349,16 +349,21 @@ describe("Result screen — Unknown envelope composition (D-10)", () => {
 });
 
 // ---------------------------------------------------------------------------
-// Trust boundary — no wheel, no interpretation (D-13 / T-02-34)
+// Trust boundary — no interpretation, no interactive wheel (D-13 / T-02-34)
 // ---------------------------------------------------------------------------
 
 describe("Result screen — trust boundary", () => {
-  it("renders zero interpretation strings and no wheel or preview graphic", async () => {
+  // 04-03 (D-03) update: the result screen NOW renders the static
+  // mini-wheel preview card above Placements ("Chart wheel" + helper).
+  // The trust boundary that survives: zero interpretation strings and
+  // no INTERACTIVE wheel canvas — the preview is a static deterministic
+  // render (mini-wheel-card.test.tsx pins its non-interactive law).
+  it("renders zero interpretation strings and no interactive wheel canvas", async () => {
     const view = await renderResult(timedEnvelope(), { ...TIMED_IDENTITY });
 
-    expect(view.queryByText(/wheel/i)).toBeNull();
     expect(view.queryByText(/interpretation/i)).toBeNull();
     expect(view.queryByText(/meaning/i)).toBeNull();
     expect(view.queryByTestId("chart-wheel")).toBeNull();
+    expect(view.queryByTestId("wheel-canvas")).toBeNull();
   });
 });

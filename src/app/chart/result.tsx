@@ -1,10 +1,15 @@
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { ActivityIndicator, Platform, Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { z } from "zod";
 
 import { RESULT_TITLE, resultIdentityLine, resultValidationStatus } from "@/components/birth/copy";
 import { AssumptionsLine } from "@/components/chart/assumptions-line";
+import { EXPLORE_CARD_SAVE_HINT } from "@/components/chart/explore/copy";
+import { EvidenceLists } from "@/components/chart/explore/evidence-lists";
+import { FactPanel } from "@/components/chart/explore/fact-panel";
+import { MiniWheelCard } from "@/components/chart/explore/mini-wheel-card";
+import { ModeToggle } from "@/components/chart/explore/mode-toggle";
 import { PlacementList } from "@/components/chart/placement-list";
 import { ProvenanceDetails } from "@/components/chart/provenance-details";
 import { UnavailableFactors } from "@/components/chart/unavailable-factors";
@@ -20,9 +25,11 @@ import {
 import { ErrorCard } from "@/components/workspace/error-card";
 import { SavePrompt } from "@/components/workspace/save-prompt";
 import { MaxContentWidth, Spacing } from "@/constants/theme";
+import { useExploreMode } from "@/hooks/use-explore-mode";
 import { useSaveChart } from "@/hooks/use-workspace";
 import { useTheme } from "@/hooks/use-theme";
 import { calculateResponseSchema } from "@/lib/api-schemas";
+import type { FactorRef } from "@/lib/chart-wheel/geometry";
 import { WorkspaceError } from "@/lib/workspace/errors";
 import { smartDefaultLabel } from "@/lib/workspace/label";
 import { storedCalculationInputsSchema } from "@/lib/workspace/schema";
@@ -58,6 +65,16 @@ import { storedCalculationInputsSchema } from "@/lib/workspace/schema";
  * repository.saveChart WITH chartId — appending under the same chart
  * while prior revisions stay byte-identical. No chartId → fresh flow,
  * new chart, "Save chart" label exactly as before.
+ *
+ * Web branch (04-07, D-04 user decision): on Platform.OS === "web" the
+ * native wheel-first block (mini-wheel card + PlacementList) is
+ * replaced by the full evidence experience — ModeToggle + FactPanel +
+ * EvidenceLists from the SAME in-memory envelope, selection via
+ * pressable rows (D-10 list-half), zero canvas. The web branch mounts
+ * the same components the explore surface uses, so web users get dual
+ * views, structured lists, fact panels, and exact facts without the
+ * graphical wheel; the capability card stays only on the genuinely
+ * data-less /chart/explore deep-link.
  */
 
 /** Identity-line inputs carried alongside the envelope by the confirm screen. */
@@ -74,6 +91,20 @@ export default function ResultScreen() {
   const theme = useTheme();
   const save = useSaveChart();
   const [promptVisible, setPromptVisible] = useState(false);
+  // Explore intent (D-03): tapped the wheel card on an unsaved chart —
+  // the SavePrompt opens under this intent and a successful save pushes
+  // the explore route with the returned chartId. PRIV-01 holds: the
+  // prompt's confirm remains the ONLY persistence trigger.
+  const [exploreIntent, setExploreIntent] = useState(false);
+  // D-04 web branch (04-07 Task 2): web renders the full evidence
+  // experience — ModeToggle + FactPanel + EvidenceLists — from the
+  // in-memory envelope this screen already holds, with selection via
+  // pressable rows (the D-10 list-half; no canvas, no wheel). ONE
+  // shared selection + ONE mode state feed the same components the
+  // native explore surface uses (T-04-16: no web-specific formatter
+  // or data path — the hooks stay mounted on native too, just unused).
+  const [selection, setSelection] = useState<FactorRef | null>(null);
+  const { mode, setMode } = useExploreMode();
   const params = useLocalSearchParams<{
     envelope?: string;
     identity?: string;
@@ -121,6 +152,11 @@ export default function ResultScreen() {
 
   const saveDisabled = requestInputs === null || save.isPending;
 
+  // The chart id the explore card can push: the revise-flow chartId
+  // param (chart already exists) or the id a completed save returned.
+  const savedChartId =
+    save.isSuccess && save.data !== undefined ? save.data.chartId : chartId;
+
   // The ONLY persistence trigger (PRIV-01): the prompt's confirm.
   const handleSave = (label: string) => {
     if (!requestInputs) return;
@@ -134,8 +170,30 @@ export default function ResultScreen() {
         inputs: requestInputs,
         identity,
       },
-      { onSettled: () => setPromptVisible(false) }
+      {
+        onSettled: () => setPromptVisible(false),
+        onSuccess: (result) => {
+          // Explore intent: push with the returned chartId — a dedupe
+          // (appended:false) still pushes; the chart exists either way.
+          if (exploreIntent) {
+            setExploreIntent(false);
+            router.push({ pathname: "/chart/explore", params: { id: result.chartId } });
+          }
+        },
+      }
     );
+  };
+
+  // D-03 entry: saved (or revise-flow) charts push the explore route
+  // directly; an unsaved chart opens the SavePrompt under the explore
+  // intent first (cancel stays on result — nothing persists).
+  const handleExplore = () => {
+    if (savedChartId !== undefined) {
+      router.push({ pathname: "/chart/explore", params: { id: savedChartId } });
+      return;
+    }
+    setExploreIntent(true);
+    setPromptVisible(true);
   };
 
   return (
@@ -168,7 +226,10 @@ export default function ResultScreen() {
           accessibilityRole="button"
           accessibilityState={{ disabled: saveDisabled }}
           disabled={saveDisabled}
-          onPress={() => setPromptVisible(true)}
+          onPress={() => {
+            setExploreIntent(false);
+            setPromptVisible(true);
+          }}
           style={[styles.saveCta, { backgroundColor: theme.accent }]}
           testID="result-save-cta"
         >
@@ -204,7 +265,48 @@ export default function ResultScreen() {
         </View>
       ) : null}
 
-      <PlacementList placements={envelope.chart_data.placements} />
+      {Platform.OS === "web" ? (
+        // D-04 (user decision): web renders the FULL evidence
+        // experience in place of the native wheel-first block — the
+        // SAME ModeToggle/FactPanel/EvidenceLists components the
+        // explore surface uses, mounted from the SAME in-memory
+        // envelope (dual views, structured lists, fact panels, exact
+        // facts) with ZERO canvas. EvidenceLists' placements section
+        // supersedes the plain PlacementList (no duplicate table); row
+        // presses drive the one shared selection below the panel
+        // (D-10's list-half — the wheel half does not exist on web).
+        // Trust sections + the SavePrompt flow continue untouched.
+        <>
+          <ModeToggle mode={mode} onChange={setMode} />
+          <FactPanel selection={selection} envelope={envelope} mode={mode} />
+          <EvidenceLists
+            envelope={envelope}
+            selection={selection}
+            onSelect={setSelection}
+            mode={mode}
+          />
+        </>
+      ) : (
+        <>
+          {/* D-03 wheel preview card — native only (D-04: no graphical
+              wheel on web). Saved/revise charts push explore directly;
+              unsaved opens the SavePrompt under the explore intent
+              with the save-hint caption below. */}
+          <View style={styles.exploreBlock}>
+            <MiniWheelCard
+              envelope={envelope}
+              onPressExplore={handleExplore}
+              testID="result-explore-card"
+            />
+            {savedChartId === undefined ? (
+              <ThemedText type="small" themeColor="textSecondary">
+                {EXPLORE_CARD_SAVE_HINT}
+              </ThemedText>
+            ) : null}
+          </View>
+          <PlacementList placements={envelope.chart_data.placements} />
+        </>
+      )}
 
       <AssumptionsLine
         provenance={envelope.provenance}
@@ -233,7 +335,10 @@ export default function ResultScreen() {
         defaultLabel={smartDefaultLabel(identity.date, identity.label)}
         pending={save.isPending}
         onSave={handleSave}
-        onCancel={() => setPromptVisible(false)}
+        onCancel={() => {
+          setPromptVisible(false);
+          setExploreIntent(false);
+        }}
         testID="result-save-prompt"
       />
     </ScrollView>
@@ -268,6 +373,10 @@ const styles = StyleSheet.create({
   },
   // Card + code caption group tightly (the caption belongs to the card,
   // not to the page-level content rhythm).
+  // Card + caption group tightly (the caption belongs to the card).
+  exploreBlock: {
+    gap: Spacing.one,
+  },
   saveErrorBlock: {
     gap: Spacing.one,
   },

@@ -2,18 +2,18 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 03
-status: "Phase 03 shipped — PR #2"
-stopped_at: "Completed 03-12-PLAN.md (gap closure — UAT gap 3 closed: api/.env auto-load + keyless visibility; phase 03 complete)"
-last_updated: "2026-08-30T03:05:17.504Z"
-last_activity: 2026-08-29
+current_phase: 5
+current_phase_name: Natal Transit Workspace
+status: "Phase 04 shipped — PR #3"
+stopped_at: Phase 5 context gathered
+last_updated: "2026-08-30T22:55:06.221Z"
+last_activity: 2026-08-30
 progress:
   total_phases: 10
-  completed_phases: 3
-  total_plans: 28
-  completed_plans: 28
-  percent: 30
-current_phase_name: private-local-workspace
+  completed_phases: 4
+  total_plans: 35
+  completed_plans: 35
+  percent: 40
 ---
 
 # Project State
@@ -23,14 +23,14 @@ current_phase_name: private-local-workspace
 See: .planning/PROJECT.md (updated 2026-08-26)
 
 **Core value:** Users can move from an accurately calculated chart and transparent astrological evidence to a high-quality, methodical AI interpretation they can inspect, discuss, and preserve as a report.
-**Current focus:** Phase 03 — private-local-workspace
+**Current focus:** Phase 04 — semantic-chart-exploration
 
 ## Current Position
 
-Phase: 03 — COMPLETE
-Plan: 2 of 12
-Status: Phase 03 shipped — PR #2
-Last activity: 2026-08-29
+Phase: 5 — Natal Transit Workspace
+Plan: Not started
+Status: Phase 04 shipped — PR #3
+Last activity: 2026-08-30
 
 Progress: [████████████████████] 25/25 plans (100%)
 
@@ -38,7 +38,7 @@ Progress: [████████████████████] 25/25 p
 
 **Velocity:**
 
-- Total plans completed: 18
+- Total plans completed: 25
 - Average duration: 6 min
 - Total execution time: 0.2 hours
 
@@ -48,6 +48,7 @@ Progress: [████████████████████] 25/25 p
 |-------|-------|-------|----------|
 | 01 | 7 | - | - |
 | 02 | 9 | - | - |
+| 04 | 7 | - | - |
 
 **Recent Trend:**
 
@@ -80,6 +81,13 @@ Progress: [████████████████████] 25/25 p
 | Phase 03 P10 | 6 min | 3 tasks | 7 files |
 | Phase 03 P11 | 2 min | 2 tasks | 5 files |
 | Phase 03 P12 | 3 min | 3 tasks | 6 files |
+| Phase 04 P01 | 16 min | 3 tasks | 12 files |
+| Phase 04 P02 | 4 min | 2 tasks | 6 files |
+| Phase 04 P03 | 24 min | 3 tasks | 19 files |
+| Phase 04 P04 | 30 min | 2 tasks | 7 files |
+| Phase 04 P05 | 5 min | 2 tasks | 5 files |
+| Phase 04 P06 | 10 min | 2 tasks | 13 files |
+| Phase 04 P07 | 2h 50m | 3 tasks | 20 files |
 
 ## Accumulated Context
 
@@ -152,6 +160,28 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - [Phase ?]: 03-11: result.tsx imports the WorkspaceError class from dependency-free errors.ts (singleton identity in every test mock graph; component graph stays free of repository/db) while copy.ts takes the type from the repository re-export per plan — Partial repository mock factories in tests would need class pass-throughs otherwise; errors.ts imports nothing so instanceof identity is guaranteed; the type-only import is runtime-erased
 - [Phase ?]: 03-11: home isError takes precedence over hasCharts — a failed listCharts never half-renders (no heading over zero rows); hero + calculate CTA remain; empty/web/error states mutually distinct and test-pinned — A background-refetch failure with cached rows would otherwise half-render; a dead DB must never read as 'no charts'
 - [Phase 03]: 03-12: keyless-state test hygiene pins GOOGLE_API_KEY via present-but-empty setenv (setdefault only fills ABSENT variables) — the only form deterministic against a real populated api/.env; the .env bridge is a restrictive stdlib loader at the single configuration read site (zero new packages, uv.lock untouched)
+- [Phase ?]: [Phase 04]: 04-01: Skia 2.6.2 installed via npx expo install behind human legitimacy gate (T-04-SC, approved 2026-08-30 with postinstall disclosure) — tilde-pinned ~2.6.2; npm-latest 2.11.1 forbidden (Pitfall 3, T-04-01)
+- [Phase ?]: [Phase 04]: 04-01: no vitest graph loads CanvasKit — @shopify/react-native-skia + react-native-gesture-handler alias to committed facades (T-04-02); RNGH facade was a Rule 3 fix after _layout's GestureHandlerRootView pulled deep RN Flow imports into the birth-form graph
+- [Phase ?]: [Phase 04]: 04-01: wheel geometry is ONE pure module ported from vendor chart_diagram.py (anchor at 1st-house cusp → 9 o'clock, CCW longitudes, radii 330/302/252/210/130 at base 720) — every Phase-4 surface consumes it (STACK renderer split)
+- [Phase ?]: [Phase 04]: 04-01: declutter port fixes the vendor's non-terminating greedy scan at MAX_LEVEL — overlap accepted at the cap, termination pinned by test; unknown-time charts emit no house/angle/lots primitives (D-10) and provisional bodies are flagged on anchors (D-16)
+- [Phase 04]: 04-02: evidence-vocabulary module defines all four kinds once; tokens.ASPECT_STYLE mirrors chart-wheel/glyphs values under strokePattern/strokeWidth naming (two maps, one law, both suites pin it); phrases import deck definition sites so vocabulary and deck never drift — D-14/D-15: Phase 6 interpretation joins an existing tested system instead of inventing a parallel one; deck-join over deck-duplicate keeps one copy definition site while copy.ts stays type-only-import pure (plain-Node testable)
+- [Phase 04]: 04-02: useExploreMode parseStoredMode accepts only exact 'simple'|'technical' literals — corrupted AsyncStorage values fall back to 'simple'; setMode is fire-and-forget optimistic flip + swallowed persist failure — T-04-03 tampering mitigation (preference never rendered raw, never crashes) and D-07 best-effort semantics (storage never blocks the toggle)
+- [Phase 04]: 04-03: AspectChord gained aspectName (Rule 3) — geometry already reads the family name at chord construction; chords need it for A11Y-02 pattern+weight styling — The canvas artifact contract carries geometry only; the additive field keeps chord styling single-sourced in ASPECT_STYLES without threading the envelope into the renderer
+- [Phase 04]: 04-03: reanimated + worklets committed vitest facades + aliases (Rule 3) — the D-03 mini-wheel card drags the wheel canvas into every result/saved test graph and the real entries are ESM-directory-imports + native runtimes plain Node cannot load — Extends the 04-01 RNGH facade law: per-file vi.mocks keep precedence; useSharedValue becomes a plain { value } box and runOnJS an immediate call
+- [Phase 04]: 04-03: WheelCanvas taps forward only numbers via runOnJS from the worklet; inverseTransform + hitTest run JS-side through the pure module — no duplicated math, and the identity zoom seam (scale/offsetX/offsetY shared values) is named and live for 04-05 — Worklet-safe by construction; keeps geometry.ts free of worklet directives while 04-05 only has to drive the existing seam
+- [Phase 04]: 04-03: the 02-09 result-screen 'no wheel or preview' trust-boundary test was reconciled with Phase-4 D-03 — the static preview card is intended; the test still pins zero interpretation strings and NO interactive canvas — Phase-4's approved D-03 supersedes the Phase-2 absence assertion; the non-interactive preview law is pinned in mini-wheel-card.test.tsx
+- [Phase ?]: 04-04: the scroll assertion seam is scroll-target.ts's programmaticScrollTo — a module-boundary function with a structural ScrollViewLike handle (zero react-native imports); instance/prototype spying on the shim's ScrollView is impossible because the facade swaps component identities per commit, so the payload is the contract
+- [Phase ?]: 04-04: auto-scroll is WHEEL-origin only — a pressed row is already visible under the finger (D-10's auto-scroll clause names the wheel→list direction); row and wheel presses feed the SAME setSelection through distinct origin-marked wrappers
+- [Phase ?]: 04-04: registry composition at scroll time — row-within-list + list-within-root + wrapper page offsets compose when a selection fires, so measurement arrival order never matters (buffered re-emit when a list's offset lands after its rows)
+- [Phase ?]: 04-04: AssumptionsLine mounts read-only on the explore surface (03-07 optional action) — revise flows through the saved detail, keeping exploration chrome separate per D-01
+- [Phase ?]: 04-04: one state-updating interaction per test FILE — the RN shim's facade swaps ScrollView identities per commit and drops later in-file acts, so the row-press direction lives in explore-surface-row-press.test.tsx (vitest per-file isolation is the reliability boundary)
+- [Phase 04]: 04-06: Simple sentence templates reuse the Technical templates input interfaces — one resolved-facts object feeds either mode-keyed template, making the D-06 same-data-path law structural (a second data path would require a second input shape)
+- [Phase 04]: 04-06: aspect names stay verbatim in both modes; the glossary chip explains the term instead of the surface paraphrasing an envelope value (rewording would be interpretation-adjacent and break T-04-12). The D-06 hidden list is exhaustive — exact state and dignities stay visible in Simple
+- [Phase 04]: 04-06: WheelGraphics mode defaults technical (D-03 mini preview unchanged) while WheelCanvas requires it; surface suites that pin full-depth behavior pre-seed AsyncStorage to technical rather than weakening assertions to Simple strings
+- [Phase ?]: 04-07 fix-back: the display-scale Skia Group maps the base square onto the canvas square about the TOP-LEFT (no origin) — an origin at the base center pinned the wheel at canvas (360,360) on phone-sized canvases (bottom-right, off-screen) and offset every tap by origin·(1/displayScale−1); pinned by wheel-display-transform.test.tsx (projects the captured Group chain, taps the RENDERED position)
+- [Phase ?]: 04-07 fix-back (A1 resolved): Android renders sign + node/Chiron/Lilith glyph slots as pre-built text abbreviations via pure signGlyphText/bodyGlyphText (glyphs.ts stays react-native-free; classical planets + AC/IC/MC/DC confirmed on-device and stay symbolic); bundling an OFL symbol font remains the documented follow-up option, not taken (new-dependency gate)
+- [Phase ?]: 04-07 fix-back (D-04 web crash): the Skia wheel family is platform-gated via Metro .web.tsx stubs (wheel-canvas, mini-wheel-card) — CanvasKit never enters the web module graph (Expo Router eagerly evaluates route modules; static imports crashed web with 'TypefaceFontProvider'); web-skia-isolation.test.ts pins stub presence, skia-free content, VALUE-export parity, and no direct screen imports; expo export --platform web verified zero CanvasKit traces
+- [Phase 04]: 04-07 closure: Task 3 on-device verification PASSED (round 2 'pass' on iOS + Android + web) after three RED-GREEN fix-backs (top-left display-scale origin, Android glyph abbreviations, Metro .web.tsx Skia stubs) — Phase 4 complete, all ten requirements green, ready for /gsd-verify-work
 
 ### Pending Todos
 
@@ -178,6 +208,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-30T02:46:41.292Z
-Stopped at: Completed 03-12-PLAN.md (gap closure — UAT gap 3 closed: api/.env auto-load + keyless visibility; phase 03 complete)
-Resume file: None
+Last session: 2026-08-30T22:32:38.182Z
+Stopped at: Phase 5 context gathered
+Resume file: .planning/phases/05-natal-transit-workspace/05-CONTEXT.md

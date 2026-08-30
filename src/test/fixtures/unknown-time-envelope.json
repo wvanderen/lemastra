@@ -1,0 +1,95 @@
+{
+  "reading_type": "natal",
+  "chart_data": {
+    "placements": [
+      {
+        "body": "Mercury",
+        "sign": "Virgo",
+        "degree": 28.9,
+        "absolute_degree": 178.9,
+        "motion": "retrograde"
+      },
+      {
+        "body": "Sun",
+        "sign": "Libra",
+        "degree": 3.4,
+        "absolute_degree": 183.4,
+        "motion": "direct"
+      },
+      {
+        "body": "Venus",
+        "sign": "Libra",
+        "degree": 22.5,
+        "absolute_degree": 202.5,
+        "motion": "direct"
+      },
+      {
+        "body": "Mars",
+        "sign": "Capricorn",
+        "degree": 5.25,
+        "absolute_degree": 275.25,
+        "motion": "direct"
+      },
+      {
+        "body": "Moon",
+        "sign": "Aquarius",
+        "degree": 22.1,
+        "absolute_degree": 322.1,
+        "motion": "direct",
+        "notes": "Provisional: Moon moves ~13°/day; position computed at the 12:00 noon reference."
+      }
+    ],
+    "aspects": [
+      {
+        "body_a": "Mercury",
+        "aspect": "conjunction",
+        "body_b": "Sun",
+        "orb_degrees": 4.5,
+        "separating": true,
+        "exact": false
+      },
+      {
+        "body_a": "Venus",
+        "aspect": "trine",
+        "body_b": "Moon",
+        "orb_degrees": 0.4,
+        "applying": true,
+        "exact": false
+      }
+    ],
+    "source_notes": "Frozen Unknown-confidence fixture (04-01): noon-reference chart without time-dependent factors — golden tests for the D-10/D-16 geometry omissions (no house_cusps/ascendant/midheaven/sect/lots; placements carry no house).",
+    "birth_time_confidence": "Unknown"
+  },
+  "provenance": {
+    "skill_revision": "660d992",
+    "swisseph_version": "2.10.03",
+    "tzdata_version": "2026.3",
+    "schema_version": "chart-input v1",
+    "ephemeris_mode": "Moshier (built-in)",
+    "house_system": "Whole Sign",
+    "zodiac_mode": "tropical",
+    "orb_policy": "birth_to_chart.py default orb table (luminaries 10°, personal 7°, Jupiter–Pluto 8°, Node 5°, angles 8°; sextile capped 6°)",
+    "input_revision": "c31f77a9e2b0",
+    "calculator_cmd": "python tools/birth_to_chart.py --input <temp-json> --validate"
+  },
+  "unavailable_factors": [
+    {
+      "factor": "houses",
+      "reason": "Birth time unknown — house cusps require a timed chart."
+    },
+    {
+      "factor": "ascendant_mc",
+      "reason": "Birth time unknown — ascendant and midheaven require a timed chart."
+    },
+    {
+      "factor": "sect",
+      "reason": "Birth time unknown — sect requires the Sun's horizon position."
+    }
+  ],
+  "provisional_factors": [
+    {
+      "factor": "moon",
+      "reason": "Moon moves ~13°/day; position computed at the 12:00 noon reference."
+    }
+  ]
+}

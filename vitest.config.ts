@@ -123,6 +123,27 @@ export default defineConfig({
       { find: /^expo-crypto$/, replacement: path.join(dirname, "scripts/vitest/expo-device-facades/crypto.ts") },
       { find: /^expo-file-system$/, replacement: path.join(dirname, "scripts/vitest/expo-device-facades/file-system.ts") },
       { find: /^expo-sharing$/, replacement: path.join(dirname, "scripts/vitest/expo-device-facades/sharing.ts") },
+      // @shopify/react-native-skia → no-op test facade (04-01, same
+      // pattern): the real entry pulls the CanvasKit/WASM runtime into
+      // plain-Node workers (T-04-02). Per-file vi.mocks take precedence
+      // over the alias (facade law); the alias itself proves no unmocked
+      // graph loads CanvasKit. See scripts/vitest/skia-facade/index.ts.
+      { find: /^@shopify\/react-native-skia$/, replacement: path.join(dirname, "scripts/vitest/skia-facade/index.ts") },
+      // react-native-gesture-handler → passthrough facade (04-01 Rule 3):
+      // _layout's GestureHandlerRootView (Pitfall 2) dragged RNGH into
+      // the birth-form RootLayout graph; its entry requires deep
+      // react-native Flow sources Node cannot parse. Per-file vi.mocks
+      // keep precedence. See scripts/vitest/gesture-handler-facade/index.ts.
+      { find: /^react-native-gesture-handler$/, replacement: path.join(dirname, "scripts/vitest/gesture-handler-facade/index.ts") },
+      // react-native-reanimated / react-native-worklets → facades (04-03
+      // Rule 3, same pattern): the wheel canvas's shared-value zoom seam
+      // + runOnJS tap hop reach every graph rendering /chart/result and
+      // /chart/saved via the D-03 mini-wheel card; the real entries are
+      // ESM-with-directory-imports + native runtimes plain Node cannot
+      // load. Per-file vi.mocks keep precedence.
+      // See scripts/vitest/reanimated-facade/index.ts + worklets-facade/index.ts.
+      { find: /^react-native-reanimated$/, replacement: path.join(dirname, "scripts/vitest/reanimated-facade/index.ts") },
+      { find: /^react-native-worklets$/, replacement: path.join(dirname, "scripts/vitest/worklets-facade/index.ts") },
     ],
   },
   test: {

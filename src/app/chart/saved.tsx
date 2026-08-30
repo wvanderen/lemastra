@@ -4,6 +4,7 @@ import { ScrollView, StyleSheet, View } from "react-native";
 
 import { resultIdentityLine, resultValidationStatus } from "@/components/birth/copy";
 import { AssumptionsLine } from "@/components/chart/assumptions-line";
+import { MiniWheelCard } from "@/components/chart/explore/mini-wheel-card";
 import { PlacementList } from "@/components/chart/placement-list";
 import { ProvenanceDetails } from "@/components/chart/provenance-details";
 import { UnavailableFactors } from "@/components/chart/unavailable-factors";
@@ -147,6 +148,17 @@ export default function SavedChartScreen() {
       <ThemedText type="small" themeColor="textSecondary">
         {resultIdentityLine(identity, confidence)}
       </ThemedText>
+
+      {/* D-03 entry card: the static wheel preview pushes the explore
+          surface by chartId — id-style params only, the repository is
+          the explore route's only data source. */}
+      <MiniWheelCard
+        envelope={envelope}
+        onPressExplore={() =>
+          router.push({ pathname: "/chart/explore", params: { id: detail.chart.chartId } })
+        }
+        testID="saved-explore-card"
+      />
 
       <PlacementList placements={envelope.chart_data.placements} />
 
