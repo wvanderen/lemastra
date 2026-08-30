@@ -135,6 +135,15 @@ export default defineConfig({
       // react-native Flow sources Node cannot parse. Per-file vi.mocks
       // keep precedence. See scripts/vitest/gesture-handler-facade/index.ts.
       { find: /^react-native-gesture-handler$/, replacement: path.join(dirname, "scripts/vitest/gesture-handler-facade/index.ts") },
+      // react-native-reanimated / react-native-worklets → facades (04-03
+      // Rule 3, same pattern): the wheel canvas's shared-value zoom seam
+      // + runOnJS tap hop reach every graph rendering /chart/result and
+      // /chart/saved via the D-03 mini-wheel card; the real entries are
+      // ESM-with-directory-imports + native runtimes plain Node cannot
+      // load. Per-file vi.mocks keep precedence.
+      // See scripts/vitest/reanimated-facade/index.ts + worklets-facade/index.ts.
+      { find: /^react-native-reanimated$/, replacement: path.join(dirname, "scripts/vitest/reanimated-facade/index.ts") },
+      { find: /^react-native-worklets$/, replacement: path.join(dirname, "scripts/vitest/worklets-facade/index.ts") },
     ],
   },
   test: {

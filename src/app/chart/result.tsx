@@ -1,10 +1,12 @@
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { ActivityIndicator, Platform, Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { z } from "zod";
 
 import { RESULT_TITLE, resultIdentityLine, resultValidationStatus } from "@/components/birth/copy";
 import { AssumptionsLine } from "@/components/chart/assumptions-line";
+import { EXPLORE_CARD_SAVE_HINT } from "@/components/chart/explore/copy";
+import { MiniWheelCard } from "@/components/chart/explore/mini-wheel-card";
 import { PlacementList } from "@/components/chart/placement-list";
 import { ProvenanceDetails } from "@/components/chart/provenance-details";
 import { UnavailableFactors } from "@/components/chart/unavailable-factors";
@@ -74,6 +76,11 @@ export default function ResultScreen() {
   const theme = useTheme();
   const save = useSaveChart();
   const [promptVisible, setPromptVisible] = useState(false);
+  // Explore intent (D-03): tapped the wheel card on an unsaved chart —
+  // the SavePrompt opens under this intent and a successful save pushes
+  // the explore route with the returned chartId. PRIV-01 holds: the
+  // prompt's confirm remains the ONLY persistence trigger.
+  const [exploreIntent, setExploreIntent] = useState(false);
   const params = useLocalSearchParams<{
     envelope?: string;
     identity?: string;
@@ -121,6 +128,11 @@ export default function ResultScreen() {
 
   const saveDisabled = requestInputs === null || save.isPending;
 
+  // The chart id the explore card can push: the revise-flow chartId
+  // param (chart already exists) or the id a completed save returned.
+  const savedChartId =
+    save.isSuccess && save.data !== undefined ? save.data.chartId : chartId;
+
   // The ONLY persistence trigger (PRIV-01): the prompt's confirm.
   const handleSave = (label: string) => {
     if (!requestInputs) return;
@@ -134,8 +146,30 @@ export default function ResultScreen() {
         inputs: requestInputs,
         identity,
       },
-      { onSettled: () => setPromptVisible(false) }
+      {
+        onSettled: () => setPromptVisible(false),
+        onSuccess: (result) => {
+          // Explore intent: push with the returned chartId — a dedupe
+          // (appended:false) still pushes; the chart exists either way.
+          if (exploreIntent) {
+            setExploreIntent(false);
+            router.push({ pathname: "/chart/explore", params: { id: result.chartId } });
+          }
+        },
+      }
     );
+  };
+
+  // D-03 entry: saved (or revise-flow) charts push the explore route
+  // directly; an unsaved chart opens the SavePrompt under the explore
+  // intent first (cancel stays on result — nothing persists).
+  const handleExplore = () => {
+    if (savedChartId !== undefined) {
+      router.push({ pathname: "/chart/explore", params: { id: savedChartId } });
+      return;
+    }
+    setExploreIntent(true);
+    setPromptVisible(true);
   };
 
   return (
@@ -168,7 +202,10 @@ export default function ResultScreen() {
           accessibilityRole="button"
           accessibilityState={{ disabled: saveDisabled }}
           disabled={saveDisabled}
-          onPress={() => setPromptVisible(true)}
+          onPress={() => {
+            setExploreIntent(false);
+            setPromptVisible(true);
+          }}
           style={[styles.saveCta, { backgroundColor: theme.accent }]}
           testID="result-save-cta"
         >
@@ -204,6 +241,26 @@ export default function ResultScreen() {
         </View>
       ) : null}
 
+      {/* D-03 wheel preview card — native only (D-04: no graphical wheel
+          on web; the web evidence experience lives on this screen's web
+          branch, deepened in 04-07). Saved/revise charts push explore
+          directly; unsaved opens the SavePrompt under the explore
+          intent with the save-hint caption below. */}
+      {Platform.OS !== "web" ? (
+        <View style={styles.exploreBlock}>
+          <MiniWheelCard
+            envelope={envelope}
+            onPressExplore={handleExplore}
+            testID="result-explore-card"
+          />
+          {savedChartId === undefined ? (
+            <ThemedText type="small" themeColor="textSecondary">
+              {EXPLORE_CARD_SAVE_HINT}
+            </ThemedText>
+          ) : null}
+        </View>
+      ) : null}
+
       <PlacementList placements={envelope.chart_data.placements} />
 
       <AssumptionsLine
@@ -233,7 +290,10 @@ export default function ResultScreen() {
         defaultLabel={smartDefaultLabel(identity.date, identity.label)}
         pending={save.isPending}
         onSave={handleSave}
-        onCancel={() => setPromptVisible(false)}
+        onCancel={() => {
+          setPromptVisible(false);
+          setExploreIntent(false);
+        }}
         testID="result-save-prompt"
       />
     </ScrollView>
@@ -268,6 +328,10 @@ const styles = StyleSheet.create({
   },
   // Card + code caption group tightly (the caption belongs to the card,
   // not to the page-level content rhythm).
+  // Card + caption group tightly (the caption belongs to the card).
+  exploreBlock: {
+    gap: Spacing.one,
+  },
   saveErrorBlock: {
     gap: Spacing.one,
   },

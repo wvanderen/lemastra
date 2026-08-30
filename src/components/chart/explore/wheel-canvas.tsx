@@ -217,8 +217,182 @@ function polarLocal(cx: number, cy: number, angle: number, r: number): Point {
 }
 
 // ---------------------------------------------------------------------------
-// Component
+// Components
 // ---------------------------------------------------------------------------
+
+/** Themed colors the graphics tree resolves (renderers own WCAG resolution). */
+export interface WheelColors {
+  text: string;
+  textSecondary: string;
+  accent: string;
+}
+
+export type WheelGraphicsProps = {
+  /** Base-size wheel geometry (buildWheelGeometry — the single geometry source). */
+  geometry: WheelGeometry;
+  /** The shared selection (D-10) — renders the accent outline highlight. */
+  selection: FactorRef | null;
+  colors: WheelColors;
+};
+
+/**
+ * WheelGraphics — the pure presentational primitive tree (no Canvas, no
+ * gesture): rings, spokes, glyphs, chords, provisional outlines, and the
+ * selection highlight, in base coordinates. The interactive WheelCanvas
+ * AND the D-03 static mini-wheel preview render the SAME deterministic
+ * primitives through this component (one geometry, one renderer — never
+ * a forked preview).
+ */
+export function WheelGraphics({ geometry, selection, colors }: WheelGraphicsProps) {
+  const selectedRegion =
+    selection === null
+      ? undefined
+      : geometry.hitRegions.find((region) => regionMatches(region, selection));
+
+  return (
+    <>
+      {/* Rim + sign band rings */}
+      <Circle
+        cx={geometry.cx}
+        cy={geometry.cy}
+        r={geometry.rings.outerRim}
+        color={colors.text}
+        style="stroke"
+        strokeWidth={RIM_STROKE}
+      />
+      <Circle
+        cx={geometry.cx}
+        cy={geometry.cy}
+        r={geometry.rings.signOuter}
+        color={colors.text}
+        style="stroke"
+        strokeWidth={RING_STROKE}
+      />
+      <Circle
+        cx={geometry.cx}
+        cy={geometry.cy}
+        r={geometry.rings.signInner}
+        color={colors.text}
+        style="stroke"
+        strokeWidth={RING_STROKE}
+      />
+      <Circle
+        cx={geometry.cx}
+        cy={geometry.cy}
+        r={geometry.rings.aspect}
+        color={colors.textSecondary}
+        style="stroke"
+        strokeWidth={RING_STROKE}
+      />
+
+      {/* Sign spokes + glyphs (mid-sign anchors) */}
+      {geometry.signSpokes.map((spoke) => (
+        <Line
+          key={`spoke-${spoke.sign}`}
+          p1={spoke.inner}
+          p2={spoke.outer}
+          color={colors.textSecondary}
+          style="stroke"
+          strokeWidth={SPOKE_STROKE}
+        />
+      ))}
+      {geometry.signGlyphs.map((glyph) =>
+        glyphText(
+          signFont,
+          SIGN_FONT_SIZE,
+          SIGN_GLYPHS[glyph.sign as keyof typeof SIGN_GLYPHS] ?? glyph.sign,
+          glyph.point,
+          colors.text,
+          `sign-glyph-${glyph.sign}`
+        )
+      )}
+
+      {/* House lines (empty for unknown-time — D-10 geometry honesty) */}
+      {geometry.houseLines.map((line) => (
+        <Line
+          key={`house-line-${line.house}`}
+          p1={line.inner}
+          p2={line.outer}
+          color={colors.textSecondary}
+          style="stroke"
+          strokeWidth={SPOKE_STROKE}
+        />
+      ))}
+
+      {/* Aspect chords — pattern + weight per family (A11Y-02) */}
+      {geometry.aspectChords.map((chord) => {
+        const style = ASPECT_STYLES[chord.aspectName] ?? DEFAULT_ASPECT_STYLE;
+        return styledLine(
+          `chord-${chord.index}`,
+          chord.from,
+          chord.to,
+          colors.text,
+          style.strokeWidth,
+          style.pattern
+        );
+      })}
+
+      {/* Angle spokes + compact markers at the label anchors
+          (empty for unknown-time — D-10) */}
+      {geometry.angleMarkers.map((marker) => (
+        <Line
+          key={`angle-spoke-${marker.which}`}
+          p1={marker.inner}
+          p2={marker.outer}
+          color={colors.text}
+          style="stroke"
+          strokeWidth={ANGLE_SPOKE_STROKE}
+        />
+      ))}
+      {geometry.angleMarkers.map((marker) =>
+        glyphText(
+          angleFont,
+          ANGLE_FONT_SIZE,
+          ANGLE_MARKERS[marker.which],
+          marker.label,
+          colors.text,
+          `angle-marker-${marker.which}`
+        )
+      )}
+
+      {/* Planet glyphs at the decluttered anchors; provisional
+          bodies carry the D-16 dashed outline (never hue-only,
+          and never drawn around non-provisional bodies) */}
+      {geometry.planetAnchors
+        .filter((anchor) => anchor.provisional)
+        .map((anchor) => (
+          <Circle
+            key={`provisional-${anchor.body}`}
+            cx={anchor.point.x}
+            cy={anchor.point.y}
+            r={PROVISIONAL_OUTLINE_RADIUS * geometry.scale}
+            color={colors.textSecondary}
+            style="stroke"
+            strokeWidth={PROVISIONAL_MARKER.strokeWidth}
+          >
+            <DashPathEffect
+              intervals={DASH_INTERVALS.dashed as unknown as number[]}
+              phase={0}
+            />
+          </Circle>
+        ))}
+      {geometry.planetAnchors.map((anchor) =>
+        glyphText(
+          planetFont,
+          PLANET_FONT_SIZE,
+          PLANET_GLYPHS[anchor.body as keyof typeof PLANET_GLYPHS] ?? anchor.body,
+          anchor.point,
+          colors.text,
+          `planet-glyph-${anchor.body}`
+        )
+      )}
+
+      {/* Selection highlight — accent outline over the region
+          (stroke + weight; a hue-only change is forbidden) */}
+      {renderSelectionOutline(geometry, selectedRegion, colors.accent)}
+    </>
+  );
+}
 
 export type WheelCanvasProps = {
   /** Base-size wheel geometry (buildWheelGeometry — the single geometry source). */
@@ -270,11 +444,6 @@ export function WheelCanvas({ geometry, selection, onSelect, size }: WheelCanvas
     [handleTap, scale, offsetX, offsetY]
   );
 
-  const selectedRegion =
-    selection === null
-      ? undefined
-      : geometry.hitRegions.find((region) => regionMatches(region, selection));
-
   return (
     <View style={styles.frame} testID="wheel-canvas">
       <GestureDetector gesture={tap}>
@@ -291,145 +460,15 @@ export function WheelCanvas({ geometry, selection, onSelect, size }: WheelCanvas
               ]}
               origin={{ x: geometry.cx, y: geometry.cy }}
             >
-              {/* Rim + sign band rings */}
-              <Circle
-                cx={geometry.cx}
-                cy={geometry.cy}
-                r={geometry.rings.outerRim}
-                color={theme.text}
-                style="stroke"
-                strokeWidth={RIM_STROKE}
+              <WheelGraphics
+                geometry={geometry}
+                selection={selection}
+                colors={{
+                  text: theme.text,
+                  textSecondary: theme.textSecondary,
+                  accent: theme.accent,
+                }}
               />
-              <Circle
-                cx={geometry.cx}
-                cy={geometry.cy}
-                r={geometry.rings.signOuter}
-                color={theme.text}
-                style="stroke"
-                strokeWidth={RING_STROKE}
-              />
-              <Circle
-                cx={geometry.cx}
-                cy={geometry.cy}
-                r={geometry.rings.signInner}
-                color={theme.text}
-                style="stroke"
-                strokeWidth={RING_STROKE}
-              />
-              <Circle
-                cx={geometry.cx}
-                cy={geometry.cy}
-                r={geometry.rings.aspect}
-                color={theme.textSecondary}
-                style="stroke"
-                strokeWidth={RING_STROKE}
-              />
-
-              {/* Sign spokes + glyphs (mid-sign anchors) */}
-              {geometry.signSpokes.map((spoke) => (
-                <Line
-                  key={`spoke-${spoke.sign}`}
-                  p1={spoke.inner}
-                  p2={spoke.outer}
-                  color={theme.textSecondary}
-                  style="stroke"
-                  strokeWidth={SPOKE_STROKE}
-                />
-              ))}
-              {geometry.signGlyphs.map((glyph) =>
-                glyphText(
-                  signFont,
-                  SIGN_FONT_SIZE,
-                  SIGN_GLYPHS[glyph.sign as keyof typeof SIGN_GLYPHS] ?? glyph.sign,
-                  glyph.point,
-                  theme.text,
-                  `sign-glyph-${glyph.sign}`
-                )
-              )}
-
-              {/* House lines (empty for unknown-time — D-10 geometry honesty) */}
-              {geometry.houseLines.map((line) => (
-                <Line
-                  key={`house-line-${line.house}`}
-                  p1={line.inner}
-                  p2={line.outer}
-                  color={theme.textSecondary}
-                  style="stroke"
-                  strokeWidth={SPOKE_STROKE}
-                />
-              ))}
-
-              {/* Aspect chords — pattern + weight per family (A11Y-02) */}
-              {geometry.aspectChords.map((chord) => {
-                const style = ASPECT_STYLES[chord.aspectName] ?? DEFAULT_ASPECT_STYLE;
-                return styledLine(
-                  `chord-${chord.index}`,
-                  chord.from,
-                  chord.to,
-                  theme.text,
-                  style.strokeWidth,
-                  style.pattern
-                );
-              })}
-
-              {/* Angle spokes + compact markers at the label anchors
-                  (empty for unknown-time — D-10) */}
-              {geometry.angleMarkers.map((marker) => (
-                <Line
-                  key={`angle-spoke-${marker.which}`}
-                  p1={marker.inner}
-                  p2={marker.outer}
-                  color={theme.text}
-                  style="stroke"
-                  strokeWidth={ANGLE_SPOKE_STROKE}
-                />
-              ))}
-              {geometry.angleMarkers.map((marker) =>
-                glyphText(
-                  angleFont,
-                  ANGLE_FONT_SIZE,
-                  ANGLE_MARKERS[marker.which],
-                  marker.label,
-                  theme.text,
-                  `angle-marker-${marker.which}`
-                )
-              )}
-
-              {/* Planet glyphs at the decluttered anchors; provisional
-                  bodies carry the D-16 dashed outline (never hue-only,
-                  and never drawn around non-provisional bodies) */}
-              {geometry.planetAnchors
-                .filter((anchor) => anchor.provisional)
-                .map((anchor) => (
-                  <Circle
-                    key={`provisional-${anchor.body}`}
-                    cx={anchor.point.x}
-                    cy={anchor.point.y}
-                    r={PROVISIONAL_OUTLINE_RADIUS * geometry.scale}
-                    color={theme.textSecondary}
-                    style="stroke"
-                    strokeWidth={PROVISIONAL_MARKER.strokeWidth}
-                  >
-                    <DashPathEffect
-                      intervals={DASH_INTERVALS.dashed as unknown as number[]}
-                      phase={0}
-                    />
-                  </Circle>
-                ))}
-              {geometry.planetAnchors.map((anchor) =>
-                glyphText(
-                  planetFont,
-                  PLANET_FONT_SIZE,
-                  PLANET_GLYPHS[anchor.body as keyof typeof PLANET_GLYPHS] ?? anchor.body,
-                  anchor.point,
-                  theme.text,
-                  `planet-glyph-${anchor.body}`
-                )
-              )}
-
-              {/* Selection highlight — accent outline over the region
-                  (stroke + weight; a hue-only change is forbidden) */}
-              {renderSelectionOutline(geometry, selectedRegion, theme.accent)}
             </Group>
           </Group>
         </Canvas>

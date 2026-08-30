@@ -38,6 +38,7 @@ export default function RootLayout() {
             <Stack.Screen name="chart/result" />
             <Stack.Screen name="chart/saved" />
             <Stack.Screen name="chart/revision" />
+            <Stack.Screen name="chart/explore" />
           </Stack>
         </QueryProvider>
       </GestureHandlerRootView>
