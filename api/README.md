@@ -33,6 +33,15 @@ on GitHub `ubuntu-latest` runners).
 
 ## Run (local dev)
 
+Environment (`api/.env`): copy `.env.example` to `.env`
+(`cp .env.example .env`) and set `GOOGLE_API_KEY` there to enable live
+place search. The API loads `api/.env` automatically at startup via its
+settings module — the command below needs no shell pre-steps and no
+flags. Variables already exported in the shell take precedence over
+`api/.env`. Keyless development is supported: place search answers
+`PLACE_PROVIDER_UNAVAILABLE` (manual birthplace entry works) and
+`curl -s localhost:8000/api/v1/health` reports `places_search_available`.
+
 ```bash
 cd api
 uv run uvicorn lemastra_api.main:app --reload --port 8000
